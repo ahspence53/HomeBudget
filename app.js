@@ -73,10 +73,20 @@ form.addEventListener("submit", (e) => {
     updateLedgerAndSummary();
 });
 
+// --- Utility: format date as dd-MMM-yyyy ---
+function formatDateDDMMMYYYY(dateStr) {
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const d = new Date(dateStr);
+    const day = String(d.getDate()).padStart(2,'0');
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+}
+
 // --- Ledger Functions ---
 let showFullDaily = false;
 
-function generateDailyProjectionWithOption(startDate, openingBalance, transactions, months = 12, fullDaily = false) {
+function generateDailyProjection(startDate, openingBalance, transactions, months = 12, fullDaily = false) {
     const start = new Date(startDate);
     const end = new Date(start);
     end.setMonth(end.getMonth() + months);
@@ -86,58 +96,52 @@ function generateDailyProjectionWithOption(startDate, openingBalance, transactio
     const todayStr = new Date().toISOString().slice(0,10);
 
     for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
-        let dayStr = d.toISOString().slice(0, 10);
-        let dayTransactions = [];
+        let dayStr = d.toISOString().slice(0,10);
 
-        transactions.forEach(tx => {
-            let txDate = new Date(tx.date);
-            if (tx.frequency === "monthly" && d.getDate() === txDate.getDate()) dayTransactions.push(tx);
-            else if (tx.frequency === "4weekly") {
-                let diffDays = Math.floor((d - txDate) / (1000*60*60*24));
-                if (diffDays >= 0 && diffDays % 28 === 0) dayTransactions.push(tx);
+        // Select only transactions that occur exactly on this day, accounting for frequency
+        const dayTransactions = transactions.filter(tx => {
+            const txDate = new Date(tx.date);
+            if (tx.frequency === "monthly") {
+                return d.getDate() === txDate.getDate() && d >= txDate;
+            } else if (tx.frequency === "4weekly") {
+                const diffDays = Math.floor((d - txDate) / (1000*60*60*24));
+                return diffDays >= 0 && diffDays % 28 === 0;
+            } else if (tx.frequency === "irregular") {
+                return dayStr === tx.date;
             }
-            else if (tx.frequency === "irregular" && dayStr === tx.date) dayTransactions.push(tx);
+            return false;
         });
 
-        if (dayTransactions.length > 0) {
-            const incomes = dayTransactions.filter(tx => tx.type === "income");
-            if (incomes.length > 0) {
-                let totalIncome = incomes.reduce((sum, tx) => sum + tx.amount, 0);
-                balance += totalIncome;
-                dailyLedger.push({
-                    date: dayStr,
-                    description: incomes.map(tx => tx.description).join(", "),
-                    type: "income",
-                    amount: totalIncome,
-                    projectedBalance: balance,
-                    today: dayStr === todayStr
-                });
-            }
+        // Sort day transactions: income first
+        dayTransactions.sort((a,b) => (a.type === "income" ? -1 : 1));
 
-            const expenses = dayTransactions.filter(tx => tx.type === "expense");
-            if (expenses.length > 0) {
-                let totalExpense = expenses.reduce((sum, tx) => sum + tx.amount, 0);
-                balance -= totalExpense;
-                dailyLedger.push({
-                    date: dayStr,
-                    description: expenses.map(tx => tx.description).join(", "),
-                    type: "expense",
-                    amount: totalExpense,
-                    projectedBalance: balance,
-                    today: dayStr === todayStr
-                });
-            }
-        } else if (fullDaily) {
+        dayTransactions.forEach(tx => {
+            if (tx.type === "income") balance += tx.amount;
+            else if (tx.type === "expense") balance -= tx.amount;
+
             dailyLedger.push({
-                date: dayStr,
+                date: formatDateDDMMMYYYY(dayStr),
+                description: tx.description,
+                type: tx.type,
+                amount: parseFloat(tx.amount.toFixed(2)),
+                projectedBalance: parseFloat(balance.toFixed(2)),
+                today: dayStr === todayStr
+            });
+        });
+
+        // Add empty row if fullDaily and no transactions for the day
+        if (fullDaily && dayTransactions.length === 0) {
+            dailyLedger.push({
+                date: formatDateDDMMMYYYY(dayStr),
                 description: "",
                 type: "",
                 amount: "",
-                projectedBalance: balance,
+                projectedBalance: parseFloat(balance.toFixed(2)),
                 today: dayStr === todayStr
             });
         }
     }
+
     return dailyLedger;
 }
 
@@ -165,7 +169,7 @@ function displaySummary(ledger) {
 }
 
 function updateLedgerAndSummary() {
-    const ledger = generateDailyProjectionWithOption(startDate, openingBalance, transactions, 12, showFullDaily);
+    const ledger = generateDailyProjection(startDate, openingBalance, transactions, 12, showFullDaily);
     displayLedger(ledger);
     displaySummary(ledger);
 }
