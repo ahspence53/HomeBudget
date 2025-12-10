@@ -44,7 +44,6 @@ tbody tr:nth-child(even):not(.income):not(.expense) {
 tr.income {
   background-color: #d4edda !important; /* light green */
 }
-
 tr.expense {
   background-color: #f8d7da !important; /* light red */
 }
@@ -88,7 +87,6 @@ tbody tr:hover {
   cursor: pointer;
   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
-
 #scrollTopBtn:hover {
   background-color: #0056b3;
 }
