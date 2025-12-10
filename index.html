@@ -2,79 +2,211 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Budget Tracker</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        input, select { margin-bottom: 10px; padding: 5px; }
+        button { padding: 5px 10px; }
+        h1, h2 { margin-top: 30px; }
+        td.negative { color: red; }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Home Budget Tracker</h1>
-        <nav>
-            <ul class="tabs">
-                <li class="tab active" data-tab="transactions">Transactions</li>
-                <li class="tab" data-tab="categories">Categories</li>
-                <li class="tab" data-tab="instructions">Instructions</li>
-            </ul>
-        </nav>
-    </header>
+    <h1>Home Budget Tracker</h1>
 
-    <main>
-        <section id="transactions" class="tab-content active">
-            <div class="section-header">
-                <h2>Transactions</h2>
-                <form id="transaction-form" class="form-inline">
-                    <input type="date" id="date" required>
-                    <input type="text" id="description" placeholder="Description" required>
-                    <input type="number" id="amount" placeholder="Amount" step="0.01" required>
-                    <select id="transaction-class">
-                        <option value="income-irregular">Irregular Income</option>
-                        <option value="income-monthly">Monthly Income</option>
-                        <option value="income-four-weekly">4-Weekly Income</option>
-                        <option value="expense-irregular">Irregular Expense</option>
-                        <option value="expense-monthly">Monthly Expense</option>
-                        <option value="expense-four-weekly">4-Weekly Expense</option>
-                    </select>
-                    <button type="submit">Add</button>
-                </form>
-            </div>
-            <div class="table-container">
-                <table id="transaction-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Description</th>
-                            <th>Type</th>
-                            <th>Amount</th>
-                            <th>Recurrence</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+    <!-- Start Date and Opening Balance -->
+    <div>
+        <label for="startDateInput">Start Date:</label>
+        <input type="date" id="startDateInput" oninput="updateStartDate(this.value)">
+        <br>
+        <label for="openingBalanceInput">Opening Balance:</label>
+        <input type="number" id="openingBalanceInput" step="0.01" oninput="updateOpeningBalance(this.value)">
+    </div>
 
-            <div class="forecast-settings">
-                <label>Projection Start Date: <input type="date" id="projection-start"></label>
-                <label>Opening Balance: <input type="number" id="opening-balance" step="0.01"></label>
-                <button id="generate-forecast">Generate 24-Month Forecast</button>
-            </div>
-        </section>
+    <!-- Add Transaction -->
+    <h2>Add Transaction</h2>
+    <div>
+        <input type="date" id="transactionDate">
+        <input type="text" id="transactionCategory" placeholder="Category">
+        <select id="transactionType">
+            <option value="Income">Income</option>
+            <option value="Expense">Expense</option>
+        </select>
+        <input type="number" id="transactionAmount" placeholder="Amount" step="0.01">
+        <select id="transactionFrequency">
+            <option value="Monthly">Monthly</option>
+            <option value="4 Weekly">4 Weekly</option>
+            <option value="Irregular">Irregular</option>
+        </select>
+        <button onclick="addTransactionFromInputs()">Add</button>
+    </div>
 
-        <section id="categories" class="tab-content">
-            <h2>Categories</h2>
-            <form id="category-form" class="form-inline">
-                <input type="text" id="category-name" placeholder="Category Name" required>
-                <button type="submit">Add</button>
-            </form>
-            <ul id="category-list"></ul>
-        </section>
+    <!-- Transactions Table -->
+    <h2>Transactions</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Frequency</th>
+                <th>Running Balance</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="transactionsTableBody"></tbody>
+    </table>
 
-        <section id="instructions" class="tab-content">
-            <h2>Instructions</h2>
-            <p>Use this app to track your income and expenses. Transactions are classified as Irregular, Monthly, or 4-Weekly, and as Income or Expense. Use the forecast feature to see your finances projected over the next 24 months from a chosen start date and opening balance.</p>
-        </section>
-    </main>
+    <!-- 24-Month Projection -->
+    <h2>24-Month Balance Projection</h2>
+    <table>
+        <thead>
+            <tr><th>Month</th><th>Projected Balance</th></tr>
+        </thead>
+        <tbody id="projectionTableBody"></tbody>
+    </table>
 
-    <script src="app.js"></script>
+    <script>
+        // ======== VARIABLES ========
+        let transactions = [];
+        let startDate = '';
+        let openingBalance = 0;
+
+        // ======== LOAD DATA FROM LOCAL STORAGE ========
+        window.addEventListener('load', () => {
+            const savedTransactions = localStorage.getItem('transactions');
+            if (savedTransactions) { transactions = JSON.parse(savedTransactions); }
+
+            const savedStartDate = localStorage.getItem('startDate');
+            if (savedStartDate) {
+                startDate = savedStartDate;
+                document.getElementById('startDateInput').value = startDate;
+            }
+
+            const savedOpeningBalance = localStorage.getItem('openingBalance');
+            if (savedOpeningBalance) {
+                openingBalance = parseFloat(savedOpeningBalance);
+                document.getElementById('openingBalanceInput').value = openingBalance;
+            }
+
+            displayTransactions();
+            displayProjection();
+        });
+
+        // ======== SAVE FUNCTIONS ========
+        function saveTransactions() { localStorage.setItem('transactions', JSON.stringify(transactions)); }
+        function saveSettings() {
+            localStorage.setItem('startDate', startDate);
+            localStorage.setItem('openingBalance', openingBalance);
+        }
+
+        // ======== UPDATE START DATE / OPENING BALANCE ========
+        function updateStartDate(value) { startDate = value; saveSettings(); displayProjection(); }
+        function updateOpeningBalance(value) { openingBalance = parseFloat(value) || 0; saveSettings(); displayProjection(); }
+
+        // ======== ADD TRANSACTION ========
+        function addTransaction(date, category, type, amount, frequency) {
+            if (!date || !category || !amount) { alert("Please fill in date, category, and amount."); return; }
+            transactions.push({ date, category, type, amount: parseFloat(amount), frequency });
+            saveTransactions(); displayTransactions(); displayProjection();
+        }
+
+        function addTransactionFromInputs() {
+            const date = document.getElementById('transactionDate').value;
+            const category = document.getElementById('transactionCategory').value;
+            const type = document.getElementById('transactionType').value;
+            const amount = document.getElementById('transactionAmount').value;
+            const frequency = document.getElementById('transactionFrequency').value;
+            addTransaction(date, category, type, amount, frequency);
+
+            document.getElementById('transactionDate').value = '';
+            document.getElementById('transactionCategory').value = '';
+            document.getElementById('transactionAmount').value = '';
+        }
+
+        // ======== DELETE TRANSACTION ========
+        function deleteTransaction(index) {
+            if (confirm("Delete this transaction?")) {
+                transactions.splice(index, 1);
+                saveTransactions();
+                displayTransactions();
+                displayProjection();
+            }
+        }
+
+        // ======== DISPLAY TRANSACTIONS WITH RUNNING BALANCE ========
+        function displayTransactions() {
+            const tableBody = document.getElementById('transactionsTableBody');
+            tableBody.innerHTML = '';
+            const sorted = transactions.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
+            let runningBalance = openingBalance;
+
+            sorted.forEach(t => {
+                runningBalance += (t.type === 'Income' ? t.amount : -t.amount);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${t.date}</td>
+                    <td>${t.category}</td>
+                    <td>${t.type}</td>
+                    <td>${t.amount.toFixed(2)}</td>
+                    <td>${t.frequency}</td>
+                    <td class="${runningBalance<0?'negative':''}">${runningBalance.toFixed(2)}</td>
+                    <td><button onclick="deleteTransaction(${transactions.indexOf(t)})">Delete</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // ======== 24-MONTH PROJECTION ========
+        function projectFutureBalance() {
+            const projectionStart = startDate ? new Date(startDate) : new Date();
+            let balance = openingBalance;
+            const projectedTransactions = [];
+
+            for (let monthOffset = 0; monthOffset < 24; monthOffset++) {
+                const currentMonth = new Date(projectionStart);
+                currentMonth.setMonth(projectionStart.getMonth() + monthOffset);
+
+                transactions.forEach(t => {
+                    const tDate = new Date(t.date);
+                    let applyTransaction = false;
+
+                    if (t.frequency === 'Monthly') applyTransaction = true;
+                    else if (t.frequency === '4 Weekly') {
+                        const diffDays = Math.floor((currentMonth - tDate)/(1000*60*60*24));
+                        if (diffDays>=0 && diffDays%28<7) applyTransaction = true;
+                    }
+                    else if (t.frequency === 'Irregular') {
+                        if (tDate.getMonth()===currentMonth.getMonth() && tDate.getFullYear()===currentMonth.getFullYear())
+                            applyTransaction = true;
+                    }
+
+                    if (applyTransaction) balance += (t.type==='Income'?t.amount:-t.amount);
+                });
+
+                projectedTransactions.push({
+                    month: currentMonth.toLocaleString('default',{month:'short', year:'numeric'}),
+                    balance: balance.toFixed(2)
+                });
+            }
+
+            return projectedTransactions;
+        }
+
+        function displayProjection() {
+            const table = document.getElementById('projectionTableBody');
+            table.innerHTML = '';
+            const projection = projectFutureBalance();
+            projection.forEach(p => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${p.month}</td><td class="${parseFloat(p.balance)<0?'negative':''}">${p.balance}</td>`;
+                table.appendChild(row);
+            });
+        }
+    </script>
 </body>
 </html>
