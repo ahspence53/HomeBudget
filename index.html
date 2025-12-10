@@ -1,593 +1,69 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Household Budget — Tabbed (Forecast)</title>
-<style>
-  :root{--bg:#f6f9fc;--card:#fff;--accent:#0b67ff;--muted:#667085;--danger:#d32f2f;--success:#0a8a3b}
-  body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;background:var(--bg);color:#0b1220}
-  header{padding:14px 18px;border-bottom:1px solid #e6eefb}
-  .wrap{max-width:1100px;margin:18px auto;padding:0 12px}
-  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
-  .tabs{display:flex;gap:8px;margin:12px 0}
-  .tab{padding:8px 12px;border-radius:8px;background:#fff;border:1px solid transparent;cursor:pointer}
-  .tab.active{background:linear-gradient(180deg,#fff,#f3f8ff);border-color:rgba(11,102,255,0.12)}
-  .grid{display:grid;grid-template-columns:1fr;gap:12px}
-  .card{background:var(--card);border-radius:10px;padding:12px;border:1px solid rgba(11,102,255,0.04)}
-  .summary{display:flex;gap:8px;align-items:stretch}
-  .summary .item{flex:1;padding:10px;border-radius:8px;background:linear-gradient(180deg,#fff,#f8fbff);text-align:center}
-  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  input,select,button{padding:8px;border-radius:8px;border:1px solid #d7e3f9;font-size:14px}
-  button{background:var(--accent);color:#fff;border:0}
-  .small{font-size:12px;color:var(--muted)}
-  .tx-list{max-height:520px;overflow:auto;margin-top:8px}
-  .tx-row{display:flex;gap:8px;padding:8px;border-bottom:1px solid #f0f4fb;align-items:center}
-  .tx-left{flex:1;min-width:0}
-  .tag{display:inline-block;padding:4px 8px;border-radius:999px;background:#fbfcff;border:1px solid rgba(0,0,0,0.06);font-size:13px}
-  .right{min-width:140px;text-align:right}
-  .muted{color:var(--muted)}
-  .two-cols{display:grid;grid-template-columns:1fr 420px;gap:12px}
-  @media(max-width:900px){ .two-cols{grid-template-columns:1fr} .tx-list{max-height:360px} }
-  .compact-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .footer-note{font-size:12px;color:#556; margin-top:8px}
-  .btn-ghost{background:transparent;border:1px solid rgba(11,102,255,0.12);color:var(--accent)}
-  table.forecast{width:100%;border-collapse:collapse;margin-top:8px}
-  table.forecast th, table.forecast td{padding:6px;border-bottom:1px solid #eef4fb;text-align:right;font-size:13px}
-  table.forecast th:first-child, table.forecast td:first-child{text-align:left}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Budget Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <div class="topbar">
-      <div>
-        <h1 style="margin:0">Household Budget</h1>
-        <div class="small muted">Tabbed view — forecasts for 24 months</div>
-      </div>
-      <div class="controls">
-        <button id="exportCsv" class="btn-ghost">Export CSV</button>
-        <input id="importCsv" type="file" accept=".csv" style="display:none">
-        <label for="importCsv" class="tab btn-ghost" style="cursor:pointer;padding:8px 10px">Import CSV</label>
-        <button id="backupBtn" class="btn-ghost">Backup</button>
-      </div>
-    </div>
+    <header>
+        <h1>Home Budget Tracker</h1>
+        <nav>
+            <ul class="tabs">
+                <li class="tab active" data-tab="transactions">Transactions</li>
+                <li class="tab" data-tab="categories">Categories</li>
+                <li class="tab" data-tab="instructions">Instructions</li>
+            </ul>
+        </nav>
+    </header>
 
-    <div class="tabs" id="tabs">
-      <div class="tab active" data-tab="transactions">Transactions</div>
-      <div class="tab" data-tab="add">Add</div>
-      <div class="tab" data-tab="categories">Categories</div>
-      <div class="tab" data-tab="forecast">Forecast</div>
-      <div class="tab" data-tab="backup">Backup</div>
-      <div class="tab" data-tab="settings">Settings</div>
-    </div>
-  </div>
-</header>
+    <main>
+        <section id="transactions" class="tab-content active">
+            <div class="section-header">
+                <h2>Transactions</h2>
+                <form id="transaction-form" class="form-inline">
+                    <input type="date" id="date" required>
+                    <input type="text" id="description" placeholder="Description" required>
+                    <input type="number" id="amount" placeholder="Amount" step="0.01" required>
+                    <select id="type">
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                    <button type="submit">Add</button>
+                </form>
+            </div>
+            <div class="table-container">
+                <table id="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
 
-<main class="wrap">
-  <div class="grid">
+        <section id="categories" class="tab-content">
+            <h2>Categories</h2>
+            <form id="category-form" class="form-inline">
+                <input type="text" id="category-name" placeholder="Category Name" required>
+                <button type="submit">Add</button>
+            </form>
+            <ul id="category-list"></ul>
+        </section>
 
-    <!-- TRANSACTIONS TAB -->
-    <div id="transactions" class="card tabpanel">
-      <div class="summary" style="margin-bottom:12px">
-        <div class="item">
-          <div class="small muted">Income</div>
-          <div id="sumIncome" style="font-weight:700">£0.00</div>
-        </div>
-        <div class="item">
-          <div class="small muted">Expenses</div>
-          <div id="sumExpense" style="font-weight:700">£0.00</div>
-        </div>
-        <div class="item">
-          <div class="small muted">Net</div>
-          <div id="sumNet" style="font-weight:700">£0.00</div>
-        </div>
-      </div>
+        <section id="instructions" class="tab-content">
+            <h2>Instructions</h2>
+            <p>Use this app to track your income and expenses. Add transactions and categories, and view your financial data over time.</p>
+        </section>
+    </main>
 
-      <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
-        <label class="small">View:
-          <select id="viewMode">
-            <option value="month">This month</option>
-            <option value="4weeks">Last 4 weeks</option>
-            <option value="all">All time</option>
-          </select>
-        </label>
-
-        <label class="small">Month filter:
-          <select id="monthFilter"></select>
-        </label>
-
-        <label class="small">Category:
-          <select id="categoryFilter"><option value="">All</option></select>
-        </label>
-
-        <button id="clearFilters" class="btn-ghost">Clear</button>
-      </div>
-
-      <div class="tx-list card" id="txList" style="padding:0"></div>
-    </div>
-
-    <!-- ADD TAB -->
-    <div id="add" class="card tabpanel" style="display:none">
-      <h3 style="margin-top:0">Add transaction</h3>
-      <div class="compact-row">
-        <input id="txDate" type="date" style="width:150px" />
-        <input id="txAmount" type="number" placeholder="Amount" style="width:120px" />
-        <select id="txType" style="width:120px"><option value="expense">Expense</option><option value="income">Income</option></select>
-        <input id="txCategory" list="catList" placeholder="Category" style="min-width:160px" />
-        <datalist id="catList"></datalist>
-        <input id="txDesc" placeholder="Description" style="min-width:220px" />
-      </div>
-      <div class="compact-row" style="margin-top:8px">
-        <label class="small">Recurrence:
-          <select id="txRecurrence">
-            <option value="none">One-off / Irregular</option>
-            <option value="monthly">Monthly</option>
-            <option value="4weeks">Every 4 weeks</option>
-            <option value="weekly">Weekly</option>
-            <option value="yearly">Yearly</option>
-          </select>
-        </label>
-
-        <label class="small"><input id="includeProj" type="checkbox" /> Include in projections</label>
-
-        <button id="addTx">Add</button>
-      </div>
-      <div class="footer-note">Tip: mark regular incomes/bills with Monthly or Every 4 weeks and check "Include in projections" if you want them in the 24-month forecast.</div>
-    </div>
-
-    <!-- CATEGORIES TAB -->
-    <div id="categories" class="card tabpanel" style="display:none">
-      <h3 style="margin-top:0">Categories</h3>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input id="newCat" placeholder="New category" />
-        <button id="addCat">Add</button>
-      </div>
-      <div id="catListArea" style="margin-top:12px"></div>
-    </div>
-
-    <!-- FORECAST TAB -->
-    <div id="forecast" class="card tabpanel" style="display:none">
-      <h3 style="margin:0 0 8px 0">24-month Forecast</h3>
-
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <label class="small">Projection start date:
-          <input id="projStart" type="date" />
-        </label>
-        <label class="small">Opening balance:
-          <input id="openingBalance" type="number" step="0.01" />
-        </label>
-        <button id="genForecast" class="btn-ghost">Generate</button>
-      </div>
-
-      <div id="forecastSummary" style="margin-top:12px" class="small muted"></div>
-
-      <table class="forecast" id="forecastTable">
-        <thead><tr><th>Month</th><th>Income</th><th>Expenses</th><th>Net</th><th>Balance</th></tr></thead>
-        <tbody id="forecastBody"></tbody>
-      </table>
-    </div>
-
-    <!-- BACKUP TAB -->
-    <div id="backup" class="card tabpanel" style="display:none">
-      <h3 style="margin-top:0">Backup & Restore</h3>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button id="exportJSON" class="btn-ghost">Backup JSON</button>
-        <input id="importJSON" type="file" accept=".json" style="display:none">
-        <label for="importJSON" class="btn-ghost" style="cursor:pointer">Restore JSON</label>
-      </div>
-      <div style="margin-top:12px" class="small muted">CSV export contains transactions only. JSON backup contains transactions + categories + settings.</div>
-    </div>
-
-    <!-- SETTINGS TAB -->
-    <div id="settings" class="card tabpanel" style="display:none">
-      <h3 style="margin-top:0">Settings</h3>
-      <div class="small muted">No encryption included in this layout preview. If you want I can merge your existing encryption back in (IndexedDB + AES-GCM).</div>
-      <div style="margin-top:12px" class="compact-row">
-        <label class="small">Default projection include for new items:
-          <select id="defaultInclude"><option value="1">Include</option><option value="0">Do not include</option></select>
-        </label>
-        <button id="resetData" class="btn-ghost">Reset sample data</button>
-      </div>
-    </div>
-
-  </div>
-</main>
-
-<script>
-/* Single-file logic:
- - IndexedDB storage for tx and categories
- - Tabs UI
- - Add transactions with recurrence + include in projections
- - Forecast generator for 24 months using start date + opening balance
- - CSV export/import + JSON backup/restore
-*/
-
-// ---------- IndexedDB tiny wrapper ----------
-const DB = 'budget_v2';
-const STORE_TX = 'tx';
-const STORE_CAT = 'cat';
-const STORE_META = 'meta';
-let db = null;
-
-function openDB(){
-  return new Promise((res, rej)=>{
-    const r = indexedDB.open(DB, 1);
-    r.onupgradeneeded = (e)=> {
-      const idb = e.target.result;
-      if(!idb.objectStoreNames.contains(STORE_TX)) idb.createObjectStore(STORE_TX, {keyPath:'id'});
-      if(!idb.objectStoreNames.contains(STORE_CAT)) idb.createObjectStore(STORE_CAT, {keyPath:'name'});
-      if(!idb.objectStoreNames.contains(STORE_META)) idb.createObjectStore(STORE_META, {keyPath:'k'});
-    };
-    r.onsuccess = e=>{ db = e.target.result; res(db); };
-    r.onerror = e=> rej(e.target.error);
-  });
-}
-function txPut(obj){ return new Promise((res,rej)=>{ const t=db.transaction(STORE_TX,'readwrite').objectStore(STORE_TX).put(obj); t.onsuccess=()=>res(true); t.onerror=(e)=>rej(e.target.error); });}
-function txGetAll(){ return new Promise((res,rej)=>{ const t=db.transaction(STORE_TX,'readonly').objectStore(STORE_TX).getAll(); t.onsuccess=()=>res(t.result); t.onerror=(e)=>rej(e.target.error); });}
-function txDelete(id){ return new Promise((res,rej)=>{ const t=db.transaction(STORE_TX,'readwrite').objectStore(STORE_TX).delete(id); t.onsuccess=()=>res(true); t.onerror=(e)=>rej(e.target.error); });}
-function catPut(obj){ return new Promise((res,rej)=>{ const t=db.transaction(STORE_CAT,'readwrite').objectStore(STORE_CAT).put(obj); t.onsuccess=()=>res(true); t.onerror=(e)=>rej(e.target.error); });}
-function catGetAll(){ return new Promise((res,rej)=>{ const t=db.transaction(STORE_CAT,'readonly').objectStore(STORE_CAT).getAll(); t.onsuccess=()=>res(t.result); t.onerror=(e)=>rej(e.target.error); });}
-function metaPut(k,v){ return new Promise((res,rej)=>{ const t=db.transaction(STORE_META,'readwrite').objectStore(STORE_META).put({k:k,val:v}); t.onsuccess=()=>res(true); t.onerror=(e)=>rej(e.target.error); });}
-function metaGet(k){ return new Promise((res,rej)=>{ const t=db.transaction(STORE_META,'readonly').objectStore(STORE_META).get(k); t.onsuccess=()=>res(t.result? t.result.val : null); t.onerror=(e)=>rej(e.target.error); });}
-
-// ---------- UI helpers ----------
-const tabs = document.querySelectorAll('.tab');
-tabs.forEach(t=> t.addEventListener('click', ()=> {
-  tabs.forEach(x=>x.classList.remove('active'));
-  t.classList.add('active');
-  document.querySelectorAll('.tabpanel').forEach(p=>p.style.display='none');
-  document.getElementById(t.dataset.tab).style.display = 'block';
-}));
-
-// controls
-const txDate = document.getElementById('txDate');
-const txAmount = document.getElementById('txAmount');
-const txType = document.getElementById('txType');
-const txCategory = document.getElementById('txCategory');
-const txDesc = document.getElementById('txDesc');
-const txRecurrence = document.getElementById('txRecurrence');
-const includeProj = document.getElementById('includeProj');
-const addTxBtn = document.getElementById('addTx');
-
-const txListEl = document.getElementById('txList');
-const catListArea = document.getElementById('catListArea');
-const catDatalist = document.getElementById('catList');
-const newCat = document.getElementById('newCat');
-const addCat = document.getElementById('addCat');
-
-const categoryFilter = document.getElementById('categoryFilter');
-const monthFilter = document.getElementById('monthFilter');
-const viewMode = document.getElementById('viewMode');
-const clearFilters = document.getElementById('clearFilters');
-
-const sumIncome = document.getElementById('sumIncome');
-const sumExpense = document.getElementById('sumExpense');
-const sumNet = document.getElementById('sumNet');
-
-const projStart = document.getElementById('projStart');
-const openingBalance = document.getElementById('openingBalance');
-const genForecast = document.getElementById('genForecast');
-const forecastBody = document.getElementById('forecastBody');
-const forecastSummary = document.getElementById('forecastSummary');
-
-const exportCsv = document.getElementById('exportCsv');
-const importCsv = document.getElementById('importCsv');
-const exportJSON = document.getElementById('exportJSON');
-const importJSON = document.getElementById('importJSON');
-const backupBtn = document.getElementById('backupBtn');
-
-// defaults
-txDate.value = new Date().toISOString().slice(0,10);
-
-// ---------- Boot ----------
-(async function boot(){
-  await openDB();
-  // ensure some categories exist if none
-  const cats = await catGetAll();
-  if(!cats || cats.length===0){
-    const defaults = ["Uncategorized","Salary (Monthly)","Salary (4-weekly)","Rent/Mortgage","Gas","Electricity","Water","Council Tax","Broadband","Mobile","Food/Shopping","Transport","Insurance","Subscriptions","Entertainment","Miscellaneous"];
-    for(const c of defaults) await catPut({name:c});
-  }
-  await renderAll();
-})();
-
-// ---------- CRUD & rendering ----------
-function uid(){ return 't'+Date.now()+Math.floor(Math.random()*9999); }
-
-addTxBtn.addEventListener('click', async ()=>{
-  const d = txDate.value;
-  const a = Number(txAmount.value) || 0;
-  const t = txType.value;
-  const c = (txCategory.value || '').trim() || 'Uncategorized';
-  const desc = txDesc.value.trim();
-  const rec = txRecurrence.value || 'none';
-  const incl = includeProj.checked;
-  if(!d){ alert('Pick a date'); return; }
-  const obj = { id: uid(), date: d, amount: a.toFixed(2), type:t, category:c, description:desc, recurrence:rec, includeInProjection: !!incl };
-  await txPut(obj);
-  await catPut({name:c});
-  txAmount.value = ''; txDesc.value=''; txCategory.value='';
-  await renderAll();
-});
-
-addCat.addEventListener('click', async ()=>{
-  const name = (newCat.value||'').trim(); if(!name) return;
-  await catPut({name}); newCat.value=''; renderCategories();
-});
-
-async function renderAll(){
-  const all = await txGetAll();
-  renderTxList(all);
-  renderSummary(all);
-  await renderCategories();
-  renderMonthFilter(all);
-}
-
-async function renderCategories(){
-  const cats = await catGetAll();
-  catListArea.innerHTML = cats.map(c=>`<div style="display:flex;justify-content:space-between;padding:6px 0"><div>${escapeHtml(c.name)}</div><div><button class="btn-ghost" data-name="${escapeHtml(c.name)}" onclick="renameCat('${escapeHtml(c.name)}')">Edit</button><button class="btn-ghost" onclick="deleteCat('${escapeHtml(c.name)}')">Delete</button></div></div>`).join('');
-  catDatalist.innerHTML = cats.map(c=>`<option value="${escapeHtml(c.name)}">`).join('');
-  categoryFilter.innerHTML = '<option value="">All</option>' + cats.map(c=>`<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join('');
-}
-
-window.renameCat = async function(oldName){
-  const nv = prompt('Rename category', oldName); if(!nv) return;
-  // update store: delete old, add new; update transactions
-  await catPut({name:nv});
-  // update txs
-  const all = await txGetAll();
-  for(const tx of all){ if(tx.category===oldName){ tx.category=nv; await txPut(tx);} }
-  // remove old cat
-  const tx = db.transaction(STORE_CAT,'readwrite').objectStore(STORE_CAT').delete(oldName); // attempt delete; ignore error
-  await renderAll();
-};
-
-window.deleteCat = async function(name){
-  if(!confirm('Delete category? Transactions will be moved to Uncategorized')) return;
-  // update txs
-  const all = await txGetAll();
-  for(const tx of all){ if(tx.category===name){ tx.category='Uncategorized'; await txPut(tx);} }
-  // delete cat record
-  db.transaction(STORE_CAT,'readwrite').objectStore(STORE_CAT).delete(name);
-  await renderAll();
-};
-
-function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]||c)); }
-
-async function renderTxList(all){
-  // sort newest first
-  all.sort((a,b)=> new Date(b.date) - new Date(a.date));
-  const fm = monthFilter.value || '';
-  const catf = categoryFilter.value || '';
-  const mode = viewMode.value;
-  // filter for display only
-  const visible = all.filter(tx => (!fm || tx.date.startsWith(fm)) && (!catf || tx.category===catf));
-  if(visible.length===0) { txListEl.innerHTML = '<div class="small muted">No transactions</div>'; return; }
-  txListEl.innerHTML = visible.map(tx => {
-    const amt = tx.type==='income' ? parseFloat(tx.amount) : parseFloat(tx.amount);
-    const sign = tx.type==='income' ? '+' : '-';
-    return `<div class="tx-row"><div class="tx-left"><div style="font-weight:600">${tx.date} <span class="tag">${escapeHtml(tx.category)}</span></div><div class="small muted">${escapeHtml(tx.description||'')}</div></div><div class="right"><div style="font-weight:700;color:${tx.type==='income'?'var(--success)':'var(--danger)'}">${sign}£${Math.abs(amt).toFixed(2)}</div><div class="small muted">${tx.recurrence}${tx.includeInProjection? ' • included':''}</div><div style="margin-top:6px"><button class="btn-ghost" onclick="deleteTx('${tx.id}')">Delete</button></div></div></div>`;
-  }).join('');
-}
-async function deleteTx(id){ if(!confirm('Delete?')) return; await txDelete(id); await renderAll(); }
-
-async function renderSummary(all){
-  const mode = viewMode.value;
-  let start=null, end=null;
-  const now = new Date();
-  if(mode==='month'){ start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(now.getFullYear(), now.getMonth()+1, 0, 23,59,59,999); }
-  else if(mode==='4weeks'){ end = new Date(); start = new Date(); start.setDate(end.getDate()-27); start.setHours(0,0,0,0); }
-  let income=0, expense=0;
-  for(const tx of all){
-    const txd = new Date(tx.date + 'T00:00:00');
-    const inRange = !start || (txd>=start && txd<=end);
-    if(inRange){
-      if(tx.type==='income') income += Number(tx.amount);
-      else expense += Number(tx.amount);
-    }
-  }
-  sumIncome.textContent = '£' + income.toFixed(2);
-  sumExpense.textContent = '£' + expense.toFixed(2);
-  sumNet.textContent = (income - expense >= 0 ? '£' : '-£') + Math.abs(income - expense).toFixed(2);
-}
-
-// ---------- month filter ----------
-function renderMonthFilter(all){
-  const months = Array.from(new Set(all.map(t=> t.date? t.date.slice(0,7):null))).filter(Boolean).sort().reverse();
-  monthFilter.innerHTML = '<option value="">(all)</option>' + months.map(m=>`<option value="${m}">${m}</option>`).join('');
-}
-clearFilters.addEventListener('click', ()=>{ monthFilter.value=''; categoryFilter.value=''; viewMode.value='month'; renderAll(); });
-
-// ---------- Forecast generation ----------
-function addMonths(date, n){ const d=new Date(date.getFullYear(), date.getMonth()+n, 1); return d; }
-function formatMonthKey(d){ const y=d.getFullYear(); const m=(d.getMonth()+1).toString().padStart(2,'0'); return y + '-' + m; }
-function lastDayOfMonth(y,m){ return new Date(y,m+1,0).getDate(); }
-
-genForecast.addEventListener('click', async ()=>{
-  const startVal = projStart.value;
-  if(!startVal){ alert('Pick a projection start date'); return; }
-  const startDate = new Date(startVal + 'T00:00:00');
-  const opening = Number(openingBalance.value) || 0;
-  // gather txs that are flagged includeInProjection OR have recurrence != none
-  const all = await txGetAll();
-  const projSources = all.filter(tx => tx.includeInProjection || (tx.recurrence && tx.recurrence!=='none'));
-  // build months array
-  const months=[];
-  for(let i=0;i<24;i++){
-    const d = addMonths(startDate, i);
-    months.push({ key: formatMonthKey(d), date: new Date(d.getFullYear(), d.getMonth(), 1), income:0, expense:0 });
-  }
-  // helper to add occurrence
-  function addOccurrence(monthKey, amt, isIncome){
-    const m = months.find(x=>x.key===monthKey); if(!m) return;
-    if(isIncome) m.income += amt; else m.expense += amt;
-  }
-  // iterate sources
-  projSources.forEach(tx=>{
-    const base = new Date(tx.date + 'T00:00:00');
-    const amt = Number(tx.amount);
-    const isIncome = tx.type === 'income';
-    if(tx.recurrence === 'none' || !tx.recurrence){
-      // one-off: include if within range and includeInProjection true
-      if(tx.includeInProjection){
-        const key = tx.date.slice(0,7);
-        addOccurrence(key, amt, isIncome);
-      }
-    } else if(tx.recurrence === 'monthly'){
-      // add to each month on same day (cap at last day)
-      months.forEach(m=>{
-        const [y,mm] = m.key.split('-'); const day = Math.min(base.getDate(), lastDayOfMonth(Number(y), Number(mm)-1));
-        const occStr = `${m.key}-${String(day).padStart(2,'0')}`;
-        // if occurrence date >= base date? we will project occurrences regardless - assume recurring applies from base or earlier
-        addOccurrence(m.key, amt, isIncome);
-      });
-    } else if(tx.recurrence === '4weeks'){
-      // treat as every 28 days from base; find occurrences that fall into any month
-      const ms28 = 28 * 24 * 3600 * 1000;
-      // search occurrences in window [startDate, endDateLastMonth]
-      const start = months[0].date;
-      const end = new Date(months[months.length-1].date.getFullYear(), months[months.length-1].date.getMonth()+1, 0,23,59,59,999);
-      // compute k offset so base + k*28d >= start - a few cycles back
-      let k = Math.floor((start - base) / ms28) - 2;
-      for(; ; k++){
-        const occ = new Date(base.getTime() + k * ms28);
-        if(occ > end) break;
-        if(occ >= start && occ <= end){
-          const key = occ.toISOString().slice(0,7);
-          addOccurrence(key, amt, isIncome);
-        }
-      }
-    } else if(tx.recurrence === 'weekly'){
-      // every 7 days - similar to 4weeks
-      const ms7 = 7*24*3600*1000;
-      const start = months[0].date;
-      const end = new Date(months[months.length-1].date.getFullYear(), months[months.length-1].date.getMonth()+1, 0,23,59,59,999);
-      let k = Math.floor((start - base) / ms7) - 4;
-      for(; ; k++){
-        const occ = new Date(base.getTime() + k * ms7);
-        if(occ > end) break;
-        if(occ >= start && occ <= end){
-          const key = occ.toISOString().slice(0,7);
-          addOccurrence(key, Number(tx.amount), isIncome);
-        }
-      }
-    } else if(tx.recurrence === 'yearly'){
-      months.forEach(m=>{
-        const y = Number(m.key.slice(0,4));
-        const occ = new Date(y, base.getMonth(), base.getDate());
-        if(occ >= months[0].date && occ <= new Date(months[months.length-1].date.getFullYear(), months[months.length-1].date.getMonth()+1,0,23,59,59,999)){
-          addOccurrence(m.key, amt, isIncome);
-        }
-      });
-    }
-  });
-
-  // now compute running balance starting from opening
-  let running = opening;
-  forecastBody.innerHTML = '';
-  months.forEach(m=>{
-    const net = m.income - m.expense;
-    running += net;
-    const row = `<tr><td>${m.date.toLocaleString(undefined,{month:'short',year:'numeric'})}</td><td>£${m.income.toFixed(2)}</td><td>£${m.expense.toFixed(2)}</td><td>£${net.toFixed(2)}</td><td>£${running.toFixed(2)}</td></tr>`;
-    forecastBody.insertAdjacentHTML('beforeend', row);
-  });
-  forecastSummary.textContent = `Projection start ${startVal}, opening balance £${opening.toFixed(2)}. Projected end balance: £${running.toFixed(2)}.`;
-});
-
-// ---------- CSV export/import & JSON backup ----------
-exportCsv.addEventListener('click', async ()=>{
-  const all = await txGetAll();
-  const lines = ['id,date,type,category,description,amount,recurrence,includeInProjection'];
-  all.forEach(d => lines.push([d.id,d.date,d.type,`"${(d.category||'').replace(/"/g,'""')}`.replace(/"$/,''),`"${(d.description||'').replace(/"/g,'""')}`.replace(/"$/,''),d.amount,d.recurrence||'none',d.includeInProjection?1:0].join(',')));
-  const blob = new Blob([lines.join('\\n')], {type:'text/csv'});
-  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='transactions.csv'; a.click(); URL.revokeObjectURL(url);
-});
-
-importCsv.addEventListener('change', async (ev)=>{
-  const f = ev.target.files[0]; if(!f) return;
-  const txt = await f.text();
-  try{
-    const lines = txt.trim().split(/\\r?\\n/).filter(Boolean);
-    const hdr = lines.shift();
-    for(const line of lines){
-      // naive parse - split by comma, handle quoted category/desc crudely
-      const parts = line.split(',');
-      const id = parts[0];
-      const date = parts[1];
-      const type = parts[2];
-      const category = parts[3].replace(/^"|"$/g,'');
-      const description = parts[4].replace(/^"|"$/g,'');
-      const amount = parts[5];
-      const recurrence = parts[6] || 'none';
-      const includeInProjection = parts[7] && parts[7].trim() === '1';
-      const tx = { id: id || uid(), date, type, category, description, amount, recurrence, includeInProjection };
-      await txPut(tx);
-      await catPut({name:category});
-    }
-    alert('Import complete');
-    renderAll();
-  }catch(e){ alert('Import failed: ' + e.message); }
-  ev.target.value = '';
-});
-
-exportJSON.addEventListener('click', async ()=>{
-  const all = await txGetAll();
-  const cats = await catGetAll();
-  const meta = { projStart: projStart.value, opening: Number(openingBalance.value) || 0 };
-  const payload = { transactions: all, categories: cats.map(c=>c.name), meta };
-  const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
-  const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='budget-backup.json'; a.click(); URL.revokeObjectURL(url);
-});
-importJSON.addEventListener('change', async (ev)=>{
-  const f = ev.target.files[0]; if(!f) return;
-  const txt = await f.text();
-  try{
-    const payload = JSON.parse(txt);
-    if(payload.categories) for(const c of payload.categories) await catPut({name:c});
-    if(payload.transactions) for(const t of payload.transactions) await txPut(t);
-    if(payload.meta){ projStart.value = payload.meta.projStart || projStart.value; openingBalance.value = payload.meta.opening || openingBalance.value;}
-    alert('Restore complete'); renderAll();
-  }catch(e){ alert('Restore failed: ' + e.message); }
-  ev.target.value='';
-});
-
-// small helpers for the UI controls
-document.getElementById('importCsv').addEventListener('change', (ev)=>{/* handled above */});
-document.getElementById('exportCsv').addEventListener('click', ()=>{ exportCsv.click(); });
-
-document.getElementById('backupBtn').addEventListener('click', ()=> exportJSON.click());
-
-// reset sample data
-document.getElementById('resetData').addEventListener('click', async ()=>{
-  if(!confirm('Reset sample transactions?')) return;
-  // clear tx store
-  const txs = await txGetAll();
-  for(const t of txs) await txDelete(t.id);
-  alert('Cleared. Add your new transactions.');
-  renderAll();
-});
-
-// init small UI render calls
-viewMode.addEventListener('change', ()=> renderAll());
-monthFilter.addEventListener('change', ()=> renderAll());
-categoryFilter.addEventListener('change', ()=> renderAll());
-
-// initial renderAll wrapper
-async function renderAll(){
-  await renderAllInternal();
-}
-async function renderAllInternal(){
-  const all = await txGetAll();
-  await renderCategories();
-  renderTxList(all);
-  renderSummary(all);
-  renderMonthFilter(all);
-}
-
-// quick helper: export JSON button element binding
-document.getElementById('importCsv').addEventListener('change', (e)=>{/* noop to keep file control available */});
-
-</script>
+    <script src="app.js"></script>
 </body>
 </html>
