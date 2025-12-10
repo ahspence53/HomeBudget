@@ -27,14 +27,13 @@
                     <input type="date" id="date" required>
                     <input type="text" id="description" placeholder="Description" required>
                     <input type="number" id="amount" placeholder="Amount" step="0.01" required>
-                    <select id="type">
-                        <option value="income">Income</option>
-                        <option value="expense">Expense</option>
-                    </select>
-                    <select id="recurrence">
-                        <option value="irregular">Irregular</option>
-                        <option value="monthly">Monthly</option>
-                        <option value="four-weekly">4-Weekly</option>
+                    <select id="transaction-class">
+                        <option value="income-irregular">Irregular Income</option>
+                        <option value="income-monthly">Monthly Income</option>
+                        <option value="income-four-weekly">4-Weekly Income</option>
+                        <option value="expense-irregular">Irregular Expense</option>
+                        <option value="expense-monthly">Monthly Expense</option>
+                        <option value="expense-four-weekly">4-Weekly Expense</option>
                     </select>
                     <button type="submit">Add</button>
                 </form>
@@ -72,7 +71,7 @@
 
         <section id="instructions" class="tab-content">
             <h2>Instructions</h2>
-            <p>Use this app to track your income and expenses. Add transactions and categories, and view your financial data over time. Transactions can be irregular, monthly, or 4-weekly. Use the projection feature to forecast the next 24 months from a chosen start date and opening balance.</p>
+            <p>Use this app to track your income and expenses. Transactions are classified as Irregular, Monthly, or 4-Weekly, and as Income or Expense. Use the forecast feature to see your finances projected over the next 24 months from a chosen start date and opening balance.</p>
         </section>
     </main>
 
