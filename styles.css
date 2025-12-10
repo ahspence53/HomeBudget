@@ -1,118 +1,94 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f9f9f9;
 }
 
-header {
-    background-color: #0074D9;
-    color: white;
-    padding: 10px;
-    text-align: center;
+/* Blue header */
+.app-header {
+  background-color: #007bff;
+  color: white;
+  padding: 20px;
+  text-align: center;
 }
 
-nav ul {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    margin: 10px 0 0;
-}
-
-nav li {
-    margin: 0 10px;
-    padding: 5px 12px;
-    cursor: pointer;
-    background-color: #005fa3;
-    border-radius: 5px;
-}
-
-nav li.active {
-    background-color: #FF851B;
-}
-
-main {
-    padding: 20px;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* Form layout */
-.form-inline {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 10px;
-}
-
-.form-inline input, .form-inline select, .form-inline button {
-    padding: 6px 8px;
-    font-size: 0.95em;
-}
-
-/* Transaction table */
-.table-container {
-    max-height: 400px;
-    overflow-y: auto;
-    margin-bottom: 20px;
-}
-
+/* Table */
 table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-table, th, td {
-    border: 1px solid #ccc;
+  width: 95%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  background: white;
 }
 
 th, td {
-    padding: 8px;
-    text-align: left;
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
 }
 
-/* Category list */
-#category-list {
-    margin-top: 10px;
-    padding-left: 20px;
+th {
+  background-color: #f2f2f2;
+  position: sticky;
+  top: 50px; /* under header */
+  z-index: 2;
+  box-shadow: 0 2px 2px -1px rgba(0,0,0,0.2);
 }
 
-/* Forecast settings */
-.forecast-settings {
-    margin-top: 15px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
+/* Alternating neutral rows */
+tbody tr:nth-child(even):not(.income):not(.expense) {
+  background-color: #f9f9f9;
 }
 
-.forecast-settings input {
-    padding: 5px;
-    width: 150px;
+/* Income/Expense coloring */
+tr.income {
+  background-color: #d4edda !important; /* light green */
 }
 
-/* Forecast table */
-#forecast-section table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+tr.expense {
+  background-color: #f8d7da !important; /* light red */
 }
 
-#forecast-section th, #forecast-section td {
-    border: 1px solid #ccc;
-    padding: 6px;
-    text-align: left;
+/* Highlight today */
+tr.today {
+  outline: 2px solid #ffc107; /* yellow border */
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .form-inline, .forecast-settings {
-        flex-direction: column;
-    }
+/* Hover effect */
+tbody tr:hover {
+  background-color: #e2e2e2;
+}
+
+/* Sticky summary */
+#summaryContainer {
+  position: sticky;
+  top: 50px;
+  background-color: #f0f8ff;
+  z-index: 3;
+  padding: 8px 0;
+  border-bottom: 2px solid #007bff;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: 0 2px 2px -1px rgba(0,0,0,0.2);
+}
+
+/* Scroll-to-top button */
+#scrollTopBtn {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 5;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+#scrollTopBtn:hover {
+  background-color: #0056b3;
 }
