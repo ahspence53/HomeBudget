@@ -1,15 +1,90 @@
-body{font-family:Arial,Helvetica,sans-serif;background:#f4f7fb;margin:0;padding:14px}
-header{margin-bottom:12px}
-.container{display:grid;grid-template-columns:1fr 320px;gap:12px}
-.card{background:#fff;padding:12px;border-radius:8px;box-shadow:0 1px 0 rgba(0,0,0,0.04)}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-input,select,button{padding:8px;border-radius:6px;border:1px solid #dbe7ff}
-button{background:#0b67ff;color:#fff;border:0}
-.btn-ghost{background:transparent;color:#0b67ff;border:1px solid rgba(11,102,255,0.12);padding:6px 8px}
-.tx-list{max-height:360px;overflow:auto;margin-top:8px}
-.tx-row{display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #f0f4fb}
-.summary{display:flex;gap:8px;margin-top:8px}
-.tiny{font-size:12px;color:#667085}
-.modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center}
-.modal{background:#fff;padding:12px;border-radius:8px;max-width:640px;width:100%}
-.note{color:#666;font-size:13px;margin-top:8px}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #0074D9;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    margin: 10px 0 0;
+}
+
+nav li {
+    margin: 0 10px;
+    padding: 5px 12px;
+    cursor: pointer;
+    background-color: #005fa3;
+    border-radius: 5px;
+}
+
+nav li.active {
+    background-color: #FF851B;
+}
+
+main {
+    padding: 20px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Form layout */
+.form-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.form-inline input, .form-inline select, .form-inline button {
+    padding: 6px 8px;
+    font-size: 0.95em;
+}
+
+/* Transaction table */
+.table-container {
+    max-height: 400px; /* Table gets most of the space */
+    overflow-y: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #ccc;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+
+/* Category list */
+#category-list {
+    margin-top: 10px;
+    padding-left: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .form-inline {
+        flex-direction: column;
+    }
+}
