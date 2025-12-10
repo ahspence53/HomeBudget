@@ -14,6 +14,7 @@ document.getElementById("date").valueAsDate = new Date();
 let lastType = "";
 let lastDescription = "";
 let lastAmount = 0;
+let lastFrequency = "";
 
 // --- Start Panel ---
 document.getElementById("startForm").addEventListener("submit", (e) => {
@@ -32,14 +33,27 @@ const form = document.getElementById("transactionForm");
 form.addEventListener("submit", (e) => {
     e.preventDefault();
 
+    const descriptionInput = document.getElementById("description");
+    const amountInput = document.getElementById("amount");
+    const typeInput = document.getElementById("type");
+    const frequencyInput = document.getElementById("frequency");
+    const dateInput = document.getElementById("date");
+
+    // Validate all fields
+    if (!descriptionInput.value || !amountInput.value || !typeInput.value || !frequencyInput.value || !dateInput.value) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
     const newTx = {
-        description: document.getElementById("description").value,
-        amount: parseFloat(document.getElementById("amount").value),
-        type: document.getElementById("type").value,
-        frequency: document.getElementById("frequency").value,
-        date: document.getElementById("date").value
+        description: descriptionInput.value,
+        amount: parseFloat(amountInput.value),
+        type: typeInput.value,
+        frequency: frequencyInput.value,
+        date: dateInput.value
     };
 
+    // Push transaction first
     transactions.push(newTx);
     localStorage.setItem("transactions", JSON.stringify(transactions));
 
@@ -47,13 +61,14 @@ form.addEventListener("submit", (e) => {
     lastType = newTx.type;
     lastDescription = newTx.description;
     lastAmount = newTx.amount;
+    lastFrequency = newTx.frequency;
 
-    // Prefill form for next quick add
-    document.getElementById("description").value = lastDescription;
-    document.getElementById("amount").value = lastAmount;
-    document.getElementById("type").value = lastType;
-    document.getElementById("frequency").value = "";
-    document.getElementById("date").valueAsDate = new Date();
+    // Prefill form for next Quick Add
+    descriptionInput.value = lastDescription;
+    amountInput.value = lastAmount;
+    typeInput.value = lastType;
+    frequencyInput.value = lastFrequency;
+    dateInput.valueAsDate = new Date(); // reset date to today only
 
     updateLedgerAndSummary();
 });
@@ -89,16 +104,38 @@ function generateDailyProjectionWithOption(startDate, openingBalance, transactio
             if (incomes.length > 0) {
                 let totalIncome = incomes.reduce((sum, tx) => sum + tx.amount, 0);
                 balance += totalIncome;
-                dailyLedger.push({date: dayStr, description: incomes.map(tx => tx.description).join(", "), type: "income", amount: totalIncome, projectedBalance: balance, today: dayStr===todayStr});
+                dailyLedger.push({
+                    date: dayStr,
+                    description: incomes.map(tx => tx.description).join(", "),
+                    type: "income",
+                    amount: totalIncome,
+                    projectedBalance: balance,
+                    today: dayStr === todayStr
+                });
             }
+
             const expenses = dayTransactions.filter(tx => tx.type === "expense");
             if (expenses.length > 0) {
                 let totalExpense = expenses.reduce((sum, tx) => sum + tx.amount, 0);
                 balance -= totalExpense;
-                dailyLedger.push({date: dayStr, description: expenses.map(tx => tx.description).join(", "), type: "expense", amount: totalExpense, projectedBalance: balance, today: dayStr===todayStr});
+                dailyLedger.push({
+                    date: dayStr,
+                    description: expenses.map(tx => tx.description).join(", "),
+                    type: "expense",
+                    amount: totalExpense,
+                    projectedBalance: balance,
+                    today: dayStr === todayStr
+                });
             }
         } else if (fullDaily) {
-            dailyLedger.push({date: dayStr, description:"", type:"", amount:"", projectedBalance: balance, today: dayStr===todayStr});
+            dailyLedger.push({
+                date: dayStr,
+                description: "",
+                type: "",
+                amount: "",
+                projectedBalance: balance,
+                today: dayStr === todayStr
+            });
         }
     }
     return dailyLedger;
@@ -109,8 +146,8 @@ function displayLedger(ledger) {
     tableBody.innerHTML = "";
     ledger.forEach(entry => {
         const row = document.createElement("tr");
-        if (entry.type==="income") row.classList.add("income");
-        else if (entry.type==="expense") row.classList.add("expense");
+        if (entry.type === "income") row.classList.add("income");
+        else if (entry.type === "expense") row.classList.add("expense");
         if (entry.today) row.classList.add("today");
         row.innerHTML = `<td>${entry.date}</td><td>${entry.description}</td><td>${entry.type}</td><td>${entry.amount}</td><td>${entry.projectedBalance.toFixed(2)}</td>`;
         tableBody.appendChild(row);
@@ -118,8 +155,12 @@ function displayLedger(ledger) {
 }
 
 function displaySummary(ledger) {
-    let totalIncome=0, totalExpenses=0, endingBalance=0;
-    ledger.forEach(entry => { if(entry.type==="income") totalIncome+=entry.amount; else if(entry.type==="expense") totalExpenses+=entry.amount; endingBalance=entry.projectedBalance; });
+    let totalIncome = 0, totalExpenses = 0, endingBalance = 0;
+    ledger.forEach(entry => {
+        if (entry.type === "income") totalIncome += entry.amount;
+        else if (entry.type === "expense") totalExpenses += entry.amount;
+        endingBalance = entry.projectedBalance;
+    });
     document.getElementById("summary").innerHTML = `Total Income: ${totalIncome.toFixed(2)} | Total Expenses: ${totalExpenses.toFixed(2)} | Ending Balance: ${endingBalance.toFixed(2)}`;
 }
 
