@@ -1,8 +1,0 @@
-{
-  "name": "Household Budget Secure",
-  "short_name": "BudgetSecure",
-  "start_url": "index.html",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0b67ff"
-}
