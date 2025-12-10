@@ -14,6 +14,18 @@
 
   <main>
 
+    <!-- Start Date & Opening Balance Panel -->
+    <div id="startPanel" style="width: 95%; margin: 10px auto; padding: 10px; background: #e6f2ff; border: 1px solid #007bff; border-radius: 5px;">
+      <h3>Start Settings</h3>
+      <form id="startForm">
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" required>
+        <label for="openingBalance">Opening Balance:</label>
+        <input type="number" id="openingBalance" placeholder="0.00" step="0.01" required>
+        <button type="submit">Set</button>
+      </form>
+    </div>
+
     <!-- Add Transaction Panel -->
     <div id="addTransactionPanel" style="width: 95%; margin: 10px auto; padding: 10px; background: #f0f8ff; border: 1px solid #007bff; border-radius: 5px;">
       <h3>Add Transaction</h3>
