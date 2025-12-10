@@ -31,6 +31,11 @@
                         <option value="income">Income</option>
                         <option value="expense">Expense</option>
                     </select>
+                    <select id="recurrence">
+                        <option value="irregular">Irregular</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="four-weekly">4-Weekly</option>
+                    </select>
                     <button type="submit">Add</button>
                 </form>
             </div>
@@ -42,10 +47,17 @@
                             <th>Description</th>
                             <th>Type</th>
                             <th>Amount</th>
+                            <th>Recurrence</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
+            </div>
+
+            <div class="forecast-settings">
+                <label>Projection Start Date: <input type="date" id="projection-start"></label>
+                <label>Opening Balance: <input type="number" id="opening-balance" step="0.01"></label>
+                <button id="generate-forecast">Generate 24-Month Forecast</button>
             </div>
         </section>
 
@@ -60,7 +72,7 @@
 
         <section id="instructions" class="tab-content">
             <h2>Instructions</h2>
-            <p>Use this app to track your income and expenses. Add transactions and categories, and view your financial data over time.</p>
+            <p>Use this app to track your income and expenses. Add transactions and categories, and view your financial data over time. Transactions can be irregular, monthly, or 4-weekly. Use the projection feature to forecast the next 24 months from a chosen start date and opening balance.</p>
         </section>
     </main>
 
