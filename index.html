@@ -2,81 +2,125 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Home Budget Tracker</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<h1>Home Budget Tracker</h1>
+<header>
+    <h1>Home Budget Tracker</h1>
+</header>
 
-<!-- Opening Balance + Start Date -->
-<section id="config">
-    <h2>Setup</h2>
-    <label>Start Date:</label>
-    <input type="date" id="startDate">
+<!-- Setup (Start Date + Opening Balance + Save) -->
+<section id="config" class="config-row">
+    <div class="config-item">
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate">
+    </div>
 
-    <label>Opening Balance (£):</label>
-    <input type="number" id="openingBalance" step="0.01">
-    <button id="saveConfigBtn">Save Setup</button>
+    <div class="config-item">
+        <label for="openingBalance">Opening Balance (£):</label>
+        <input type="number" id="openingBalance" step="0.01">
+    </div>
+
+    <div class="config-item config-save">
+        <button id="saveConfigBtn">Save Setup</button>
+    </div>
 </section>
 
 <hr>
 
-<!-- Add Transaction -->
-<section id="addTransaction">
+<!-- Add Transaction (3 cols × 2 rows grid) -->
+<section id="addTransaction" class="grid-section">
     <h2>Add Transaction</h2>
 
-    <label>Description:</label>
-    <input type="text" id="description">
+    <div class="grid">
+        <div class="cell">
+            <label for="description">Description:</label>
+            <input type="text" id="description" placeholder="e.g. TV Licence">
+        </div>
 
-    <label>Category:</label>
-    <input type="text" id="category">
+        <div class="cell">
+            <label for="type">Type:</label>
+            <select id="type">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+        </div>
 
-    <label>Type:</label>
-    <select id="type">
-        <option value="income">Income</option>
-        <option value="expense">Expense</option>
-    </select>
+        <div class="cell">
+            <label for="amount">Amount (£):</label>
+            <input type="number" id="amount" step="0.01">
+        </div>
 
-    <label>Frequency:</label>
-    <select id="frequency">
-        <option value="monthly">Monthly</option>
-        <option value="4weekly">4 Weekly</option>
-        <option value="irregular">Irregular</option>
-    </select>
+        <div class="cell">
+            <label for="category">Category:</label>
+            <input type="text" id="category">
+        </div>
 
-    <label>Amount (£):</label>
-    <input type="number" id="amount" step="0.01">
+        <div class="cell">
+            <label for="frequency">Frequency:</label>
+            <select id="frequency">
+                <option value="monthly">Monthly</option>
+                <option value="4weekly">4 Weekly</option>
+                <option value="irregular">Irregular</option>
+            </select>
+        </div>
 
-    <label>Date:</label>
-    <input type="date" id="date">
-
-    <button id="addBtn">Add Transaction</button>
+        <div class="cell">
+            <label for="date">Date:</label>
+            <input type="date" id="date">
+            <button id="addBtn" class="add-btn">Add Transaction</button>
+        </div>
+    </div>
 </section>
 
 <hr>
 
-<!-- Transaction List -->
-<section id="transactionList">
-    <h2>Transactions (including projection)</h2>
-    <table id="transactionsTable">
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Type</th>
-            <th>Amount (£)</th>
-            <th>Balance (£)</th>
-            <th>Delete</th>
-        </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+<!-- Find controls + Jump button -->
+<section id="tableControls" class="controls">
+    <div class="find-controls">
+        <label for="findInput">Find (Description):</label>
+        <input type="text" id="findInput" placeholder="search description...">
+        <button id="findBtn">Find</button>
+        <button id="findNextBtn">Find Next</button>
+        <button id="clearFindBtn">Clear</button>
+    </div>
+
+    <div class="jump-controls">
+        <button id="jumpToSummaryBtn">Jump to Monthly Summary ↓</button>
+    </div>
 </section>
-    <section id="monthlySummary">
-    <h2>Monthly Summary</h2>
+
+<!-- Transaction List -->
+<section id="transactionList" class="table-section">
+    <h2>Transactions (including projection)</h2>
+    <div class="table-wrapper">
+        <table id="transactionsTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Amount (£)</th>
+                    <th>Balance (£)</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Monthly Summary (with Back to Top) -->
+<section id="monthlySummary">
+    <div class="summary-header">
+        <button id="backToTopBtn">Back to Top ↑</button>
+        <h2>Monthly Summary</h2>
+    </div>
+
     <table id="summaryTable">
         <thead>
             <tr>
@@ -89,6 +133,12 @@
         </thead>
         <tbody></tbody>
     </table>
+</section>
+
+<!-- Chart -->
+<section id="chartContainer">
+    <h2>Financial Overview Chart</h2>
+    <canvas id="budgetChart" width="900" height="350"></canvas>
 </section>
 
 <script src="app.js"></script>
