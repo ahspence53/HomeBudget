@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const findDateInput = document.getElementById("findDateInput");
     const findDateBtn = document.getElementById("findDateBtn");
 
-    // Load config
     startDateEl.value = localStorage.getItem("startDate") || "";
     openingBalanceEl.value = localStorage.getItem("openingBalance") || "";
 
@@ -39,11 +38,9 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Render transactions
     function renderTransactions() {
         const tbody = document.querySelector("#transactionsTable tbody");
         tbody.innerHTML = "";
-
         transactions.sort((a,b)=> new Date(a.date) - new Date(b.date));
         calculateBalances();
         saveTransactions();
@@ -74,7 +71,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Add transaction
     function addTransaction() {
         const tx = {
             description: descriptionEl.value.trim(),
@@ -114,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if(!startDateStr) return;
         let balance = parseFloat(openingBalanceEl.value)||0;
         const startDate = new Date(startDateStr);
-        const endDate = new Date(startDateStr);
+        const endDate = new Date(startDate);
         endDate.setMonth(endDate.getMonth()+24);
 
         for(let d=new Date(startDate); d<=endDate; d.setDate(d.getDate()+1)){
@@ -157,7 +153,6 @@ document.addEventListener("DOMContentLoaded", function() {
         if(!found) alert("Date not found in projection.");
     });
 
-    // ---------- Initial Render ----------
     renderTransactions();
     renderDailyProjection();
 
