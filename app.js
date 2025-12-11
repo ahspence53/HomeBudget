@@ -112,9 +112,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
         let currentDate = new Date(startDate);
         while(currentDate <= endDate){
+            // Filter transactions for this day
             let txToday = transactions
                 .filter(tx=> new Date(tx.date).toDateString() === currentDate.toDateString())
                 .sort((a,b)=> a.description.localeCompare(b.description));
+
             if(txToday.length>0){
                 txToday.forEach(tx=>{
                     if(tx.type==='income') balance += tx.amount;
@@ -129,7 +131,19 @@ document.addEventListener("DOMContentLoaded", function() {
                     `;
                     tbody.appendChild(row);
                 });
+            } else {
+                // No transaction today, add blank row with balance
+                const row = document.createElement("tr");
+                row.innerHTML=`
+                    <td class="freeze-col">${formatDateDDMMMYYYY(currentDate.toISOString())}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>${balance.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
             }
+
             currentDate.setDate(currentDate.getDate()+1);
         }
     }
@@ -138,15 +152,14 @@ document.addEventListener("DOMContentLoaded", function() {
     findDateBtn.addEventListener("click", function(){
         const targetDateStr = findDateInput.value;
         if(!targetDateStr) return alert("Please select a valid date.");
+        const targetDate = new Date(targetDateStr).toDateString();
+
         const rows = document.querySelectorAll("#dailyProjectionTable tbody tr");
         let found=false;
         rows.forEach(r=>r.classList.remove("highlight-row"));
         rows.forEach(row=>{
-            const rowDateText = row.cells[0].textContent;
-            const [day,month,year]=rowDateText.split("-");
-            const monthNum = new Date(`${month} 1, 2000`).getMonth();
-            const rowDate = new Date(year, monthNum, day);
-            if(rowDate.toDateString() === new Date(targetDateStr).toDateString()){
+            const rowDate = new Date(row.cells[0].textContent).toDateString();
+            if(rowDate === targetDate){
                 row.scrollIntoView({behavior:"smooth", block:"center"});
                 row.classList.add("highlight-row");
                 found=true;
