@@ -1,3 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Home Budget Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+    <h1>Home Budget Tracker</h1>
+</header>
+
+<!-- Setup -->
+<section id="config" class="config-row">
+    <div class="config-item">
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate">
+    </div>
+
+    <div class="config-item">
+        <label for="openingBalance">Opening Balance (£):</label>
+        <input type="number" id="openingBalance" step="0.01">
+    </div>
+
+    <div class="config-item config-save">
+        <button id="saveConfigBtn">Save Setup</button>
+    </div>
+</section>
+
+<hr>
+
+<!-- Add Transaction -->
+<section id="addTransaction" class="grid-section">
+    <h2>Add Transaction</h2>
+    <div class="grid">
+        <div class="cell">
+            <label for="description">Description:</label>
+            <input type="text" id="description" placeholder="e.g. TV Licence">
+        </div>
+
+        <div class="cell">
+            <label for="type">Type:</label>
+            <select id="type">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+        </div>
+
+        <div class="cell">
+            <label for="amount">Amount (£):</label>
+            <input type="number" id="amount" step="0.01">
+        </div>
+
+        <div class="cell">
+            <label for="category">Category:</label>
+            <input type="text" id="category">
+        </div>
+
+        <div class="cell">
+            <label for="frequency">Frequency:</label>
+            <select id="frequency">
+                <option value="monthly">Monthly</option>
+                <option value="4weekly">4 Weekly</option>
+                <option value="irregular">Irregular</option>
+            </select>
+        </div>
+
+        <div class="cell">
+            <label for="date">Date:</label>
+            <input type="date" id="date">
+            <button id="addBtn" class="add-btn">Add Transaction</button>
+        </div>
+    </div>
+</section>
+
+<hr>
+
+<!-- Export / Restore -->
+<section id="backupRestore" class="grid-section">
+    <div class="cell">
+        <button id="exportCSVBtn" class="jump-btn">Export Transactions CSV</button>
+    </div>
+    <div class="cell">
+        <input type="file" id="restoreCSVInput" accept=".csv">
+        <button id="restoreCSVBtn" class="jump-btn">Restore from CSV</button>
+    </div>
+</section>
+
+<hr>
+
+<!-- Transactions Table -->
+<section id="transactionList" class="table-section">
+    <h2>Transactions</h2>
+    <div class="table-wrapper">
+        <table id="transactionsTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Amount (£)</th>
+                    <th>Balance (£)</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody id="transaction-list"></tbody>
+        </table>
+    </div>
+</section>
+
+<hr>
+
 <!-- Daily 24-Month Projection -->
 <section id="dailyProjection">
     <div class="projection-header">
@@ -23,7 +138,7 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Daily projection rows inserted by JS -->
+                <!-- Rows inserted by JS -->
             </tbody>
         </table>
     </div>
@@ -32,3 +147,7 @@
         <button id="backToTopBtn" class="jump-btn">Back to Top ↑</button>
     </div>
 </section>
+
+<script src="app.js"></script>
+</body>
+</html>
