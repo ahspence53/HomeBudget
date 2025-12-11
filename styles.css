@@ -44,7 +44,7 @@ td.expense { color:#cc0000; font-weight:bold; }
     position:sticky; left:0; background:#2a7bff; color:white; z-index:10;
 }
 #dailyProjectionTable td.freeze-col {
-    position:sticky; left:0; background:white !important; color:black; z-index:5;
+    position:sticky; left:0; background:white; color:black; z-index:5;
 }
 
 #dailyProjectionTable th, #dailyProjectionTable td { padding:8px; border-bottom:1px solid #999; text-align:left; }
