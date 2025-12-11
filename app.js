@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function() {
 
+    // ---------- Initial Setup ----------
     let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
-    // Elements
     const startDateEl = document.getElementById("startDate");
     const openingBalanceEl = document.getElementById("openingBalance");
     const saveConfigBtn = document.getElementById("saveConfigBtn");
@@ -15,29 +15,25 @@ document.addEventListener("DOMContentLoaded", function() {
     const dateEl = document.getElementById("date");
     const addBtn = document.getElementById("addBtn");
 
-    const transactionsTbody = document.getElementById("transaction-list");
-    const dailyTbody = document.querySelector("#dailyProjectionTable tbody");
-
-    const scrollToProjectionBtn = document.getElementById("scrollToProjectionBtn");
-    const backToTopBtn = document.getElementById("backToTopBtn");
-    const dailyProjectionSection = document.getElementById("dailyProjection");
-
-    const findBtn = document.getElementById("findDateBtn");
+    // Daily Projection table & find controls
+    const dailyTableBody = document.querySelector("#dailyProjectionTable tbody");
     const findInput = document.getElementById("findDateInput");
+    const findBtn = document.getElementById("findDateBtn");
+    const backToTopBtn = document.getElementById("backToTopBtn");
 
-    // Load saved config
+    // Load start date and opening balance
     startDateEl.value = localStorage.getItem("startDate") || "";
     openingBalanceEl.value = localStorage.getItem("openingBalance") || "";
 
-    // Helper Functions
+    // ---------- Helpers ----------
     function saveTransactions() {
         localStorage.setItem("transactions", JSON.stringify(transactions));
     }
 
-    function formatDateDDMMYYYY(date) {
-        const d = new Date(date);
-        const dd = String(d.getDate()).padStart(2,'0');
-        const mm = String(d.getMonth()+1).padStart(2,'0');
+    function formatDateDDMMYYYY(dateStr) {
+        const d = new Date(dateStr);
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
         const yyyy = d.getFullYear();
         return `${dd}-${mm}-${yyyy}`;
     }
@@ -51,39 +47,44 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Render Transactions Table
+    // ---------- Render Transactions ----------
     function renderTransactions() {
-        transactionsTbody.innerHTML = "";
-        transactions.sort((a,b) => new Date(a.date) - new Date(b.date));
+        const tbody = document.querySelector("#transactionsTable tbody");
+        tbody.innerHTML = "";
+
+        transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+
         calculateBalances();
         saveTransactions();
 
-        transactions.forEach((tx,index) => {
+        transactions.forEach((tx, index) => {
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${formatDateDDMMYYYY(tx.date)}</td>
                 <td>${tx.description}</td>
                 <td>${tx.category || ''}</td>
-                <td>${tx.type}</td>
+                <td class="${tx.type}">${tx.type}</td>
                 <td>${tx.amount.toFixed(2)}</td>
                 <td>${tx.balance.toFixed(2)}</td>
                 <td><button class="delete-btn" data-index="${index}">Delete</button></td>
             `;
-            transactionsTbody.appendChild(row);
+            tbody.appendChild(row);
         });
 
-        // Delete handler
+        // Delete
         document.querySelectorAll(".delete-btn").forEach(btn => {
             btn.addEventListener("click", function() {
                 const idx = parseInt(this.dataset.index);
-                transactions.splice(idx,1);
-                renderTransactions();
-                renderDailyProjection();
+                if (confirm(`Delete transaction "${transactions[idx].description}" on ${formatDateDDMMYYYY(transactions[idx].date)} (£${transactions[idx].amount.toFixed(2)})?`)) {
+                    transactions.splice(idx, 1);
+                    renderTransactions();
+                    renderDailyProjection();
+                }
             });
         });
     }
 
-    // Add Transaction
+    // ---------- Add Transaction ----------
     function addTransaction() {
         const tx = {
             description: descriptionEl.value.trim(),
@@ -93,25 +94,29 @@ document.addEventListener("DOMContentLoaded", function() {
             frequency: frequencyEl.value,
             date: dateEl.value
         };
-        if (!tx.description || !tx.date || isNaN(tx.amount)) {
+
+        if (!tx.description || isNaN(tx.amount) || !tx.date) {
             alert("Please fill in Description, Amount, and Date.");
             return;
         }
+
         transactions.push(tx);
 
         descriptionEl.value = "";
-        typeEl.value = "income";
         amountEl.value = "";
         categoryEl.value = "";
-        frequencyEl.value = "monthly";
         dateEl.value = "";
 
         renderTransactions();
         renderDailyProjection();
     }
 
-    addBtn.addEventListener("click", addTransaction);
+    addBtn.addEventListener("click", function(e){
+        e.preventDefault();
+        addTransaction();
+    });
 
+    // ---------- Save Config ----------
     saveConfigBtn.addEventListener("click", function() {
         localStorage.setItem("startDate", startDateEl.value);
         localStorage.setItem("openingBalance", openingBalanceEl.value);
@@ -119,101 +124,87 @@ document.addEventListener("DOMContentLoaded", function() {
         renderDailyProjection();
     });
 
-    // Render Daily 24-Month Projection (ALL DATES)
+    // ---------- Daily 24-Month Projection ----------
     function renderDailyProjection() {
-        dailyTbody.innerHTML = "";
-        const startDateStr = startDateEl.value;
-        if(!startDateStr) return;
-
-        const startDate = new Date(startDateStr);
+        dailyTableBody.innerHTML = "";
+        const startStr = startDateEl.value;
+        if (!startStr) return;
+        const startDate = new Date(startStr);
         const endDate = new Date(startDate);
-        endDate.setMonth(endDate.getMonth()+24);
+        endDate.setMonth(endDate.getMonth() + 24);
 
+        // Create a list of all days
+        let dateCursor = new Date(startDate);
         let balance = parseFloat(openingBalanceEl.value) || 0;
-        let current = new Date(startDate);
 
-        while(current <= endDate) {
-            let dailyTransactions = [];
+        while (dateCursor <= endDate) {
+            const dateStr = formatDateDDMMYYYY(dateCursor);
 
-            // Find transactions for this date
+            // Filter transactions applicable for this day
             transactions.forEach(tx => {
                 const txDate = new Date(tx.date);
-                let addThis = false;
-
-                if(tx.frequency==="irregular") {
-                    if(txDate.toDateString() === current.toDateString()) addThis = true;
-                } else if(tx.frequency==="monthly") {
-                    if(txDate.getDate() === current.getDate()) addThis = true;
-                } else if(tx.frequency==="4weekly") {
-                    const diffDays = Math.floor((current - txDate)/(1000*60*60*24));
-                    if(diffDays >=0 && diffDays % 28 === 0) addThis = true;
+                let include = false;
+                if(tx.frequency === "monthly" && txDate.getDate() === dateCursor.getDate() && txDate <= dateCursor) include = true;
+                if(tx.frequency === "4weekly" && txDate <= dateCursor){
+                    const diff = Math.floor((dateCursor - txDate)/(1000*60*60*24));
+                    if(diff % 28 === 0) include = true;
                 }
+                if(tx.frequency === "irregular" && txDate.toDateString() === dateCursor.toDateString()) include = true;
 
-                if(addThis) dailyTransactions.push(tx);
-            });
-
-            if(dailyTransactions.length>0) {
-                dailyTransactions.forEach(tx=>{
-                    if(tx.type==="income") balance += tx.amount;
-                    else balance -= tx.amount;
-
+                if(include){
+                    balance += tx.type === "income" ? tx.amount : -tx.amount;
                     const row = document.createElement("tr");
                     row.innerHTML = `
-                        <td>${formatDateDDMMYYYY(current)}</td>
+                        <td>${dateStr}</td>
                         <td>${tx.description}</td>
                         <td>${tx.type}</td>
                         <td>${tx.amount.toFixed(2)}</td>
                         <td>${balance.toFixed(2)}</td>
                     `;
-                    dailyTbody.appendChild(row);
-                });
-            } else {
-                // No transaction for this date: show empty row with balance
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${formatDateDDMMYYYY(current)}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>${balance.toFixed(2)}</td>
-                `;
-                dailyTbody.appendChild(row);
-            }
+                    dailyTableBody.appendChild(row);
+                }
+            });
 
-            current.setDate(current.getDate()+1);
+            dateCursor.setDate(dateCursor.getDate() + 1);
         }
     }
 
-    // Find Date
+    // ---------- Find Date ----------
     findBtn.addEventListener("click", function() {
         const val = findInput.value;
-        if(!val) { alert("Please select a date."); return; }
-        const dateStr = formatDateDDMMYYYY(val);
+        if(!val){ alert("Please select a date."); return; }
+
+        const selected = new Date(val);
+        const dd = String(selected.getDate()).padStart(2,'0');
+        const mm = String(selected.getMonth()+1).padStart(2,'0');
+        const yyyy = selected.getFullYear();
+        const dateStr = `${dd}-${mm}-${yyyy}`;
 
         let found = false;
+
         document.querySelectorAll("#dailyProjectionTable tbody tr").forEach(tr=>{
             tr.classList.remove("highlight-row");
-            if(tr.children[0].textContent === dateStr) {
+        });
+
+        const rows = document.querySelectorAll("#dailyProjectionTable tbody tr");
+        for(const tr of rows){
+            if(tr.children[0].textContent === dateStr){
                 tr.classList.add("highlight-row");
                 tr.scrollIntoView({behavior:"smooth", block:"center"});
                 found = true;
+                break;
             }
-        });
+        }
+
         if(!found) alert("No transactions found on this date.");
     });
 
-    // Jump Buttons
-    if(scrollToProjectionBtn && backToTopBtn && dailyProjectionSection) {
-        scrollToProjectionBtn.addEventListener("click", ()=>{
-            dailyProjectionSection.scrollIntoView({behavior:"smooth", block:"start"});
-        });
+    // ---------- Back to Top ----------
+    backToTopBtn.addEventListener("click", function(){
+        window.scrollTo({top:0, behavior:"smooth"});
+    });
 
-        backToTopBtn.addEventListener("click", ()=>{
-            window.scrollTo({top:0, behavior:"smooth"});
-        });
-    }
-
-    // Initial render
+    // ---------- Initial Render ----------
     renderTransactions();
     renderDailyProjection();
 
