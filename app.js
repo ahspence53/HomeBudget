@@ -30,13 +30,9 @@ function saveTransactions() {
 
 function calculateBalances() {
     let balance = parseFloat(openingBalanceEl.value) || 0;
-
     transactions.forEach(tx => {
-        if (tx.type === "income") {
-            balance += tx.amount;
-        } else {
-            balance -= tx.amount;
-        }
+        if (tx.type === "income") balance += tx.amount;
+        else balance -= tx.amount;
         tx.balance = balance;
     });
 }
@@ -98,6 +94,7 @@ function addTransaction() {
     dateEl.value = "";
 
     renderTransactions();
+    renderSummary();
 }
 
 // ---------- Save Config ----------
@@ -105,6 +102,7 @@ saveConfigBtn.addEventListener("click", function() {
     localStorage.setItem("startDate", startDateEl.value);
     localStorage.setItem("openingBalance", openingBalanceEl.value);
     renderTransactions();
+    renderSummary();
 });
 
 // ---------- Add Button ----------
@@ -137,8 +135,8 @@ function generateProjection() {
                 if (tx.type === "income") monthlyIncome += tx.amount;
                 else monthlyExpense += tx.amount;
             } else if (freq === "4weekly" && txDate <= monthDate) {
-                if (tx.type === "income") monthlyIncome += tx.amount * (4 / 4); // simple 4-week -> monthly
-                else monthlyExpense += tx.amount * (4 / 4);
+                if (tx.type === "income") monthlyIncome += tx.amount;
+                else monthlyExpense += tx.amount;
             } else if (freq === "irregular" && txDate.getMonth() === monthDate.getMonth() && txDate.getFullYear() === monthDate.getFullYear()) {
                 if (tx.type === "income") monthlyIncome += tx.amount;
                 else monthlyExpense += tx.amount;
