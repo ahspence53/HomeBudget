@@ -1,4 +1,4 @@
-// Home Budget Tracker - Full with categories and 4-weekly fix
+// Home Budget Tracker - Full version with categories & highlighting
 
 // Load transactions and categories
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
@@ -67,7 +67,7 @@ function addMonths(date, months) {
     return d;
 }
 
-// Render transactions table
+// Render transactions table with highlighting
 function renderTransactions() {
     const table = document.getElementById('transaction-table').querySelector('tbody');
     table.innerHTML = '';
@@ -77,6 +77,16 @@ function renderTransactions() {
 
     for (const tx of projection) {
         const row = document.createElement('tr');
+
+        // Highlight irregular transactions
+        if(tx.frequency === 'irregular') {
+            row.style.fontWeight = 'bold';
+            row.style.backgroundColor = '#f0f8ff'; // light blue background
+        }
+
+        // Color-code Income / Expense
+        if(tx.type === 'income') row.style.color = 'green';
+        if(tx.type === 'expense') row.style.color = 'red';
 
         const dateCell = document.createElement('td');
         dateCell.textContent = formatDate(tx.date);
@@ -92,6 +102,7 @@ function renderTransactions() {
 
         const categoryCell = document.createElement('td');
         categoryCell.textContent = tx.category || 'General';
+        categoryCell.style.fontWeight = 'bold';
 
         const balanceCell = document.createElement('td');
         balance = tx.type === 'income' ? balance + tx.amount : balance - tx.amount;
