@@ -106,32 +106,34 @@ document.addEventListener("DOMContentLoaded", function() {
         dailyTableBody.innerHTML = "";
         const startStr = startDateEl.value;
         if(!startStr) return;
-        const startDate = new Date(startStr);
-        const endDate = new Date(startDate); 
-        endDate.setMonth(endDate.getMonth()+24);
-        let balance = parseFloat(openingBalanceEl.value)||0;
 
-        let dateCursor = new Date(startDate);
-        while(dateCursor <= endDate){
-            const dateStr = formatDateDDMMYYYY(dateCursor);
-            let dayTransactions = [];
+        const startDate = new Date(startStr);
+        const endDate = new Date(startDate);
+        endDate.setMonth(endDate.getMonth()+24);
+
+        let balance = parseFloat(openingBalanceEl.value) || 0;
+
+        // Loop through each date from start to end
+        for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate()+1)){
+            const dateStr = formatDateDDMMYYYY(d);
+            let transactionsForDay = [];
 
             transactions.forEach(tx=>{
                 const txDate = new Date(tx.date);
                 let include=false;
 
-                if(tx.frequency==="monthly" && txDate.getDate()===dateCursor.getDate() && txDate<=dateCursor) include=true;
-                if(tx.frequency==="4weekly" && txDate<=dateCursor){
-                    const diff=Math.floor((dateCursor-txDate)/(1000*60*60*24));
-                    if(diff%28===0) include=true;
+                if(tx.frequency==="monthly" && txDate.getDate()===d.getDate() && txDate<=d) include=true;
+                if(tx.frequency==="4weekly" && txDate<=d){
+                    const diff=Math.floor((d-txDate)/(1000*60*60*24));
+                    if(diff % 28 === 0) include=true;
                 }
-                if(tx.frequency==="irregular" && txDate.toDateString()===dateCursor.toDateString()) include=true;
+                if(tx.frequency==="irregular" && txDate.toDateString()===d.toDateString()) include=true;
 
-                if(include) dayTransactions.push(tx);
+                if(include) transactionsForDay.push(tx);
             });
 
-            if(dayTransactions.length>0){
-                dayTransactions.forEach(tx=>{
+            if(transactionsForDay.length>0){
+                transactionsForDay.forEach(tx=>{
                     balance += tx.type==="income"?tx.amount:-tx.amount;
                     const row=document.createElement("tr");
                     row.innerHTML=`
@@ -144,7 +146,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     dailyTableBody.appendChild(row);
                 });
             } else {
-                // Blank row
+                // Add blank row for this day
                 const row=document.createElement("tr");
                 row.innerHTML=`
                     <td>${dateStr}</td>
@@ -155,8 +157,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 `;
                 dailyTableBody.appendChild(row);
             }
-
-            dateCursor.setDate(dateCursor.getDate()+1);
         }
     }
 
