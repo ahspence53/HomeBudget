@@ -117,6 +117,51 @@ function renderTransactions() {
         tbody.appendChild(row);
     });
 }
+function renderMonthlySummary(projected) {
+    const startBalance = parseFloat(localStorage.getItem("openingBalance") || "0");
+    let running = startBalance;
+
+    const summary = {};
+
+    projected.forEach(tx => {
+        const d = new Date(tx.date);
+        const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
+
+        if (!summary[key]) {
+            summary[key] = {
+                income: 0,
+                expense: 0,
+                closing: 0
+            };
+        }
+
+        if (tx.type === "income") summary[key].income += tx.amount;
+        else summary[key].expense += tx.amount;
+    });
+
+    // Now compute monthly closing balances
+    const tbody = document.querySelector("#summaryTable tbody");
+    tbody.innerHTML = "";
+
+    let keys = Object.keys(summary).sort();
+
+    keys.forEach(key => {
+        const m = summary[key];
+
+        running += m.income - m.expense;
+        m.closing = running;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${key}</td>
+            <td>£${m.income.toFixed(2)}</td>
+            <td>£${m.expense.toFixed(2)}</td>
+            <td>£${(m.income - m.expense).toFixed(2)}</td>
+            <td>£${m.closing.toFixed(2)}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
 
 // Delete transaction
 function deleteTx(id) {
