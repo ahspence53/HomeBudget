@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 transactions.splice(idx, 1);
                 renderTransactions();
                 renderSummary();
+                renderChart();
             });
         });
     }
@@ -94,6 +95,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         renderTransactions();
         renderSummary();
+        renderChart();
     }
 
     // ---------- Save Config ----------
@@ -102,6 +104,7 @@ document.addEventListener("DOMContentLoaded", function() {
         localStorage.setItem("openingBalance", openingBalanceEl.value);
         renderTransactions();
         renderSummary();
+        renderChart();
     });
 
     // ---------- Add Button ----------
@@ -177,7 +180,68 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // ---------- Chart ----------
+    let budgetChart;  // Chart instance
+
+    function renderChart() {
+        const projection = generateProjection();
+        const labels = projection.map(p => p.month);
+        const incomeData = projection.map(p => p.income);
+        const expenseData = projection.map(p => p.expense);
+        const balanceData = projection.map(p => p.balance);
+
+        const ctx = document.getElementById("budgetChart").getContext("2d");
+
+        // Destroy previous chart instance if exists
+        if (budgetChart) budgetChart.destroy();
+
+        budgetChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Income (£)',
+                        data: incomeData,
+                        borderColor: '#1a8f2e',
+                        backgroundColor: 'rgba(26,143,46,0.2)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Expenses (£)',
+                        data: expenseData,
+                        borderColor: '#cc0000',
+                        backgroundColor: 'rgba(204,0,0,0.2)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Cumulative Balance (£)',
+                        data: balanceData,
+                        borderColor: '#2a7bff',
+                        backgroundColor: 'rgba(42,123,255,0.2)',
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Financial Overview' }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+
     // ---------- Initial Render ----------
     renderTransactions();
     renderSummary();
+    renderChart();
 });
