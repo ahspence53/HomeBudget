@@ -133,13 +133,21 @@ document.addEventListener("DOMContentLoaded", function() {
             });
 
             if(transactionsForDay.length>0){
+                // Sort income first for same-date
+                transactionsForDay.sort((a,b)=>{
+                    if(a.type==="income" && b.type==="expense") return -1;
+                    if(a.type==="expense" && b.type==="income") return 1;
+                    return 0;
+                });
+
                 transactionsForDay.forEach(tx=>{
                     balance += tx.type==="income"?tx.amount:-tx.amount;
                     const row=document.createElement("tr");
+                    row.id = `row-${dateStr.replace(/-/g,'')}`; // for Find Date
                     row.innerHTML=`
                         <td>${dateStr}</td>
                         <td>${tx.description}</td>
-                        <td>${tx.type}</td>
+                        <td class="${tx.type}">${tx.type}</td>
                         <td>${tx.amount.toFixed(2)}</td>
                         <td>${balance.toFixed(2)}</td>
                     `;
@@ -148,6 +156,7 @@ document.addEventListener("DOMContentLoaded", function() {
             } else {
                 // Add blank row for this day
                 const row=document.createElement("tr");
+                row.id = `row-${dateStr.replace(/-/g,'')}`;
                 row.innerHTML=`
                     <td>${dateStr}</td>
                     <td></td>
