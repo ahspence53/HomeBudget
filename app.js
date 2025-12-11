@@ -24,14 +24,14 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function formatDateDDMMMYYYY(dateStr) {
-        const options = { day: '2-digit', month: 'short', year: 'numeric' };
-        return new Date(dateStr).toLocaleDateString('en-GB', options).replace(/ /g, '-');
+        const options = { day:'2-digit', month:'short', year:'numeric' };
+        return new Date(dateStr).toLocaleDateString('en-GB', options).replace(/ /g,'-');
     }
 
     function calculateBalances() {
         let balance = parseFloat(openingBalanceEl.value) || 0;
         transactions.forEach(tx => {
-            if (tx.type === "income") balance += tx.amount;
+            if(tx.type==='income') balance += tx.amount;
             else balance -= tx.amount;
             tx.balance = balance;
         });
@@ -39,12 +39,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function renderTransactions() {
         const tbody = document.querySelector("#transactionsTable tbody");
-        tbody.innerHTML = "";
-        transactions.sort((a,b)=> new Date(a.date) - new Date(b.date));
+        tbody.innerHTML="";
+        transactions.sort((a,b)=> new Date(a.date)-new Date(b.date));
         calculateBalances();
         saveTransactions();
 
-        transactions.forEach((tx, index) => {
+        transactions.forEach((tx,index)=>{
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${formatDateDDMMMYYYY(tx.date)}</td>
@@ -110,21 +110,27 @@ document.addEventListener("DOMContentLoaded", function() {
         const endDate = new Date(startDate);
         endDate.setMonth(endDate.getMonth()+24);
 
-        for(let d=new Date(startDate); d<=endDate; d.setDate(d.getDate()+1)){
-            let txToday = transactions.filter(tx => new Date(tx.date).toDateString() === d.toDateString());
-            txToday.forEach(tx => {
-                if(tx.type==='income') balance += tx.amount;
-                else balance -= tx.amount;
-            });
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td class="freeze-col">${formatDateDDMMMYYYY(d.toISOString())}</td>
-                <td>${txToday.map(tx=>tx.description).join(", ")}</td>
-                <td>${txToday.map(tx=>tx.type).join(", ")}</td>
-                <td>${txToday.map(tx=>tx.amount.toFixed(2)).join(", ")}</td>
-                <td>${balance.toFixed(2)}</td>
-            `;
-            tbody.appendChild(row);
+        let currentDate = new Date(startDate);
+        while(currentDate <= endDate){
+            let txToday = transactions
+                .filter(tx=> new Date(tx.date).toDateString() === currentDate.toDateString())
+                .sort((a,b)=> a.description.localeCompare(b.description));
+            if(txToday.length>0){
+                txToday.forEach(tx=>{
+                    if(tx.type==='income') balance += tx.amount;
+                    else balance -= tx.amount;
+                    const row = document.createElement("tr");
+                    row.innerHTML=`
+                        <td class="freeze-col">${formatDateDDMMMYYYY(currentDate.toISOString())}</td>
+                        <td>${tx.description}</td>
+                        <td>${tx.type}</td>
+                        <td>${tx.amount.toFixed(2)}</td>
+                        <td>${balance.toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+            currentDate.setDate(currentDate.getDate()+1);
         }
     }
 
