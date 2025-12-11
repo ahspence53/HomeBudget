@@ -132,11 +132,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
 
+            const isoDate = date.toISOString().slice(0,10); // YYYY-MM-DD
             if(txToday.length>0){
                 txToday.forEach(tx=>{
                     if(tx.type==='income') balance += tx.amount;
                     else balance -= tx.amount;
                     const row = document.createElement("tr");
+                    row.dataset.date = isoDate;
                     row.innerHTML=`
                         <td class="freeze-col">${formatDateDDMMMYYYY(date.toISOString())}</td>
                         <td>${tx.description}</td>
@@ -148,6 +150,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
             } else {
                 const row = document.createElement("tr");
+                row.dataset.date = isoDate;
                 row.innerHTML=`
                     <td class="freeze-col">${formatDateDDMMMYYYY(date.toISOString())}</td>
                     <td></td>
@@ -162,19 +165,17 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // ---------- Find Date ----------
     findDateBtn.addEventListener("click", function(){
-        const targetDateStr = findDateInput.value;
+        const targetDateStr = findDateInput.value; // YYYY-MM-DD
         if(!targetDateStr) return alert("Please select a valid date.");
-        const targetDate = new Date(targetDateStr).toDateString();
 
         const rows = document.querySelectorAll("#dailyProjectionTable tbody tr");
-        let found=false;
-        rows.forEach(r=>r.classList.remove("highlight-row"));
+        let found = false;
+        rows.forEach(r => r.classList.remove("highlight-row"));
         rows.forEach(row=>{
-            const rowDate = new Date(row.cells[0].textContent).toDateString();
-            if(rowDate === targetDate){
+            if(row.dataset.date === targetDateStr){
                 row.scrollIntoView({behavior:"smooth", block:"center"});
                 row.classList.add("highlight-row");
-                found=true;
+                found = true;
             }
         });
         if(!found) alert("Date not found in projection.");
