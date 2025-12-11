@@ -32,16 +32,25 @@ button:hover { background: #1a5cd8; }
 .table-wrapper { max-height: 400px; overflow: auto; border-radius: 8px; background: white; box-shadow: 0 0 6px rgba(0,0,0,0.05); }
 
 table { width: 100%; border-collapse: collapse; min-width: 800px; font-size: 14px; }
-thead { background: #2a7bff; color: white; }
 th, td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
 
-/* Sticky table header */
+/* Sticky header */
 .daily-projection-container thead th {
     position: sticky;
     top: 0;
-    background: #2a7bff; /* only header row */
+    background: #2a7bff; /* header row blue */
     color: white;
     z-index: 3;
+}
+
+/* Freeze Date column in body only */
+.daily-projection-container tbody .freeze-col {
+    position: sticky;
+    left: 0;
+    background: white;  /* body cells white */
+    color: #222;
+    font-weight: bold;
+    z-index: 2;
 }
 
 /* Alternate row colors and hover */
@@ -55,17 +64,6 @@ td.expense { color: #cc0000; font-weight: bold; }
 
 .daily-projection-container { max-height: 600px; overflow-y: auto; }
 
-/* Freeze Date column in body only */
-.freeze-col {
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    background: white;  /* body cells remain white */
-    color: #222;        /* body text color */
-    font-weight: bold;
-}
-
-/* Highlight row when finding */
 .highlight-row { background: #fff59d !important; }
 
 .jump-btn { margin: 8px 0; padding: 8px 12px; border-radius: 5px; background: #2a7bff; color: white; font-weight: bold; cursor: pointer; }
