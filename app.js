@@ -113,10 +113,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
         while(dateCursor <= endDate){
             const dateStr = formatDateDDMMYYYY(dateCursor);
+            let transactionsFound=false;
 
             transactions.forEach(tx=>{
                 const txDate = new Date(tx.date);
                 let include=false;
+
                 if(tx.frequency==="monthly" && txDate.getDate()===dateCursor.getDate() && txDate<=dateCursor) include=true;
                 if(tx.frequency==="4weekly" && txDate<=dateCursor){
                     const diff=Math.floor((dateCursor-txDate)/(1000*60*60*24));
@@ -125,6 +127,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 if(tx.frequency==="irregular" && txDate.toDateString()===dateCursor.toDateString()) include=true;
 
                 if(include){
+                    transactionsFound=true;
                     balance += tx.type==="income"?tx.amount:-tx.amount;
                     const row=document.createElement("tr");
                     row.innerHTML=`
@@ -137,6 +140,20 @@ document.addEventListener("DOMContentLoaded", function() {
                     dailyTableBody.appendChild(row);
                 }
             });
+
+            // If no transaction, add blank row with balance
+            if(!transactionsFound){
+                const row=document.createElement("tr");
+                row.innerHTML=`
+                    <td>${dateStr}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>${balance.toFixed(2)}</td>
+                `;
+                dailyTableBody.appendChild(row);
+            }
+
             dateCursor.setDate(dateCursor.getDate()+1);
         }
     }
@@ -158,7 +175,6 @@ document.addEventListener("DOMContentLoaded", function() {
         for(const tr of rows){
             if(tr.children[0].textContent===dateStr){
                 tr.classList.add("highlight-row");
-                // scroll the table wrapper, not window
                 const topPos = tr.offsetTop - dailyWrapper.offsetTop;
                 dailyWrapper.scrollTo({top: topPos, behavior:"smooth"});
                 found=true;
