@@ -1,81 +1,72 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Home Budget Tracker</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
 </head>
 <body>
-
-  <header class="app-header">
+  <main class="container">
     <h1>Home Budget Tracker</h1>
-  </header>
 
-  <main>
+    <section class="form-card">
+      <h2>Add transaction</h2>
+      <form id="txForm">
+        <div class="row">
+          <label>Title
+            <input type="text" id="title" required />
+          </label>
 
-    <!-- Start Date & Opening Balance Panel -->
-    <div id="startPanel" style="width: 95%; margin: 10px auto; padding: 10px; background: #e6f2ff; border: 1px solid #007bff; border-radius: 5px;">
-      <h3>Start Settings</h3>
-      <form id="startForm">
-        <label for="startDate">Start Date:</label>
-        <input type="date" id="startDate" required>
-        <label for="openingBalance">Opening Balance:</label>
-        <input type="number" id="openingBalance" placeholder="0.00" step="0.01" required>
-        <button type="submit">Set</button>
+          <label>Amount (£)
+            <input type="number" id="amount" step="0.01" required />
+          </label>
+
+          <label>Type
+            <select id="type">
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+            </select>
+          </label>
+
+          <label>Frequency
+            <select id="frequency">
+              <option value="irregular">Irregular</option>
+              <option value="monthly">Monthly</option>
+              <option value="four-weekly">4-weekly</option>
+            </select>
+          </label>
+
+          <label>Date
+            <input type="date" id="date" required />
+          </label>
+        </div>
+
+        <div class="row actions">
+          <button type="submit" id="addBtn">Add transaction</button>
+          <button type="button" id="clearBtn">Reset storage (clear all)</button>
+        </div>
       </form>
-    </div>
+    </section>
 
-    <!-- Add Transaction Panel -->
-    <div id="addTransactionPanel" style="width: 95%; margin: 10px auto; padding: 10px; background: #f0f8ff; border: 1px solid #007bff; border-radius: 5px;">
-      <h3>Add Transaction</h3>
-      <form id="transactionForm">
-        <input type="text" id="description" placeholder="Description" required>
-        <input type="number" id="amount" placeholder="Amount" required step="0.01">
-        <select id="type" required>
-          <option value="">Type</option>
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
-        <select id="frequency" required>
-          <option value="">Frequency</option>
-          <option value="monthly">Monthly</option>
-          <option value="4weekly">4 Weekly</option>
-          <option value="irregular">Irregular</option>
-        </select>
-        <input type="date" id="date" required>
-        <button type="submit">Add</button>
-      </form>
-    </div>
-
-    <!-- Toggle button -->
-    <div style="text-align:center; margin: 10px;">
-      <button id="toggleViewBtn">Show Full Daily Ledger</button>
-    </div>
-
-    <!-- Sticky summary section -->
-    <div id="summaryContainer">
-      <div id="summary"></div>
-    </div>
-
-    <!-- Table for daily ledger -->
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Description</th>
-          <th>Type</th>
-          <th>Amount</th>
-          <th>Projected Balance</th>
-        </tr>
-      </thead>
-      <tbody id="ledgerBody"></tbody>
-    </table>
-
+    <section class="table-card">
+      <h2>Transactions</h2>
+      <table id="txTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Frequency</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
   </main>
-
-  <!-- Scroll to top button -->
-  <button id="scrollTopBtn" title="Go to top">↑ Top</button>
 
   <script src="app.js"></script>
 </body>
