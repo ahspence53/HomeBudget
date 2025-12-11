@@ -115,23 +115,40 @@ document.addEventListener("DOMContentLoaded", function() {
         for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
             let dailyIncome = 0;
             let dailyExpense = 0;
+            let descriptions = [];
 
             transactions.forEach(tx => {
                 const txDate = new Date(tx.date);
                 if (tx.frequency === "monthly") {
-                    if (txDate.getDate() === d.getDate() && txDate <= d) tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
+                    if (txDate.getDate() === d.getDate() && txDate <= d) {
+                        tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
+                        descriptions.push(tx.description);
+                    }
                 } else if (tx.frequency === "4weekly") {
                     const diffDays = Math.floor((d - txDate)/(1000*60*60*24));
-                    if (diffDays >= 0 && diffDays % 28 === 0) tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
+                    if (diffDays >= 0 && diffDays % 28 === 0) {
+                        tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
+                        descriptions.push(tx.description);
+                    }
                 } else if (tx.frequency === "irregular") {
-                    if (txDate.toDateString() === d.toDateString()) tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
+                    if (txDate.toDateString() === d.toDateString()) {
+                        tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
+                        descriptions.push(tx.description);
+                    }
                 }
             });
 
             const net = dailyIncome - dailyExpense;
             balance += net;
 
-            projection.push({ date: new Date(d), income: dailyIncome, expense: dailyExpense, net: net, balance: balance });
+            projection.push({
+                date: new Date(d),
+                income: dailyIncome,
+                expense: dailyExpense,
+                net: net,
+                balance: balance,
+                description: descriptions.join(", ")
+            });
         }
 
         return projection;
@@ -145,7 +162,8 @@ document.addEventListener("DOMContentLoaded", function() {
         projection.forEach(p => {
             const row = document.createElement("tr");
             row.innerHTML = `
-                <td>${formatDateDDMMMYYYY(p.date)}</td>
+                <td class="freeze-col">${formatDateDDMMMYYYY(p.date)}</td>
+                <td>${p.description}</td>
                 <td>${p.income.toFixed(2)}</td>
                 <td>${p.expense.toFixed(2)}</td>
                 <td>${p.net.toFixed(2)}</td>
@@ -164,10 +182,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.getElementById("exportProjectionBtn").addEventListener("click", () => {
         const projection = generateDailyProjection();
-        let csv = "Date,Total Income (£),Total Expenses (£),Net (£),Closing Balance (£)\n";
+        let csv = "Date,Description,Total Income (£),Total Expenses (£),Net (£),Closing Balance (£)\n";
         projection.forEach(p => {
             const dStr = formatDateDDMMMYYYY(p.date);
-            csv += `${dStr},${p.income.toFixed(2)},${p.expense.toFixed(2)},${p.net.toFixed(2)},${p.balance.toFixed(2)}\n`;
+            csv += `"${dStr}","${p.description}",${p.income.toFixed(2)},${p.expense.toFixed(2)},${p.net.toFixed(2)},${p.balance.toFixed(2)}\n`;
         });
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
