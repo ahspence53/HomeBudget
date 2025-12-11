@@ -116,7 +116,7 @@ tbody tr:hover { background: #dfe9ff; }
 /* Highlighted find result */
 .highlight-row { background: #fff59d !important; }
 
-/* Income / expense colors in transaction list */
+/* Income / expense colors */
 td.income { color: #1a8f2e; font-weight: bold; }
 td.expense { color: #cc0000; font-weight: bold; }
 
