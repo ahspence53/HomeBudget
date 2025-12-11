@@ -21,7 +21,7 @@ section {
 }
 
 /* Config row / Add Transaction form layout */
-.config-row, .grid {
+.config-row {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
@@ -63,7 +63,7 @@ button:hover { background: #1a5cd8; }
 
 /* Table wrapper for scroll & sticky header */
 .table-wrapper {
-    max-height: 400px;
+    max-height: 560px;
     overflow: auto;
     border-radius: 8px;
     background: white;
@@ -74,11 +74,11 @@ table {
     width: 100%;
     border-collapse: collapse;
 }
-thead {
-    background: #2a7bff;
-    color: white;
+thead th {
     position: sticky;
     top: 0;
+    background: #2a7bff;
+    color: white;
     z-index: 5;
 }
 th, td {
@@ -87,14 +87,13 @@ th, td {
     text-align: left;
 }
 
-/* Freeze first column (Date) in daily projection table */
-#dailyProjectionTable th.freeze-col,
-#dailyProjectionTable td:nth-child(1) {
+/* Freeze first column in daily projection table body */
+#dailyProjectionTable tbody td:nth-child(1) {
     position: sticky;
     left: 0;
-    background: #2a7bff;
-    color: white;
-    z-index: 6;
+    background: #ffffff; /* body cells white */
+    color: #222; /* text dark */
+    z-index: 4;
 }
 
 /* Alternate row colors and hover effect */
@@ -109,20 +108,6 @@ tbody tr:hover { background: #dfe9ff; }
 td.income { color: #1a8f2e; font-weight: bold; }
 td.expense { color: #cc0000; font-weight: bold; }
 
-/* Summary Table (if used) */
-#summaryTable {
-    width: 100%;
-    border-collapse: collapse;
-}
-#summaryTable th {
-    background: #444;
-    color: #fff;
-}
-#summaryTable td, #summaryTable th {
-    padding: 8px;
-    border-bottom: 1px solid #999;
-}
-
 /* Jump Buttons Container */
 .jump-btn {
     margin: 8px 0;
@@ -132,11 +117,4 @@ td.expense { color: #cc0000; font-weight: bold; }
 @media (max-width: 900px) {
     .grid { grid-template-columns: 1fr; }
     .config-row { flex-direction: column; }
-}
-
-/* Chart container */
-#chartContainer {
-    padding: 18px;
-    background: white;
-    border-radius: 8px;
 }
