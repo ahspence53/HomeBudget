@@ -78,10 +78,10 @@
 
 <hr>
 
-<!-- Jump to Projection/Chart -->
-<button id="jumpToProjectionBtn" class="jump-btn">Jump to Projection / Chart ↓</button>
+<!-- Jump to Daily Projection -->
+<button id="jumpToProjectionBtn" class="jump-btn">Jump to Daily Projection ↓</button>
 
-<!-- Transaction List -->
+<!-- Transactions Table -->
 <section id="transactionList" class="table-section">
     <h2>Transactions</h2>
     <div class="table-wrapper">
@@ -102,14 +102,14 @@
     </div>
 </section>
 
-<!-- Monthly Projection Table -->
+<!-- Daily Projection Table -->
 <section id="projectionSection" class="table-section">
-    <h2>24-Month Projection</h2>
-    <div class="table-wrapper">
+    <h2>Daily 24-Month Projection</h2>
+    <div class="table-wrapper daily-projection-container">
         <table id="projectionTable">
             <thead>
                 <tr>
-                    <th>Month</th>
+                    <th>Date</th>
                     <th>Total Income (£)</th>
                     <th>Total Expenses (£)</th>
                     <th>Net (£)</th>
@@ -120,39 +120,9 @@
         </table>
     </div>
     <button id="exportProjectionBtn" class="jump-btn">Export Projection CSV</button>
+    <button id="backToTopBtn" class="jump-btn">Back to Top ↑</button>
 </section>
 
-<!-- Monthly Summary -->
-<section id="monthlySummary">
-    <div class="summary-header">
-        <h2>Monthly Summary</h2>
-    </div>
-    <table id="summaryTable">
-        <thead>
-            <tr>
-                <th>Month</th>
-                <th>Total Income (£)</th>
-                <th>Total Expenses (£)</th>
-                <th>Net (£)</th>
-                <th>Closing Balance (£)</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-</section>
-
-<!-- Chart -->
-<section id="chartSection">
-    <h2>Chart</h2>
-    <div id="chartContainer">
-        <canvas id="budgetChart" width="800" height="300"></canvas>
-    </div>
-    <div class="chart-bottom">
-        <button id="backToTopBtn" class="jump-btn">Back to Top ↑</button>
-    </div>
-</section>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
