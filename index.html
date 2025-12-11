@@ -5,6 +5,36 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Home Budget Tracker</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Minimal styles to support highlight/negative/bold */
+        #transaction-table, #projection-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.25rem;
+        }
+        #transaction-table th, #transaction-table td,
+        #projection-table th, #projection-table td {
+            border: 1px solid #ddd;
+            padding: .4rem .6rem;
+            text-align: left;
+        }
+        .negative {
+            background: #ffe6e6;
+        }
+        .highlight {
+            background: #fff3b0;
+        }
+        .irregular {
+            font-weight: 700;
+        }
+        .small {
+            font-size: .9rem;
+            color: #444;
+        }
+        .controls-row {
+            margin: .5rem 0;
+        }
+    </style>
 </head>
 <body>
 
@@ -15,46 +45,81 @@
 <section id="config">
     <h2>Configuration</h2>
     <label>Start Date: <input type="date" id="start-date"></label>
-    <label>Opening Balance: <input type="number" id="opening-balance"></label>
+    <label>Opening Balance: <input type="number" id="opening-balance" step="0.01"></label>
     <button id="save-config">Save</button>
 </section>
 
 <section id="add-transaction-section">
     <h2>Add Transaction</h2>
-    <input type="text" id="tx-desc" placeholder="Description" />
-    <input type="number" id="tx-amount" placeholder="Amount" />
-    <select id="tx-type">
-        <option value="income">Income</option>
-        <option value="expense">Expense</option>
-    </select>
-    <select id="tx-frequency">
-        <option value="irregular">Irregular</option>
-        <option value="monthly">Monthly</option>
-        <option value="4-weekly">4-Weekly</option>
-    </select>
-    <input type="date" id="tx-date" />
-    
-    <select id="tx-category"></select>
-    <input type="text" id="new-category" placeholder="Add new category" />
-    <button id="add-category">Add Category</button>
+    <div class="controls-row">
+        <input type="text" id="tx-desc" placeholder="Description" />
+        <input type="number" id="tx-amount" placeholder="Amount" step="0.01" />
+        <select id="tx-type">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+        </select>
+        <select id="tx-frequency">
+            <option value="irregular">Irregular</option>
+            <option value="monthly">Monthly</option>
+            <option value="4-weekly">4-Weekly</option>
+        </select>
+        <input type="date" id="tx-date" />
+    </div>
 
-    <button id="add-transaction">Add Transaction</button>
+    <div class="controls-row">
+        <select id="tx-category">
+            <option value="" disabled selected>Select category</option>
+        </select>
+        <input type="text" id="new-category" placeholder="Add new category" />
+        <button id="add-category">Add Category</button>
+
+        <button id="add-transaction">Add Transaction</button>
+    </div>
+
+    <div class="controls-row small">
+        <label>Find: <input type="text" id="find-input" placeholder="Search description, category or date"></label>
+        <button id="find-next">Find Next</button>
+
+        <label style="margin-left:1rem">Go to date: <input type="date" id="goto-date"></label>
+        <button id="goto-date-btn">Go</button>
+    </div>
 </section>
 
-<table id="transaction-table">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Amount</th>
-            <th>Category</th>
-            <th>Balance</th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
+<section id="transactions">
+    <h2>Transactions</h2>
+    <table id="transaction-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Balance</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</section>
+
+<section id="projection-section">
+    <h2>24-Month Projection</h2>
+    <p class="small">Shows every day for 24 months from the configured Start Date. Recurring transactions: monthly / 4-weekly (28 days) / irregular.</p>
+    <table id="projection-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description(s)</th>
+                <th>Income</th>
+                <th>Expense</th>
+                <th>Daily Balance</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</section>
 
 <script src="app.js"></script>
 </body>
