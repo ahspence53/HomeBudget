@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Home Budget Tracker</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -34,7 +34,6 @@
 <!-- Add Transaction -->
 <section id="addTransaction" class="grid-section">
     <h2>Add Transaction</h2>
-
     <div class="grid">
         <div class="cell">
             <label for="description">Description:</label>
@@ -78,10 +77,7 @@
 
 <hr>
 
-<!-- Jump to Daily Projection -->
-<button id="jumpToProjectionBtn" class="jump-btn">Jump to Daily Projection ↓</button>
-
-<!-- Transactions Table -->
+<!-- Transaction List -->
 <section id="transactionList" class="table-section">
     <h2>Transactions</h2>
     <div class="table-wrapper">
@@ -102,33 +98,36 @@
     </div>
 </section>
 
-<!-- Daily Projection Table -->
-<section id="projectionSection" class="table-section">
+<hr>
+
+<!-- Daily 24-Month Projection -->
+<section id="dailyProjection">
     <div class="projection-header">
         <h2>Daily 24-Month Projection</h2>
         <div class="find-date-container">
+            <label for="findDateInput">Find Date:</label>
             <input type="date" id="findDateInput">
             <button id="findDateBtn" class="jump-btn">Find Date</button>
         </div>
     </div>
 
-    <div class="table-wrapper daily-projection-container">
-        <table id="projectionTable">
+    <div class="daily-projection-container table-wrapper">
+        <table id="dailyProjectionTable">
             <thead>
                 <tr>
-                    <th class="freeze-col">Date</th>
+                    <th>Date</th>
                     <th>Description</th>
-                    <th>Total Income (£)</th>
-                    <th>Total Expenses (£)</th>
-                    <th>Net (£)</th>
-                    <th>Closing Balance (£)</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Amount (£)</th>
+                    <th>Balance (£)</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+                <!-- Daily projection rows inserted by JS -->
+            </tbody>
         </table>
     </div>
-    <button id="exportProjectionBtn" class="jump-btn">Export Projection CSV</button>
-    <button id="backToTopBtn" class="jump-btn">Back to Top ↑</button>
 </section>
 
 <script src="app.js"></script>
