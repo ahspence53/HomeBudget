@@ -1,462 +1,185 @@
-// -------------------------
-// Local Storage Handling
-// -------------------------
-function load() {
-    return JSON.parse(localStorage.getItem("transactions") || "[]");
-}
-function save(transactions) {
+// =====================
+// Home Budget Tracker JS
+// =====================
+
+// ---------- Initial Setup ----------
+let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+
+const startDateEl = document.getElementById("startDate");
+const openingBalanceEl = document.getElementById("openingBalance");
+const saveConfigBtn = document.getElementById("saveConfigBtn");
+
+const descriptionEl = document.getElementById("description");
+const typeEl = document.getElementById("type");
+const amountEl = document.getElementById("amount");
+const categoryEl = document.getElementById("category");
+const frequencyEl = document.getElementById("frequency");
+const dateEl = document.getElementById("date");
+const addBtn = document.getElementById("addBtn");
+
+const tbody = document.getElementById("transaction-list");
+
+// Load start date and opening balance from localStorage
+startDateEl.value = localStorage.getItem("startDate") || "";
+openingBalanceEl.value = localStorage.getItem("openingBalance") || "";
+
+// ---------- Utility Functions ----------
+function saveTransactions() {
     localStorage.setItem("transactions", JSON.stringify(transactions));
 }
-function saveConfig() {
-    localStorage.setItem("startDate", document.getElementById("startDate").value);
-    localStorage.setItem("openingBalance", document.getElementById("openingBalance").value);
-}
-function loadConfig() {
-    document.getElementById("startDate").value = localStorage.getItem("startDate") || "";
-    document.getElementById("openingBalance").value = localStorage.getItem("openingBalance") || "";
-}
 
-// -------------------------
-// Add New Transaction
-// -------------------------
-document.getElementById("addBtn").addEventListener("click", () => {
-    let transactions = load();
-
-    const rawAmount = document.getElementById("amount").value;
-    const parsedAmount = rawAmount === "" ? 0 : parseFloat(rawAmount);
-
-    const tx = {
-        id: Date.now(),
-        description: document.getElementById("description").value || "",
-        category: document.getElementById("category").value || "",
-        type: document.getElementById("type").value,
-        frequency: document.getElementById("frequency").value,
-        amount: parsedAmount,
-        date: document.getElementById("date").value
-    };
-
-    transactions.push(tx);
-    save(transactions);
-
-    // Clear fields after adding
-    document.getElementById("description").value = "";
-    document.getElementById("category").value = "";
-    document.getElementById("type").value = "expense";
-    document.getElementById("frequency").value = "monthly";
-    document.getElementById("amount").value = "";
-    document.getElementById("date").value = "";
-
-    // reset any find state (keeps UX simple)
-    clearFindHighlights();
-
-    renderTransactions();
-});
-
-document.getElementById("saveConfigBtn").addEventListener("click", () => {
-    saveConfig();
-    renderTransactions();
-});
-
-// -------------------------
-// Recurrence Generators
-// -------------------------
-function addMonths(date, n) {
-    let d = new Date(date);
-    d.setMonth(d.getMonth() + n);
-    return d;
-}
-function addWeeks(date, n) {
-    let d = new Date(date);
-    d.setDate(d.getDate() + n * 7);
-    return d;
-}
-
-// -------------------------
-// Build 24-Month Projection
-// -------------------------
-function buildProjection(transactions) {
-    const savedStart = localStorage.getItem("startDate");
-    if (!savedStart) return [];
-
-    const startDate = new Date(savedStart);
-    const endDate = addMonths(startDate, 24);
-
-    let projected = [];
+function calculateBalances() {
+    let balance = parseFloat(openingBalanceEl.value) || 0;
 
     transactions.forEach(tx => {
-        if (!tx.date) return; // skip if no date
-        let d = new Date(tx.date);
-
-        // If initial date is before the start date, move it forward to first occurrence at/after startDate
-        if (d < startDate) {
-            if (tx.frequency === "monthly") {
-                while (d < startDate) d = addMonths(d, 1);
-            } else if (tx.frequency === "4weekly") {
-                while (d < startDate) d = addWeeks(d, 4);
-            } else {
-                // irregular: skip if before start
-                if (d < startDate) return;
-            }
+        if (tx.type === "income") {
+            balance += tx.amount;
+        } else {
+            balance -= tx.amount;
         }
-
-        while (d <= endDate) {
-            projected.push({
-                ...tx,
-                date: d.toISOString().split("T")[0]
-            });
-
-            if (tx.frequency === "monthly") {
-                d = addMonths(d, 1);
-            } else if (tx.frequency === "4weekly") {
-                d = addWeeks(d, 4);
-            } else {
-                break; // irregular: single instance
-            }
-        }
+        tx.balance = balance;
     });
-
-    return projected;
 }
 
-// -------------------------
-// Render Transaction Table
-// -------------------------
+// ---------- Render Transactions ----------
 function renderTransactions() {
-    loadConfig();
-
-    let transactions = load();
-    let projected = buildProjection(transactions);
-
-    projected.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    const tbody = document.querySelector("#transactionsTable tbody");
     tbody.innerHTML = "";
 
-    let balance = parseFloat(localStorage.getItem("openingBalance") || "0");
+    calculateBalances();
+    saveTransactions();
 
-    projected.forEach(tx => {
-        if (tx.type === "income") balance += tx.amount;
-        else balance -= tx.amount;
-
+    transactions.forEach((tx, index) => {
         const row = document.createElement("tr");
-        const descClass = tx.frequency === "irregular" ? "desc-strong" : "";
-        row.innerHTML = `
-            <td>${formatDate(tx.date)}</td>
-            <td class="${descClass}">${escapeHtml(tx.description)}</td>
-            <td>${escapeHtml(tx.category)}</td>
-            <td>${tx.type}</td>
-            <td class="${tx.type}">£${tx.amount.toFixed(2)}</td>
-            <td>£${balance.toFixed(2)}</td>
-            <td><button class="del-btn" data-id="${tx.id}">X</button></td>
-        `;
 
+        row.innerHTML = `
+            <td>${tx.date}</td>
+            <td class="${tx.frequency === "irregular" ? "desc-strong" : ""}">${tx.description}</td>
+            <td>${tx.category}</td>
+            <td class="${tx.type}">${tx.type}</td>
+            <td>${tx.amount.toFixed(2)}</td>
+            <td>${tx.balance.toFixed(2)}</td>
+            <td><button class="delete-btn" data-index="${index}">Delete</button></td>
+        `;
         tbody.appendChild(row);
     });
 
-    // attach delete handlers (use event delegation for safety)
-    document.querySelectorAll(".del-btn").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            const id = parseInt(e.currentTarget.getAttribute("data-id"));
-            deleteTx(id);
+    // Attach delete handlers
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const idx = parseInt(this.dataset.index);
+            transactions.splice(idx, 1);
+            renderTransactions();
         });
     });
-
-    // Re-apply any find highlight state if a search term exists
-    if (currentFindTerm) {
-        computeFindMatches(projected); // recompute indexes
-        highlightCurrentFind(projected);
-    } else {
-        clearFindHighlights();
-    }
-
-    renderMonthlySummary(projected);
-    renderChart(projected);
 }
 
-// -------------------------
-// Delete Transaction
-// -------------------------
-function deleteTx(id) {
-    let transactions = load();
-    transactions = transactions.filter(t => t.id !== id);
-    save(transactions);
+// ---------- Add Transaction ----------
+function addTransaction() {
+    const tx = {
+        description: descriptionEl.value.trim(),
+        type: typeEl.value,
+        amount: parseFloat(amountEl.value),
+        category: categoryEl.value.trim(),
+        frequency: frequencyEl.value,
+        date: dateEl.value
+    };
+
+    if (!tx.description || isNaN(tx.amount) || !tx.date) {
+        alert("Please fill in Description, Amount, and Date.");
+        return;
+    }
+
+    transactions.push(tx);
+
+    // Clear inputs
+    descriptionEl.value = "";
+    amountEl.value = "";
+    categoryEl.value = "";
+    dateEl.value = "";
+
     renderTransactions();
 }
 
-// -------------------------
-// Date Formatting
-// -------------------------
-function formatDate(d) {
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const date = new Date(d);
-    return `${String(date.getDate()).padStart(2, "0")}-${months[date.getMonth()]}-${date.getFullYear()}`;
-}
-
-// -------------------------
-// HTML escape (small safety)
-function escapeHtml(s) {
-    if (!s) return "";
-    return s.replace(/[&<>"']/g, function(m) {
-        return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[m];
-    });
-}
-
-// -------------------------
-// Monthly Summary
-// -------------------------
-function renderMonthlySummary(projected) {
-    const tbody = document.querySelector("#summaryTable tbody");
-    tbody.innerHTML = "";
-
-    if (!projected.length) return;
-
-    const startBalance = parseFloat(localStorage.getItem("openingBalance") || "0");
-    let running = startBalance;
-
-    const summary = {};
-
-    projected.forEach(tx => {
-        const d = new Date(tx.date);
-        const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
-
-        if (!summary[key]) {
-            summary[key] = { income: 0, expense: 0, closing: 0 };
-        }
-
-        if (tx.type === "income") summary[key].income += tx.amount;
-        else summary[key].expense += tx.amount;
-    });
-
-    let keys = Object.keys(summary).sort();
-
-    keys.forEach(key => {
-        const m = summary[key];
-        running += m.income - m.expense;
-        m.closing = running;
-
-        const row = document.createElement("tr");
-        const label = new Date(key + "-01").toLocaleString("en-GB", { month: "short", year: "numeric" });
-
-        row.innerHTML = `
-            <td>${label}</td>
-            <td>£${m.income.toFixed(2)}</td>
-            <td>£${m.expense.toFixed(2)}</td>
-            <td>£${(m.income - m.expense).toFixed(2)}</td>
-            <td>£${m.closing.toFixed(2)}</td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-// -------------------------
-// Chart Rendering (simple balance line)
-function renderChart(projected) {
-    const canvas = document.getElementById("budgetChart");
-    const ctx = canvas.getContext("2d");
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (!projected.length) return;
-
-    const startBalance = parseFloat(localStorage.getItem("openingBalance") || "0");
-    let bal = startBalance;
-
-    let balances = [];
-    projected.forEach(tx => {
-        if (tx.type === "income") bal += tx.amount;
-        else bal -= tx.amount;
-        balances.push(bal);
-    });
-
-    // Draw axes
-    ctx.beginPath();
-    ctx.moveTo(40, 10);
-    ctx.lineTo(40, 330);
-    ctx.lineTo(880, 330);
-    ctx.strokeStyle = "#333";
-    ctx.stroke();
-
-    const max = Math.max(...balances, 1); // guard
-    const min = Math.min(...balances, 0);
-    const range = max - min || 1;
-    const scaleY = 300 / range;
-
-    ctx.beginPath();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "#2a7bff";
-
-    balances.forEach((v, i) => {
-        const x = 40 + i * (820 / Math.max(1, balances.length));
-        const y = 330 - ((v - min) * scaleY);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-    });
-
-    ctx.stroke();
-}
-
-// -------------------------
-// Find / Find Next Logic (Description only)
-// -------------------------
-let currentFindTerm = "";
-let findMatches = []; // array of row indices in the projected array
-let currentFindIndex = -1;
-let lastProjectedForFind = []; // store projected array corresponding to table rows
-
-const findInput = document.getElementById("findInput");
-const findBtn = document.getElementById("findBtn");
-const findNextBtn = document.getElementById("findNextBtn");
-const clearFindBtn = document.getElementById("clearFindBtn");
-
-findBtn.addEventListener("click", () => {
-    currentFindTerm = findInput.value.trim();
-    if (!currentFindTerm) return;
-    const projected = lastProjectedForFind.length ? lastProjectedForFind : buildProjection(load());
-    computeFindMatches(projected);
-    if (findMatches.length) {
-        currentFindIndex = 0;
-        highlightCurrentFind(projected);
-    } else {
-        alert("No matches found.");
-    }
+// ---------- Save Config ----------
+saveConfigBtn.addEventListener("click", function() {
+    localStorage.setItem("startDate", startDateEl.value);
+    localStorage.setItem("openingBalance", openingBalanceEl.value);
+    renderTransactions();
 });
 
-findNextBtn.addEventListener("click", () => {
-    if (!currentFindTerm || !findMatches.length) return;
-    currentFindIndex = (currentFindIndex + 1) % findMatches.length;
-    const projected = lastProjectedForFind.length ? lastProjectedForFind : buildProjection(load());
-    highlightCurrentFind(projected);
+// ---------- Add Button ----------
+addBtn.addEventListener("click", function(e) {
+    e.preventDefault();
+    addTransaction();
 });
 
-clearFindBtn.addEventListener("click", () => {
-    currentFindTerm = "";
-    findInput.value = "";
-    findMatches = [];
-    currentFindIndex = -1;
-    clearFindHighlights();
-});
+// ---------- Projection (24 months) ----------
+function generateProjection() {
+    const startDateStr = startDateEl.value;
+    let balance = parseFloat(openingBalanceEl.value) || 0;
+    if (!startDateStr) return [];
 
-// Build list of matches (indexes into projected array)
-function computeFindMatches(projected) {
-    findMatches = [];
-    lastProjectedForFind = projected.slice(); // copy so indexing matches table
-    projected.forEach((tx, idx) => {
-        if (!tx.description) return;
-        if (tx.description.toLowerCase().includes(currentFindTerm.toLowerCase())) {
-            findMatches.push(idx);
-        }
-    });
-    if (findMatches.length === 0) {
-        currentFindIndex = -1;
-    } else {
-        currentFindIndex = 0;
-    }
-}
+    const projection = [];
+    const startDate = new Date(startDateStr);
 
-// Highlight current match and scroll into view
-function highlightCurrentFind(projected) {
-    clearFindHighlights();
-    if (!findMatches.length || currentFindIndex < 0) return;
+    for (let monthOffset = 0; monthOffset < 24; monthOffset++) {
+        const monthDate = new Date(startDate.getFullYear(), startDate.getMonth() + monthOffset, 1);
+        const monthStr = monthDate.toLocaleString("default", { month: "short", year: "numeric" });
 
-    const matchIdx = findMatches[currentFindIndex];
+        let monthlyIncome = 0;
+        let monthlyExpense = 0;
 
-    const tbody = document.querySelector("#transactionsTable tbody");
-    const rows = Array.from(tbody.querySelectorAll("tr"));
+        transactions.forEach(tx => {
+            const txDate = new Date(tx.date);
+            const freq = tx.frequency;
 
-    if (rows[matchIdx]) {
-        rows[matchIdx].classList.add("highlight-row");
-        rows[matchIdx].scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-}
-
-// Remove any highlight class
-function clearFindHighlights() {
-    document.querySelectorAll("#transactionsTable tbody tr").forEach(r => r.classList.remove("highlight-row"));
-}
-
-// -------------------------
-// Jump buttons (smooth)
-document.getElementById("jumpToSummaryBtn").addEventListener("click", () => {
-    document.getElementById("monthlySummary").scrollIntoView({ behavior: "smooth" });
-});
-document.getElementById("backToTopBtn").addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-});
-
-// -------------------------
-// Utility: when table is rendered we store the projected array used for find
-// Modify renderTransactions: we stored projected earlier; ensure lastProjectedForFind sync
-// (We will update lastProjectedForFind inside renderTransactions)
-(function overrideRenderTransactionsForFind() {
-    const orig = renderTransactions;
-    renderTransactions = function() {
-        // call original render code body defined above by referencing the function's code.
-        // But since we already have a renderTransactions implementation, overwrite earlier definition:
-    };
-})();
-
-// To ensure lastProjectedForFind is in sync, replace renderTransactions with an updated version:
-function renderTransactions() {
-    loadConfig();
-
-    let transactions = load();
-    let projected = buildProjection(transactions);
-
-    projected.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    lastProjectedForFind = projected.slice(); // keep for find indexing
-
-    const tbody = document.querySelector("#transactionsTable tbody");
-    tbody.innerHTML = "";
-
-    let balance = parseFloat(localStorage.getItem("openingBalance") || "0");
-
-    projected.forEach(tx => {
-        if (tx.type === "income") balance += tx.amount;
-        else balance -= tx.amount;
-
-        const row = document.createElement("tr");
-        const descClass = tx.frequency === "irregular" ? "desc-strong" : "";
-        row.innerHTML = `
-            <td>${formatDate(tx.date)}</td>
-            <td class="${descClass}">${escapeHtml(tx.description)}</td>
-            <td>${escapeHtml(tx.category)}</td>
-            <td>${tx.type}</td>
-            <td class="${tx.type}">£${tx.amount.toFixed(2)}</td>
-            <td>£${balance.toFixed(2)}</td>
-            <td><button class="del-btn" data-id="${tx.id}">X</button></td>
-        `;
-
-        tbody.appendChild(row);
-    });
-
-    // attach delete handlers (use event delegation for safety)
-    document.querySelectorAll(".del-btn").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            const id = parseInt(e.currentTarget.getAttribute("data-id"));
-            deleteTx(id);
+            if (freq === "monthly" && txDate <= monthDate) {
+                if (tx.type === "income") monthlyIncome += tx.amount;
+                else monthlyExpense += tx.amount;
+            } else if (freq === "4weekly" && txDate <= monthDate) {
+                if (tx.type === "income") monthlyIncome += tx.amount * (4 / 4); // simple 4-week -> monthly
+                else monthlyExpense += tx.amount * (4 / 4);
+            } else if (freq === "irregular" && txDate.getMonth() === monthDate.getMonth() && txDate.getFullYear() === monthDate.getFullYear()) {
+                if (tx.type === "income") monthlyIncome += tx.amount;
+                else monthlyExpense += tx.amount;
+            }
         });
-    });
 
-    // Re-apply any find highlight state if a search term exists
-    if (currentFindTerm) {
-        computeFindMatches(projected);
-        if (findMatches.length) {
-            // keep currentFindIndex within bounds
-            if (currentFindIndex >= findMatches.length) currentFindIndex = 0;
-            highlightCurrentFind(projected);
-        } else {
-            clearFindHighlights();
-        }
-    } else {
-        clearFindHighlights();
+        const net = monthlyIncome - monthlyExpense;
+        balance += net;
+
+        projection.push({
+            month: monthStr,
+            income: monthlyIncome,
+            expense: monthlyExpense,
+            net: net,
+            balance: balance
+        });
     }
 
-    renderMonthlySummary(projected);
-    renderChart(projected);
+    return projection;
 }
 
-// -------------------------
-// Init
-// -------------------------
-loadConfig();
+// ---------- Render Projection Table ----------
+function renderSummary() {
+    const summaryTbody = document.querySelector("#summaryTable tbody");
+    summaryTbody.innerHTML = "";
+
+    const projection = generateProjection();
+
+    projection.forEach(p => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${p.month}</td>
+            <td>${p.income.toFixed(2)}</td>
+            <td>${p.expense.toFixed(2)}</td>
+            <td>${p.net.toFixed(2)}</td>
+            <td>${p.balance.toFixed(2)}</td>
+        `;
+        summaryTbody.appendChild(row);
+    });
+}
+
+// ---------- Initial Render ----------
 renderTransactions();
+renderSummary();
