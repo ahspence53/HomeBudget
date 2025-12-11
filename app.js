@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function() {
         renderDailyProjection();
     });
 
-    // Render Daily 24-Month Projection
+    // Render Daily 24-Month Projection (ALL DATES)
     function renderDailyProjection() {
         dailyTbody.innerHTML = "";
         const startDateStr = startDateEl.value;
@@ -133,6 +133,9 @@ document.addEventListener("DOMContentLoaded", function() {
         let current = new Date(startDate);
 
         while(current <= endDate) {
+            let dailyTransactions = [];
+
+            // Find transactions for this date
             transactions.forEach(tx => {
                 const txDate = new Date(tx.date);
                 let addThis = false;
@@ -146,7 +149,11 @@ document.addEventListener("DOMContentLoaded", function() {
                     if(diffDays >=0 && diffDays % 28 === 0) addThis = true;
                 }
 
-                if(addThis) {
+                if(addThis) dailyTransactions.push(tx);
+            });
+
+            if(dailyTransactions.length>0) {
+                dailyTransactions.forEach(tx=>{
                     if(tx.type==="income") balance += tx.amount;
                     else balance -= tx.amount;
 
@@ -159,8 +166,20 @@ document.addEventListener("DOMContentLoaded", function() {
                         <td>${balance.toFixed(2)}</td>
                     `;
                     dailyTbody.appendChild(row);
-                }
-            });
+                });
+            } else {
+                // No transaction for this date: show empty row with balance
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${formatDateDDMMYYYY(current)}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>${balance.toFixed(2)}</td>
+                `;
+                dailyTbody.appendChild(row);
+            }
+
             current.setDate(current.getDate()+1);
         }
     }
