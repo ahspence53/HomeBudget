@@ -10,6 +10,7 @@ body {
 
 h1, h2 {
     color: #007BFF;
+    margin-bottom: 12px;
 }
 
 button {
@@ -33,9 +34,24 @@ input, select {
     border-radius: 4px;
 }
 
+/* -------------------------------
+   ADD TRANSACTION FORM GRID
+--------------------------------*/
+#transactionForm {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#transactionForm button {
+    grid-column: span 2;
+    justify-self: start;
+}
 
 /* -------------------------------
-   TRANSACTION TABLE
+   TABLES
 --------------------------------*/
 table {
     width: 100%;
@@ -53,41 +69,40 @@ th {
 td {
     padding: 6px;
     border-bottom: 1px solid #ccc;
+    background-color: white;
 }
 
 tr:nth-child(even) {
     background-color: #f2f6ff;
 }
 
+tr:hover {
+    background-color: #eef6ff;
+}
 
 /* -------------------------------
    DAILY 24-MONTH PROJECTION TABLE
 --------------------------------*/
-
-/* Scrollable frame for sticky header */
-.projection-wrapper {
-    max-height: 500px;
+#dailyProjection .table-wrapper {
+    max-height: 560px;
     overflow-y: auto;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background: white;
     position: relative;
+    display: block;
 }
 
-/* MAKE THE ENTIRE HEADER ROW STICKY */
-#projectionTable thead th {
-    position: sticky;
+/* ENTIRE HEADER ROW STICKY */
+#dailyProjectionTable thead th {
+    position: sticky !important;
     top: 0;
     z-index: 10;
     background-color: #007BFF !important;
     color: white !important;
 }
 
-/* Highlight used by Find Date */
+/* Highlighted row for Find Date */
 .highlight-row {
-    background: #fff59d !important;
+    background-color: #fff59d !important;
 }
-
 
 /* -------------------------------
    SMALL BUTTONS
@@ -98,48 +113,15 @@ tr:nth-child(even) {
     margin-left: 6px;
 }
 
-
 /* -------------------------------
    JUMP BUTTONS (Top/Bottom)
 --------------------------------*/
 .jump-btn {
     background-color: #28a745;
+    color: white;
+    font-weight: bold;
 }
 
 .jump-btn:hover {
     background-color: #1e7e34;
-}
-/* Restore transaction form grid layout */
-#transactionForm {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 10px 20px;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-#transactionForm button {
-    grid-column: span 2;
-    justify-self: start;
-}
-
-/* Ensure projection wrapper scrolls properly */
-#projectionSection, .projection-wrapper {
-    overflow-y: auto;
-    max-height: 500px;
-    position: relative;
-}
-
-/* Ensure header columns remain sticky */
-#projectionTable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#projectionTable thead th {
-    position: sticky;
-    top: 0;
-    background: #007BFF !important;
-    color: white !important;
-    z-index: 10;
 }
