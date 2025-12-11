@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
+    // --- Elements ---
     const startDateEl = document.getElementById("startDate");
     const openingBalanceEl = document.getElementById("openingBalance");
     const saveConfigBtn = document.getElementById("saveConfigBtn");
@@ -27,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function() {
     startDateEl.value = localStorage.getItem("startDate") || "";
     openingBalanceEl.value = localStorage.getItem("openingBalance") || "";
 
-    // ---------- Helper Functions ----------
+    // --- Helper Functions ---
     function saveTransactions() {
         localStorage.setItem("transactions", JSON.stringify(transactions));
     }
@@ -49,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // ---------- Render Transactions ----------
+    // --- Render Transactions ---
     function renderTransactions() {
         transactionsTbody.innerHTML = "";
         transactions.sort((a,b) => new Date(a.date) - new Date(b.date));
@@ -81,13 +82,14 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // ---------- Add Transaction ----------
+    // --- Add Transaction ---
     function addTransaction() {
         const tx = {
             description: descriptionEl.value.trim(),
             type: typeEl.value,
             amount: parseFloat(amountEl.value),
             category: categoryEl.value.trim(),
+            frequency: document.getElementById("frequency").value,
             date: dateEl.value
         };
         if (!tx.description || !tx.date || isNaN(tx.amount)) {
@@ -115,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function() {
         renderDailyProjection();
     });
 
-    // ---------- Daily 24-Month Projection ----------
+    // --- Daily 24-Month Projection with repeating transactions ---
     function renderDailyProjection() {
         dailyTbody.innerHTML = "";
 
@@ -132,7 +134,20 @@ document.addEventListener("DOMContentLoaded", function() {
         while(current <= endDate) {
             transactions.forEach(tx => {
                 const txDate = new Date(tx.date);
-                if (txDate.toDateString() === current.toDateString()) {
+                const freq = tx.frequency;
+
+                let addThis = false;
+
+                if(freq === "irregular") {
+                    if(txDate.toDateString() === current.toDateString()) addThis = true;
+                } else if(freq === "monthly") {
+                    if(txDate.getDate() === current.getDate()) addThis = true;
+                } else if(freq === "4weekly") {
+                    const diffDays = Math.floor((current - txDate)/(1000*60*60*24));
+                    if(diffDays >=0 && diffDays % 28 === 0) addThis = true;
+                }
+
+                if(addThis) {
                     if(tx.type==="income") balance += tx.amount;
                     else balance -= tx.amount;
 
@@ -151,7 +166,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // ---------- Find Date ----------
+    // --- Find Date ---
     findBtn.addEventListener("click", function() {
         const val = findInput.value;
         if(!val) { alert("Please select a date."); return; }
@@ -169,18 +184,18 @@ document.addEventListener("DOMContentLoaded", function() {
         if(!found) alert("No transactions found on this date.");
     });
 
-    // ---------- Jump Buttons ----------
-    scrollToProjectionBtn.addEventListener("click", ()=>{
-        if(dailyProjectionSection) {
+    // --- Jump Buttons ---
+    if(scrollToProjectionBtn && backToTopBtn && dailyProjectionSection) {
+        scrollToProjectionBtn.addEventListener("click", ()=>{
             dailyProjectionSection.scrollIntoView({behavior:"smooth", block:"start"});
-        }
-    });
+        });
 
-    backToTopBtn.addEventListener("click", ()=>{
-        window.scrollTo({top:0, behavior:"smooth"});
-    });
+        backToTopBtn.addEventListener("click", ()=>{
+            window.scrollTo({top:0, behavior:"smooth"});
+        });
+    }
 
-    // ---------- Initial Render ----------
+    // --- Initial Render ---
     renderTransactions();
     renderDailyProjection();
 
