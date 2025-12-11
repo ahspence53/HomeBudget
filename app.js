@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
 
+    // ---------- Data ----------
     let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
     const startDateEl = document.getElementById("startDate");
@@ -18,10 +19,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const restoreCSVInput = document.getElementById("restoreCSVInput");
     const restoreCSVBtn = document.getElementById("restoreCSVBtn");
 
+    const findDateInput = document.getElementById("findDateInput");
+    const findDateBtn = document.getElementById("findDateBtn");
+
     startDateEl.value = localStorage.getItem("startDate") || "";
     openingBalanceEl.value = localStorage.getItem("openingBalance") || "";
 
-    // ---------- Helper ----------
+    // ---------- Helpers ----------
     function saveTransactions() {
         localStorage.setItem("transactions", JSON.stringify(transactions));
     }
@@ -155,7 +159,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     type,
                     amount: parseFloat(amount),
                     balance: balance ? parseFloat(balance) : 0,
-                    frequency: "irregular" // default restored frequency
+                    frequency: "irregular"
                 };
             });
             transactions = restored;
@@ -198,7 +202,32 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // ---------- Initial render ----------
+    // ---------- Find Date ----------
+    findDateBtn.addEventListener("click", function() {
+        const targetDate = new Date(findDateInput.value);
+        if (!targetDate || isNaN(targetDate)) return alert("Please enter a valid date.");
+
+        const rows = document.querySelectorAll("#dailyProjectionTable tbody tr");
+        let found = false;
+
+        rows.forEach(row => row.classList.remove("highlight-row")); // remove previous highlights
+
+        rows.forEach(row => {
+            const rowDateStr = row.cells[0].textContent;
+            const [day, monthShort, year] = rowDateStr.split("-");
+            const rowDate = new Date(`${monthShort} ${day} ${year}`);
+            if (rowDate.toDateString() === targetDate.toDateString()) {
+                row.scrollIntoView({ behavior: "smooth", block: "center" });
+                row.classList.add("highlight-row");
+                found = true;
+            }
+        });
+
+        if (!found) alert("Date not found in projection.");
+    });
+
+    // ---------- Initial Render ----------
     renderTransactions();
     renderDailyProjection();
+
 });
