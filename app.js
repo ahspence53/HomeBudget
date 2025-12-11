@@ -1,4 +1,4 @@
-// Home Budget Tracker - Full version with categories & highlighting
+// Home Budget Tracker - Full 24-month table with blank rows, categories & highlighting
 
 // Load transactions and categories
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
@@ -30,36 +30,6 @@ function addTransaction(description, amount, type, frequency, date, category) {
     renderTransactions();
 }
 
-// Generate 24-month projection
-function generateProjection() {
-    if (!startDate) return [];
-    const projection = [];
-    const start = new Date(startDate);
-
-    for (const tx of transactions) {
-        const txDate = new Date(tx.date);
-        const freq = tx.frequency;
-        let current = new Date(txDate);
-
-        if (freq === 'irregular') {
-            projection.push({ ...tx, date: new Date(current) });
-        } else if (freq === 'monthly') {
-            while (current <= addMonths(start, 24)) {
-                if (current >= start) projection.push({ ...tx, date: new Date(current) });
-                current = addMonths(current, 1);
-            }
-        } else if (freq === '4-weekly') {
-            while (current <= addMonths(start, 24)) {
-                if (current >= start) projection.push({ ...tx, date: new Date(current) });
-                current.setDate(current.getDate() + 28); // exact 4-week increments
-            }
-        }
-    }
-
-    projection.sort((a, b) => new Date(a.date) - new Date(b.date));
-    return projection;
-}
-
 // Helper to add months
 function addMonths(date, months) {
     const d = new Date(date);
@@ -67,21 +37,78 @@ function addMonths(date, months) {
     return d;
 }
 
-// Render transactions table with highlighting
+// Generate 24-month projection with blank rows
+function generateProjectionWithBlanks() {
+    if (!startDate) return [];
+    const projection = [];
+
+    // Map transactions by date string
+    const txByDate = {};
+    transactions.forEach(tx => {
+        const freq = tx.frequency;
+        let current = new Date(tx.date);
+        const endDate = addMonths(new Date(startDate), 24);
+
+        if(freq === 'irregular') {
+            const key = formatDate(current);
+            if(!txByDate[key]) txByDate[key] = [];
+            txByDate[key].push(tx);
+        } else if(freq === 'monthly') {
+            while(current <= endDate) {
+                if(current >= new Date(startDate)){
+                    const key = formatDate(current);
+                    if(!txByDate[key]) txByDate[key] = [];
+                    txByDate[key].push(tx);
+                }
+                current = addMonths(current,1);
+            }
+        } else if(freq === '4-weekly') {
+            while(current <= endDate) {
+                if(current >= new Date(startDate)){
+                    const key = formatDate(current);
+                    if(!txByDate[key]) txByDate[key] = [];
+                    txByDate[key].push(tx);
+                }
+                current.setDate(current.getDate() + 28);
+            }
+        }
+    });
+
+    // Generate rows for every day in 24 months
+    let currentDate = new Date(startDate);
+    const endDate = addMonths(new Date(startDate),24);
+
+    while(currentDate <= endDate){
+        const key = formatDate(currentDate);
+        if(txByDate[key]) {
+            txByDate[key].forEach(tx => {
+                projection.push({...tx, date: new Date(currentDate)});
+            });
+        } else {
+            // Blank row
+            projection.push({description:'', amount:0, type:'', frequency:'', category:'', date: new Date(currentDate)});
+        }
+        currentDate.setDate(currentDate.getDate()+1); // daily increments
+    }
+
+    return projection;
+}
+
+// Render transactions table
 function renderTransactions() {
     const table = document.getElementById('transaction-table').querySelector('tbody');
     table.innerHTML = '';
 
-    const projection = generateProjection();
+    const projection = generateProjectionWithBlanks();
     let balance = openingBalance;
 
-    for (const tx of projection) {
+    for(const tx of projection){
         const row = document.createElement('tr');
 
         // Highlight irregular transactions
-        if(tx.frequency === 'irregular') {
+        if(tx.frequency === 'irregular' && tx.description !== '') {
             row.style.fontWeight = 'bold';
-            row.style.backgroundColor = '#f0f8ff'; // light blue background
+            row.style.backgroundColor = '#f0f8ff';
         }
 
         // Color-code Income / Expense
@@ -98,14 +125,14 @@ function renderTransactions() {
         typeCell.textContent = tx.type;
 
         const amountCell = document.createElement('td');
-        amountCell.textContent = tx.amount.toFixed(2);
+        amountCell.textContent = tx.amount ? tx.amount.toFixed(2) : '';
 
         const categoryCell = document.createElement('td');
-        categoryCell.textContent = tx.category || 'General';
+        categoryCell.textContent = tx.category || '';
         categoryCell.style.fontWeight = 'bold';
 
         const balanceCell = document.createElement('td');
-        balance = tx.type === 'income' ? balance + tx.amount : balance - tx.amount;
+        balance = tx.type === 'income' ? balance + tx.amount : (tx.type==='expense'? balance - tx.amount : balance);
         balanceCell.textContent = balance.toFixed(2);
 
         row.append(dateCell, descCell, typeCell, amountCell, categoryCell, balanceCell);
