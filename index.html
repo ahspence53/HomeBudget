@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Home Budget Tracker</title>
-<link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Home Budget Tracker</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -12,7 +12,7 @@
     <h1>Home Budget Tracker</h1>
 </header>
 
-<!-- Setup -->
+<!-- Setup (Start Date + Opening Balance + Save) -->
 <section id="config" class="config-row">
     <div class="config-item">
         <label for="startDate">Start Date:</label>
@@ -39,7 +39,6 @@
             <label for="description">Description:</label>
             <input type="text" id="description" placeholder="e.g. TV Licence">
         </div>
-
         <div class="cell">
             <label for="type">Type:</label>
             <select id="type">
@@ -47,12 +46,10 @@
                 <option value="expense">Expense</option>
             </select>
         </div>
-
         <div class="cell">
             <label for="amount">Amount (£):</label>
             <input type="number" id="amount" step="0.01">
         </div>
-
         <div class="cell">
             <label for="frequency">Frequency:</label>
             <select id="frequency">
@@ -61,7 +58,6 @@
                 <option value="irregular">Irregular</option>
             </select>
         </div>
-
         <div class="cell">
             <label for="date">Date:</label>
             <input type="date" id="date">
@@ -87,20 +83,24 @@
                     <th>Delete</th>
                 </tr>
             </thead>
-            <tbody id="transaction-list"></tbody>
+            <tbody></tbody>
         </table>
     </div>
 </section>
 
-<!-- Daily 24-Month Projection -->
-<section id="projectionSection">
-    <div class="projection-controls">
-        <h2>Daily 24-Month Projection</h2>
-        <input type="date" id="findDateInput">
-        <button id="findDateBtn">Find Date</button>
-    </div>
+<hr>
 
-    <div class="table-wrapper">
+<!-- Find Date -->
+<div id="findDateContainer" style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
+    <label for="findDateInput">Find Date:</label>
+    <input type="date" id="findDateInput" value="">
+    <button id="findDateBtn">Find</button>
+</div>
+
+<!-- Daily 24-Month Projection -->
+<section id="dailyProjection" class="table-section">
+    <h2>Daily 24-Month Projection</h2>
+    <div class="table-wrapper" style="max-height:500px; overflow:auto;">
         <table id="dailyProjectionTable">
             <thead>
                 <tr>
