@@ -70,6 +70,26 @@ button:hover { background: #1a5cd8; }
     width: 100%;
 }
 
+/* Section header with controls */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+.header-controls { display:flex; gap:8px; align-items:center; }
+.jump-btn { padding: 6px 10px; font-size: 14px; }
+
+/* Projection controls */
+.projection-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.hint { color: #666; font-size: 13px; margin-left: 8px; }
+
 /* Controls (find + jump) */
 .controls {
     display: flex;
@@ -90,6 +110,11 @@ button:hover { background: #1a5cd8; }
     overflow: auto;
     border-radius: 8px;
     background: white;
+}
+
+/* Additional wrapper for projection (allow a bit taller) */
+.projection-wrapper {
+    max-height: 420px;
 }
 
 /* Table styling */
@@ -149,10 +174,23 @@ td.expense { color: #cc0000; font-weight: bold; }
     padding: 18px;
     background: white;
     border-radius: 8px;
+    height: 320px;
+}
+
+/* Chart bottom area */
+.chart-bottom {
+    display:flex;
+    justify-content:center;
+    margin-top: 8px;
 }
 
 /* Responsive tweaks */
 @media (max-width: 900px) {
     .grid { grid-template-columns: 1fr; }
     .config-row { flex-direction: column; }
+}
+
+/* small helper for projection hint on narrow screens */
+@media (max-width: 600px) {
+    .hint { display:block; margin-top: 6px; }
 }
