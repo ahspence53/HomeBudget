@@ -1,108 +1,158 @@
+/* Basic page */
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
+    margin: 18px;
     background: #f4f6f8;
     color: #222;
 }
 
-h1, h2 {
-    color: #333;
+h1 {
+    margin: 0 0 10px 0;
+    color: #222;
 }
 
+/* Sections */
 section {
     background: white;
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: 12px;
+    margin-bottom: 18px;
     border-radius: 8px;
-    box-shadow: 0 0 6px rgba(0,0,0,0.1);
+    box-shadow: 0 0 6px rgba(0,0,0,0.06);
+}
+
+/* Config row - flex layout */
+.config-row {
+    display: flex;
+    gap: 12px;
+    align-items: end;
+    flex-wrap: wrap;
+}
+.config-item {
+    display: flex;
+    flex-direction: column;
+}
+.config-save {
+    margin-left: auto;
+    align-self: center;
 }
 
 /* Inputs & labels */
 label {
-    display: block;
-    margin-top: 10px;
     font-weight: bold;
+    margin-bottom: 6px;
 }
-
-input, select, button {
-    margin-top: 4px;
+input[type="text"], input[type="date"], input[type="number"], select {
     padding: 8px;
     border: 1px solid #bbb;
     border-radius: 4px;
     width: 100%;
-    max-width: 300px;
+    box-sizing: border-box;
 }
-
 button {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 5px;
     background: #2a7bff;
     color: white;
-    font-weight: bold;
     cursor: pointer;
-    margin-top: 12px;
+}
+button:hover { background: #1a5cd8; }
+
+/* Add transaction grid */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    align-items: end;
+}
+.cell .add-btn {
+    margin-top: 8px;
+    width: 100%;
 }
 
-button:hover {
-    background: #1a5cd8;
+/* Controls (find + jump) */
+.controls {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.find-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Table wrapper for scroll & sticky header */
+.table-wrapper {
+    max-height: 320px;
+    overflow: auto;
+    border-radius: 8px;
+    background: white;
 }
 
 /* Table styling */
 table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
+    min-width: 800px;
 }
-
 thead {
     background: #2a7bff;
     color: white;
 }
-
 th, td {
     padding: 10px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #e5e7eb;
     text-align: left;
 }
 
-/* Alternating row shading */
-tbody tr:nth-child(even) {
-    background: #f1f5ff;
-}
-tbody tr:nth-child(odd) {
-    background: #ffffff;
-}
-
-/* Hover highlight */
-tbody tr:hover {
-    background: #dfe9ff;
+/* Sticky header */
+thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
-/* Colour income vs expense */
-td.income {
-    color: #1a8f2e;
-    font-weight: bold;
-}
+/* Alternating rows + hover */
+tbody tr:nth-child(even) { background: #f1f5ff; }
+tbody tr:nth-child(odd)  { background: #ffffff; }
+tbody tr:hover { background: #dfe9ff; }
 
-td.expense {
-    color: #cc0000;
-    font-weight: bold;
-}
+/* Bold description for irregular */
+td.desc-strong { font-weight: 700; }
+
+/* Income / expense colours */
+td.income { color: #1a8f2e; font-weight: bold; }
+td.expense { color: #cc0000; font-weight: bold; }
+
+/* Highlighted find result */
+.highlight-row { background: #fff59d !important; }
 
 /* Summary table styling */
+#summaryTable {
+    width: 100%;
+    border-collapse: collapse;
+}
 #summaryTable th {
     background: #444;
     color: #fff;
 }
-
 #summaryTable td, #summaryTable th {
+    padding: 8px;
     border-bottom: 1px solid #999;
 }
 
 /* Chart container */
 #chartContainer {
-    padding: 20px;
+    padding: 18px;
     background: white;
     border-radius: 8px;
-    box-shadow: 0 0 6px rgba(0,0,0,0.1);
+}
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr; }
+    .config-row { flex-direction: column; }
 }
