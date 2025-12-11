@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function() {
             row.innerHTML = `
                 <td>${formatDateDDMMMYYYY(tx.date)}</td>
                 <td class="${tx.frequency==='irregular'?'desc-strong':''}">${tx.description}</td>
-                <td class="${tx.type}">${tx.type}</td>
+                <td>${tx.type}</td>
                 <td>${tx.amount.toFixed(2)}</td>
                 <td>${tx.balance.toFixed(2)}</td>
                 <td><button class="delete-btn" data-index="${index}">Delete</button></td>
@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function() {
         renderDailyProjection();
     });
 
-    // ---------- Daily Projection with Repetition ----------
+    // ---------- Daily Projection ----------
     function renderDailyProjection(){
         const tbody = document.querySelector("#dailyProjectionTable tbody");
         tbody.innerHTML="";
@@ -110,29 +110,24 @@ document.addEventListener("DOMContentLoaded", function() {
         const endDate = new Date(startDate);
         endDate.setMonth(endDate.getMonth()+24);
 
-        const projectionDates = [];
         let currentDate = new Date(startDate);
         while(currentDate <= endDate){
-            projectionDates.push(new Date(currentDate));
-            currentDate.setDate(currentDate.getDate()+1);
-        }
-
-        projectionDates.forEach(date=>{
             const txToday = [];
 
             transactions.forEach(tx=>{
                 const txDate = new Date(tx.date);
                 if(tx.frequency==='irregular'){
-                    if(txDate.toDateString() === date.toDateString()) txToday.push(tx);
+                    if(txDate.toDateString() === currentDate.toDateString()) txToday.push(tx);
                 } else if(tx.frequency==='monthly'){
-                    if(date >= txDate && txDate.getDate() === date.getDate()) txToday.push(tx);
+                    if(currentDate >= txDate && txDate.getDate() === currentDate.getDate()) txToday.push(tx);
                 } else if(tx.frequency==='4weekly'){
-                    const diffDays = Math.floor((date - txDate)/(1000*60*60*24));
+                    const diffDays = Math.floor((currentDate - txDate)/(1000*60*60*24));
                     if(diffDays>=0 && diffDays % 28 === 0) txToday.push(tx);
                 }
             });
 
-            const isoDate = date.toISOString().slice(0,10); // YYYY-MM-DD
+            const isoDate = currentDate.toISOString().slice(0,10); // YYYY-MM-DD
+
             if(txToday.length>0){
                 txToday.forEach(tx=>{
                     if(tx.type==='income') balance += tx.amount;
@@ -140,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     const row = document.createElement("tr");
                     row.dataset.date = isoDate;
                     row.innerHTML=`
-                        <td class="freeze-col">${formatDateDDMMMYYYY(date.toISOString())}</td>
+                        <td class="freeze-col">${formatDateDDMMMYYYY(currentDate.toISOString())}</td>
                         <td>${tx.description}</td>
                         <td>${tx.type}</td>
                         <td>${tx.amount.toFixed(2)}</td>
@@ -152,30 +147,32 @@ document.addEventListener("DOMContentLoaded", function() {
                 const row = document.createElement("tr");
                 row.dataset.date = isoDate;
                 row.innerHTML=`
-                    <td class="freeze-col">${formatDateDDMMMYYYY(date.toISOString())}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td class="freeze-col">${formatDateDDMMMYYYY(currentDate.toISOString())}</td>
+                    <td></td><td></td><td></td>
                     <td>${balance.toFixed(2)}</td>
                 `;
                 tbody.appendChild(row);
             }
-        });
+
+            currentDate.setDate(currentDate.getDate()+1);
+        }
     }
 
     // ---------- Find Date ----------
     findDateBtn.addEventListener("click", function(){
         const targetDateStr = findDateInput.value; // YYYY-MM-DD
-        if(!targetDateStr) return alert("Please select a valid date.");
+        if(!targetDateStr || !/^\d{4}-\d{2}-\d{2}$/.test(targetDateStr)) {
+            return alert("Please select a valid date.");
+        }
 
         const rows = document.querySelectorAll("#dailyProjectionTable tbody tr");
-        let found = false;
+        let found=false;
         rows.forEach(r => r.classList.remove("highlight-row"));
         rows.forEach(row=>{
             if(row.dataset.date === targetDateStr){
                 row.scrollIntoView({behavior:"smooth", block:"center"});
                 row.classList.add("highlight-row");
-                found = true;
+                found=true;
             }
         });
         if(!found) alert("Date not found in projection.");
