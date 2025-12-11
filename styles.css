@@ -70,11 +70,6 @@ button:hover { background: #1a5cd8; }
     width: 100%;
 }
 
-/* Export/restore buttons */
-.jump-btn {
-    margin-left: 8px;
-}
-
 /* Table wrapper for scroll & sticky header */
 .table-wrapper {
     max-height: 320px;
@@ -130,7 +125,6 @@ td.expense { color: #cc0000; font-weight: bold; }
     z-index: 10;
 }
 
-/* Data cells in frozen Date column */
 #dailyProjectionTable td.freeze-col {
     position: sticky;
     left: 0;
@@ -158,11 +152,6 @@ td.expense { color: #cc0000; font-weight: bold; }
     gap: 12px;
     align-items: center;
     flex-wrap: wrap;
-}
-
-/* Projection section bottom button */
-.projection-bottom {
-    margin-top: 12px;
 }
 
 /* Responsive tweaks */
