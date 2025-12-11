@@ -21,9 +21,15 @@ document.addEventListener("DOMContentLoaded", function() {
     startDateEl.value = localStorage.getItem("startDate") || "";
     openingBalanceEl.value = localStorage.getItem("openingBalance") || "";
 
-    // ---------- Utility Functions ----------
+    // ---------- Helper Functions ----------
     function saveTransactions() {
         localStorage.setItem("transactions", JSON.stringify(transactions));
+    }
+
+    function formatDateDDMMMYYYY(dateStr) {
+        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('en-GB', options).replace(/ /g, '-'); // e.g., 15-Dec-2025
     }
 
     function calculateBalances() {
@@ -39,6 +45,9 @@ document.addEventListener("DOMContentLoaded", function() {
     function renderTransactions() {
         tbody.innerHTML = "";
 
+        // Sort by date ascending
+        transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+
         calculateBalances();
         saveTransactions();
 
@@ -46,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const row = document.createElement("tr");
 
             row.innerHTML = `
-                <td>${tx.date}</td>
+                <td>${formatDateDDMMMYYYY(tx.date)}</td>
                 <td class="${tx.frequency === "irregular" ? "desc-strong" : ""}">${tx.description}</td>
                 <td>${tx.category}</td>
                 <td class="${tx.type}">${tx.type}</td>
@@ -62,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function() {
             btn.addEventListener("click", function() {
                 const idx = parseInt(this.dataset.index);
                 const tx = transactions[idx];
-                const confirmDelete = confirm(`Are you sure you want to delete the transaction:\n"${tx.description}" on ${tx.date} (£${tx.amount.toFixed(2)})?`);
+                const confirmDelete = confirm(`Are you sure you want to delete the transaction:\n"${tx.description}" on ${formatDateDDMMMYYYY(tx.date)} (£${tx.amount.toFixed(2)})?`);
                 if (confirmDelete) {
                     transactions.splice(idx, 1);
                     renderTransactions();
