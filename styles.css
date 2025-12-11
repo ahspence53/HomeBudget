@@ -109,3 +109,37 @@ tr:nth-child(even) {
 .jump-btn:hover {
     background-color: #1e7e34;
 }
+/* Restore transaction form grid layout */
+#transactionForm {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 10px 20px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#transactionForm button {
+    grid-column: span 2;
+    justify-self: start;
+}
+
+/* Ensure projection wrapper scrolls properly */
+#projectionSection, .projection-wrapper {
+    overflow-y: auto;
+    max-height: 500px;
+    position: relative;
+}
+
+/* Ensure header columns remain sticky */
+#projectionTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#projectionTable thead th {
+    position: sticky;
+    top: 0;
+    background: #007BFF !important;
+    color: white !important;
+    z-index: 10;
+}
