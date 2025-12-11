@@ -1,156 +1,119 @@
-// Home Budget Tracker - Daily 24-month table, multiple transactions, blank rows, categories & highlighting
+// ================================
+// Home Budget Tracker - app.js
+// ================================
 
-// Load transactions and categories
+// --- Initialize / Load Data ---
+let categories = JSON.parse(localStorage.getItem('categories')) || [];
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-let categories = JSON.parse(localStorage.getItem('categories')) || ['General'];
-let startDate = localStorage.getItem('startDate') || '';
 let openingBalance = parseFloat(localStorage.getItem('openingBalance')) || 0;
 
-// Save helpers
-function saveTransactions() {
-    localStorage.setItem('transactions', JSON.stringify(transactions));
-}
-function saveCategories() {
-    localStorage.setItem('categories', JSON.stringify(categories));
-}
+// --- Elements ---
+const categoryInput = document.getElementById('newCategoryInput');
+const addCategoryBtn = document.getElementById('addCategoryButton');
+const categorySelect = document.getElementById('categorySelect');
+const transactionForm = document.getElementById('transactionForm'); // assuming a form
+const transactionTableBody = document.getElementById('transactionTableBody'); // tbody
+const openingBalanceInput = document.getElementById('openingBalanceInput');
 
-// Format date as dd-MMM-yyyy
-function formatDate(date) {
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2,'0');
-    const month = d.toLocaleString('en-GB', { month: 'short' });
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
-}
-
-// Add transaction
-function addTransaction(description, amount, type, frequency, date, category) {
-    transactions.push({description, amount: parseFloat(amount), type, frequency, date, category});
-    saveTransactions();
-    renderTransactions();
-}
-
-// Helper to add months
-function addMonths(date, months) {
-    const d = new Date(date);
-    d.setMonth(d.getMonth() + months);
-    return d;
-}
-
-// Generate daily projection for 24 months
-function generateDailyProjection() {
-    if (!startDate) return [];
-    const projection = [];
-    const start = new Date(startDate);
-    const end = addMonths(start, 24);
-
-    // Map transactions by date string
-    const txByDate = {};
-    transactions.forEach(tx => {
-        const freq = tx.frequency;
-        let current = new Date(tx.date);
-        const lastDate = end;
-
-        if (freq === 'irregular') {
-            const key = current.toISOString().slice(0,10);
-            if (!txByDate[key]) txByDate[key] = [];
-            txByDate[key].push(tx);
-        } else if (freq === 'monthly') {
-            while (current <= lastDate) {
-                if (current >= start) {
-                    const key = current.toISOString().slice(0,10);
-                    if (!txByDate[key]) txByDate[key] = [];
-                    txByDate[key].push(tx);
-                }
-                current = addMonths(current,1);
-            }
-        } else if (freq === '4-weekly') {
-            while (current <= lastDate) {
-                if (current >= start) {
-                    const key = current.toISOString().slice(0,10);
-                    if (!txByDate[key]) txByDate[key] = [];
-                    txByDate[key].push(tx);
-                }
-                current.setDate(current.getDate() + 28);
-            }
-        }
-    });
-
-    // Loop through every day
-    let currentDate = new Date(start);
-    let balance = openingBalance;
-
-    while(currentDate <= end) {
-        const key = currentDate.toISOString().slice(0,10);
-
-        if(txByDate[key] && txByDate[key].length > 0) {
-            // Multiple transactions on the same day
-            txByDate[key].forEach(tx => {
-                balance = tx.type === 'income' ? balance + tx.amount : (tx.type === 'expense' ? balance - tx.amount : balance);
-                projection.push({...tx, date:new Date(currentDate), balance});
-            });
-        } else {
-            // Blank row for no transaction
-            projection.push({description:'', amount:0, type:'', frequency:'', category:'', date:new Date(currentDate), balance});
-        }
-
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    return projection;
-}
-
-// Render table
-function renderTransactions() {
-    const table = document.getElementById('transaction-table').querySelector('tbody');
-    table.innerHTML = '';
-
-    const projection = generateDailyProjection();
-
-    projection.forEach(tx => {
-        const row = document.createElement('tr');
-
-        // Highlight irregular transactions
-        if(tx.frequency === 'irregular' && tx.description !== '') {
-            row.style.fontWeight = 'bold';
-            row.style.backgroundColor = '#f0f8ff';
-        }
-
-        // Income / Expense color
-        if(tx.type === 'income') row.style.color = 'green';
-        if(tx.type === 'expense') row.style.color = 'red';
-
-        const dateCell = document.createElement('td');
-        dateCell.textContent = formatDate(tx.date);
-
-        const descCell = document.createElement('td');
-        descCell.textContent = tx.description;
-
-        const typeCell = document.createElement('td');
-        typeCell.textContent = tx.type;
-
-        const amountCell = document.createElement('td');
-        amountCell.textContent = tx.amount ? tx.amount.toFixed(2) : '';
-
-        const categoryCell = document.createElement('td');
-        categoryCell.textContent = tx.category || '';
-        categoryCell.style.fontWeight = 'bold';
-
-        const balanceCell = document.createElement('td');
-        balanceCell.textContent = tx.balance.toFixed(2);
-
-        row.append(dateCell, descCell, typeCell, amountCell, categoryCell, balanceCell);
-        table.appendChild(row);
-    });
-}
-
+// --- CATEGORY FUNCTIONS ---
 // Update category dropdown
 function updateCategoryDropdown() {
-    const select = document.getElementById('tx-category');
-    select.innerHTML = '';
+    categorySelect.innerHTML = '<option value="" disabled selected>Select category</option>';
     categories.forEach(cat => {
         const option = document.createElement('option');
         option.value = cat;
         option.textContent = cat;
-        select.appendChild(option);
+        categorySelect.appendChild(option);
     });
+}
+
+// Add a new category
+function addCategory(newCategory) {
+    newCategory = newCategory.trim();
+    if (newCategory && !categories.includes(newCategory)) {
+        categories.push(newCategory);
+        localStorage.setItem('categories', JSON.stringify(categories));
+        updateCategoryDropdown();
+        categorySelect.value = newCategory; // auto-select the new category
+    }
+}
+
+// --- TRANSACTION FUNCTIONS ---
+// Add transaction
+function addTransaction(transaction) {
+    transactions.push(transaction);
+    transactions.sort((a, b) => new Date(a.date) - new Date(b.date)); // sort by date
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    renderTransactionTable();
+}
+
+// Render transaction table
+function renderTransactionTable() {
+    transactionTableBody.innerHTML = '';
+    transactions.forEach(tx => {
+        const row = document.createElement('tr');
+
+        const dateCell = document.createElement('td');
+        dateCell.textContent = formatDate(tx.date);
+        row.appendChild(dateCell);
+
+        const descCell = document.createElement('td');
+        descCell.textContent = tx.description;
+        row.appendChild(descCell);
+
+        const categoryCell = document.createElement('td');
+        categoryCell.textContent = tx.category;
+        row.appendChild(categoryCell);
+
+        const typeCell = document.createElement('td');
+        typeCell.textContent = tx.type; // income/expense
+        row.appendChild(typeCell);
+
+        const amountCell = document.createElement('td');
+        amountCell.textContent = parseFloat(tx.amount).toFixed(2);
+        row.appendChild(amountCell);
+
+        transactionTableBody.appendChild(row);
+    });
+}
+
+// Format date dd-mmm-yyyy
+function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    return d.toLocaleDateString('en-GB', options);
+}
+
+// --- EVENT LISTENERS ---
+// Add category button
+addCategoryBtn.addEventListener('click', () => {
+    addCategory(categoryInput.value);
+    categoryInput.value = '';
+});
+
+// Transaction form submit
+transactionForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const tx = {
+        date: document.getElementById('transactionDate').value,
+        description: document.getElementById('transactionDescription').value,
+        category: categorySelect.value,
+        type: document.querySelector('input[name="transactionType"]:checked').value,
+        amount: parseFloat(document.getElementById('transactionAmount').value)
+    };
+    addTransaction(tx);
+
+    // Clear form
+    transactionForm.reset();
+});
+
+// Opening balance
+openingBalanceInput.addEventListener('change', () => {
+    openingBalance = parseFloat(openingBalanceInput.value) || 0;
+    localStorage.setItem('openingBalance', openingBalance);
+});
+
+// --- INITIAL RENDER ---
+updateCategoryDropdown();
+renderTransactionTable();
+openingBalanceInput.value = openingBalance;
