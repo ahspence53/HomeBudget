@@ -69,3 +69,33 @@ td.expense { color:#cc0000; font-weight:bold; }
 
 /* Highlighted find result */
 .highlight-row { background: #fff59d !important; }
+
+/* Freeze Date column: header blue, body white, frozen */
+#dailyProjectionTable thead th.freeze-col {
+    position: sticky;
+    left: 0;
+    top: 0;
+    background: #2a7bff;
+    color: #fff;
+    z-index: 4;
+    border-right: 1px solid #e5e7eb;
+}
+
+#dailyProjectionTable td.freeze-col {
+    position: sticky;
+    left: 0;
+    background: white !important;
+    color: #222;
+    z-index: 2;
+    border-right: 1px solid #e5e7eb;
+}
+
+/* Ensure header stays on top */
+#dailyProjectionTable thead th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+}
+
+/* Highlight row for find */
+.highlight-row { background: #fff59d !important; }
