@@ -173,13 +173,38 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // Jump to daily projection
     document.getElementById("jumpToProjectionBtn").addEventListener("click", () => {
         document.getElementById("projectionSection").scrollIntoView({ behavior: "smooth" });
     });
+
+    // Back to top
     document.getElementById("backToTopBtn").addEventListener("click", () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
+    // Find date
+    document.getElementById("findDateBtn").addEventListener("click", () => {
+        const findDateStr = document.getElementById("findDateInput").value;
+        if (!findDateStr) return alert("Please select a date.");
+
+        const tbody = document.querySelector("#projectionTable tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+        const targetRow = rows.find(row => {
+            const cellDate = row.children[0].textContent;
+            return cellDate === formatDateDDMMMYYYY(findDateStr);
+        });
+
+        if (targetRow) {
+            targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
+            rows.forEach(r => r.classList.remove("highlight-row"));
+            targetRow.classList.add("highlight-row");
+        } else {
+            alert("Date not found in projection.");
+        }
+    });
+
+    // Export CSV
     document.getElementById("exportProjectionBtn").addEventListener("click", () => {
         const projection = generateDailyProjection();
         let csv = "Date,Description,Total Income (£),Total Expenses (£),Net (£),Closing Balance (£)\n";
