@@ -34,7 +34,15 @@ button:hover { background: #1a5cd8; }
 table { width: 100%; border-collapse: collapse; min-width: 800px; font-size: 14px; }
 thead { background: #2a7bff; color: white; }
 th, td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
-thead th { position: sticky; top: 0; z-index: 10; }
+
+/* Sticky header */
+thead th {
+    position: sticky;
+    top: 0;
+    background: #2a7bff;
+    color: white;
+    z-index: 3;
+}
 
 tbody tr:nth-child(even) { background: #f1f5ff; }
 tbody tr:nth-child(odd) { background: #ffffff; }
@@ -46,16 +54,27 @@ td.expense { color: #cc0000; font-weight: bold; }
 
 .daily-projection-container { max-height: 600px; overflow-y: auto; }
 
-.jump-btn { margin: 8px 0; padding: 8px 12px; border-radius: 5px; background: #2a7bff; color: white; font-weight: bold; cursor: pointer; }
-.jump-btn:hover { background: #1a5cd8; }
-
-/* Freeze first column */
 .freeze-col {
     position: sticky;
     left: 0;
-    background: #f4f6f8;
+    background: #2a7bff;
+    color: white;
     z-index: 2;
 }
+
+.highlight-row { background: #fff59d !important; }
+
+.jump-btn { margin: 8px 0; padding: 8px 12px; border-radius: 5px; background: #2a7bff; color: white; font-weight: bold; cursor: pointer; }
+.jump-btn:hover { background: #1a5cd8; }
+
+.projection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.find-date-container { display: flex; gap: 6px; align-items: center; }
 
 @media (max-width: 900px) {
     .grid { grid-template-columns: 1fr; }
