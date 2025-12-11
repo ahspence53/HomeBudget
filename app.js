@@ -34,6 +34,13 @@ document.getElementById("addBtn").addEventListener("click", () => {
     transactions.push(tx);
     save(transactions);
     renderTransactions();
+    // Clear input fields
+document.getElementById("description").value = "";
+document.getElementById("category").value = "";
+document.getElementById("type").value = "expense";
+document.getElementById("frequency").value = "monthly";
+document.getElementById("amount").value = "";
+document.getElementById("date").value = "";
 });
 
 // Save configuration
