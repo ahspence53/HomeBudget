@@ -15,8 +15,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const dateEl = document.getElementById("date");
     const addBtn = document.getElementById("addBtn");
 
-    const tbody = document.getElementById("transaction-list");
-
     // Load start date and opening balance from localStorage
     startDateEl.value = localStorage.getItem("startDate") || "";
     openingBalanceEl.value = localStorage.getItem("openingBalance") || "";
@@ -28,8 +26,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function formatDateDDMMMYYYY(dateStr) {
         const options = { day: '2-digit', month: 'short', year: 'numeric' };
-        const d = new Date(dateStr);
-        return d.toLocaleDateString('en-GB', options).replace(/ /g, '-'); // e.g., 15-Dec-2025
+        return new Date(dateStr).toLocaleDateString('en-GB', options).replace(/ /g, '-');
     }
 
     function calculateBalances() {
@@ -43,9 +40,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // ---------- Render Transactions ----------
     function renderTransactions() {
+        const tbody = document.querySelector("#transactionsTable tbody"); // correct tbody
         tbody.innerHTML = "";
 
-        // Sort by date ascending
+        // Sort transactions by date ascending
         transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
 
         calculateBalances();
@@ -63,10 +61,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 <td>${tx.balance.toFixed(2)}</td>
                 <td><button class="delete-btn" data-index="${index}">Delete</button></td>
             `;
+
             tbody.appendChild(row);
         });
 
-        // Attach delete handlers with confirmation
+        // Delete confirmation
         document.querySelectorAll(".delete-btn").forEach(btn => {
             btn.addEventListener("click", function() {
                 const idx = parseInt(this.dataset.index);
@@ -122,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // ---------- Add Button ----------
     addBtn.addEventListener("click", function(e) {
-        e.preventDefault(); // Prevent page reload
+        e.preventDefault();
         addTransaction();
     });
 
