@@ -2,118 +2,143 @@
 // Home Budget Tracker - app.js
 // ================================
 
-// --- Initialize / Load Data ---
+// Load from localStorage
 let categories = JSON.parse(localStorage.getItem('categories')) || [];
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+let startDate = localStorage.getItem('startDate') || "";
 let openingBalance = parseFloat(localStorage.getItem('openingBalance')) || 0;
 
-// --- Elements ---
-const categoryInput = document.getElementById('newCategoryInput');
-const addCategoryBtn = document.getElementById('addCategoryButton');
-const categorySelect = document.getElementById('categorySelect');
-const transactionForm = document.getElementById('transactionForm'); // assuming a form
-const transactionTableBody = document.getElementById('transactionTableBody'); // tbody
-const openingBalanceInput = document.getElementById('openingBalanceInput');
+// DOM references (MATCHES YOUR HTML)
+const txCategorySelect = document.getElementById("tx-category");
+const newCategoryInput = document.getElementById("new-category");
+const addCategoryButton = document.getElementById("add-category");
 
-// --- CATEGORY FUNCTIONS ---
-// Update category dropdown
+const txDesc = document.getElementById("tx-desc");
+const txAmount = document.getElementById("tx-amount");
+const txType = document.getElementById("tx-type");
+const txFrequency = document.getElementById("tx-frequency");
+const txDate = document.getElementById("tx-date");
+const addTxButton = document.getElementById("add-transaction");
+
+const startDateInput = document.getElementById("start-date");
+const openingBalanceInput = document.getElementById("opening-balance");
+const saveConfigButton = document.getElementById("save-config");
+
+const tableBody = document.querySelector("#transaction-table tbody");
+
+// ================================
+// CATEGORY HANDLING
+// ================================
+
+// Render category dropdown
 function updateCategoryDropdown() {
-    categorySelect.innerHTML = '<option value="" disabled selected>Select category</option>';
+    txCategorySelect.innerHTML = "";
+
     categories.forEach(cat => {
-        const option = document.createElement('option');
-        option.value = cat;
-        option.textContent = cat;
-        categorySelect.appendChild(option);
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        txCategorySelect.appendChild(opt);
     });
 }
 
-// Add a new category
-function addCategory(newCategory) {
-    newCategory = newCategory.trim();
-    if (newCategory && !categories.includes(newCategory)) {
-        categories.push(newCategory);
-        localStorage.setItem('categories', JSON.stringify(categories));
-        updateCategoryDropdown();
-        categorySelect.value = newCategory; // auto-select the new category
+// Add category
+function addCategory() {
+    const newCat = newCategoryInput.value.trim();
+    if (!newCat) return;
+
+    if (!categories.includes(newCat)) {
+        categories.push(newCat);
+        localStorage.setItem("categories", JSON.stringify(categories));
     }
+
+    newCategoryInput.value = "";
+    updateCategoryDropdown();
+
+    // auto-select brand new category
+    txCategorySelect.value = newCat;
 }
 
-// --- TRANSACTION FUNCTIONS ---
-// Add transaction
-function addTransaction(transaction) {
-    transactions.push(transaction);
-    transactions.sort((a, b) => new Date(a.date) - new Date(b.date)); // sort by date
-    localStorage.setItem('transactions', JSON.stringify(transactions));
+// Event listener for adding category
+addCategoryButton.addEventListener("click", addCategory);
+
+// ================================
+// CONFIG SAVE
+// ================================
+
+saveConfigButton.addEventListener("click", () => {
+    startDate = startDateInput.value;
+    openingBalance = parseFloat(openingBalanceInput.value) || 0;
+
+    localStorage.setItem("startDate", startDate);
+    localStorage.setItem("openingBalance", openingBalance);
+});
+
+// Load saved config on page load
+startDateInput.value = startDate;
+openingBalanceInput.value = openingBalance;
+
+// ================================
+// TRANSACTION HANDLING
+// ================================
+
+// Add a transaction
+addTxButton.addEventListener("click", () => {
+    const tx = {
+        date: txDate.value,
+        description: txDesc.value,
+        type: txType.value,
+        amount: parseFloat(txAmount.value) || 0,
+        frequency: txFrequency.value,
+        category: txCategorySelect.value
+    };
+
+    transactions.push(tx);
+
+    // sort by date
+    transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+
     renderTransactionTable();
-}
 
-// Render transaction table
+    // clear inputs
+    txDesc.value = "";
+    txAmount.value = "";
+    txDate.value = "";
+});
+
+// Render table
 function renderTransactionTable() {
-    transactionTableBody.innerHTML = '';
+    tableBody.innerHTML = "";
+
+    let runningBalance = openingBalance;
+
     transactions.forEach(tx => {
-        const row = document.createElement('tr');
+        runningBalance += tx.type === "income" ? tx.amount : -tx.amount;
 
-        const dateCell = document.createElement('td');
-        dateCell.textContent = formatDate(tx.date);
-        row.appendChild(dateCell);
+        const row = document.createElement("tr");
 
-        const descCell = document.createElement('td');
-        descCell.textContent = tx.description;
-        row.appendChild(descCell);
+        row.innerHTML = `
+            <td>${formatDate(tx.date)}</td>
+            <td>${tx.description}</td>
+            <td>${tx.type}</td>
+            <td>${tx.amount.toFixed(2)}</td>
+            <td>${tx.category}</td>
+            <td>${runningBalance.toFixed(2)}</td>
+        `;
 
-        const categoryCell = document.createElement('td');
-        categoryCell.textContent = tx.category;
-        row.appendChild(categoryCell);
-
-        const typeCell = document.createElement('td');
-        typeCell.textContent = tx.type; // income/expense
-        row.appendChild(typeCell);
-
-        const amountCell = document.createElement('td');
-        amountCell.textContent = parseFloat(tx.amount).toFixed(2);
-        row.appendChild(amountCell);
-
-        transactionTableBody.appendChild(row);
+        tableBody.appendChild(row);
     });
 }
 
 // Format date dd-mmm-yyyy
-function formatDate(dateStr) {
-    const d = new Date(dateStr);
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-    return d.toLocaleDateString('en-GB', options);
+function formatDate(val) {
+    if (!val) return "";
+    const d = new Date(val);
+    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-// --- EVENT LISTENERS ---
-// Add category button
-addCategoryBtn.addEventListener('click', () => {
-    addCategory(categoryInput.value);
-    categoryInput.value = '';
-});
-
-// Transaction form submit
-transactionForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const tx = {
-        date: document.getElementById('transactionDate').value,
-        description: document.getElementById('transactionDescription').value,
-        category: categorySelect.value,
-        type: document.querySelector('input[name="transactionType"]:checked').value,
-        amount: parseFloat(document.getElementById('transactionAmount').value)
-    };
-    addTransaction(tx);
-
-    // Clear form
-    transactionForm.reset();
-});
-
-// Opening balance
-openingBalanceInput.addEventListener('change', () => {
-    openingBalance = parseFloat(openingBalanceInput.value) || 0;
-    localStorage.setItem('openingBalance', openingBalance);
-});
-
-// --- INITIAL RENDER ---
+// Initial render
 updateCategoryDropdown();
 renderTransactionTable();
-openingBalanceInput.value = openingBalance;
