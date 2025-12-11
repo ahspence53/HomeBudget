@@ -35,15 +35,16 @@ table { width: 100%; border-collapse: collapse; min-width: 800px; font-size: 14p
 thead { background: #2a7bff; color: white; }
 th, td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
 
-/* Sticky header */
-thead th {
+/* Sticky table header */
+.daily-projection-container thead th {
     position: sticky;
     top: 0;
-    background: #2a7bff;
+    background: #2a7bff; /* only header row */
     color: white;
     z-index: 3;
 }
 
+/* Alternate row colors and hover */
 tbody tr:nth-child(even) { background: #f1f5ff; }
 tbody tr:nth-child(odd) { background: #ffffff; }
 tbody tr:hover { background: #dfe9ff; }
@@ -54,14 +55,17 @@ td.expense { color: #cc0000; font-weight: bold; }
 
 .daily-projection-container { max-height: 600px; overflow-y: auto; }
 
+/* Freeze Date column in body only */
 .freeze-col {
     position: sticky;
     left: 0;
-    background: #2a7bff;
-    color: white;
     z-index: 2;
+    background: white;  /* body cells remain white */
+    color: #222;        /* body text color */
+    font-weight: bold;
 }
 
+/* Highlight row when finding */
 .highlight-row { background: #fff59d !important; }
 
 .jump-btn { margin: 8px 0; padding: 8px 12px; border-radius: 5px; background: #2a7bff; color: white; font-weight: bold; cursor: pointer; }
