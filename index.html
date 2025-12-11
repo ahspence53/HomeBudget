@@ -31,7 +31,7 @@
 
 <hr>
 
-<!-- Add Transaction (3 cols × 2 rows grid) -->
+<!-- Add Transaction -->
 <section id="addTransaction" class="grid-section">
     <h2>Add Transaction</h2>
 
@@ -78,21 +78,6 @@
 
 <hr>
 
-<!-- Find controls + Jump button -->
-<section id="tableControls" class="controls">
-    <div class="find-controls">
-        <label for="findInput">Find (Description):</label>
-        <input type="text" id="findInput" placeholder="search description...">
-        <button id="findBtn">Find</button>
-        <button id="findNextBtn">Find Next</button>
-        <button id="clearFindBtn">Clear</button>
-    </div>
-
-    <div class="jump-controls">
-        <button id="jumpToSummaryBtn">Jump to Monthly Summary ↓</button>
-    </div>
-</section>
-
 <!-- Transaction List -->
 <section id="transactionList" class="table-section">
     <h2>Transactions (including projection)</h2>
@@ -109,15 +94,14 @@
                     <th>Delete</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody id="transaction-list"></tbody>
         </table>
     </div>
 </section>
 
-<!-- Monthly Summary (with Back to Top) -->
+<!-- Monthly Summary -->
 <section id="monthlySummary">
     <div class="summary-header">
-        <button id="backToTopBtn">Back to Top ↑</button>
         <h2>Monthly Summary</h2>
     </div>
 
@@ -133,12 +117,6 @@
         </thead>
         <tbody></tbody>
     </table>
-</section>
-
-<!-- Chart -->
-<section id="chartContainer">
-    <h2>Financial Overview Chart</h2>
-    <canvas id="budgetChart" width="900" height="350"></canvas>
 </section>
 
 <script src="app.js"></script>
