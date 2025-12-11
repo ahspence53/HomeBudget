@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function() {
         renderDailyProjection();
     });
 
-    // ---------- Daily Projection ----------
+    // ---------- Daily Projection with Repetition ----------
     function renderDailyProjection(){
         const tbody = document.querySelector("#dailyProjectionTable tbody");
         tbody.innerHTML="";
@@ -110,12 +110,30 @@ document.addEventListener("DOMContentLoaded", function() {
         const endDate = new Date(startDate);
         endDate.setMonth(endDate.getMonth()+24);
 
+        // Generate an array of dates for the 24-month period
+        const projectionDates = [];
         let currentDate = new Date(startDate);
         while(currentDate <= endDate){
-            // Filter transactions for this day
-            let txToday = transactions
-                .filter(tx=> new Date(tx.date).toDateString() === currentDate.toDateString())
-                .sort((a,b)=> a.description.localeCompare(b.description));
+            projectionDates.push(new Date(currentDate));
+            currentDate.setDate(currentDate.getDate()+1);
+        }
+
+        projectionDates.forEach(date => {
+            // Gather transactions that occur on this day
+            const txToday = [];
+
+            transactions.forEach(tx => {
+                const txDate = new Date(tx.date);
+                if(tx.frequency==='irregular'){
+                    if(txDate.toDateString() === date.toDateString()) txToday.push(tx);
+                } else if(tx.frequency==='monthly'){
+                    if(txDate.getDate() === date.getDate() &&
+                       txDate <= date) txToday.push(tx);
+                } else if(tx.frequency==='4weekly'){
+                    const diffDays = Math.floor((date - txDate)/(1000*60*60*24));
+                    if(diffDays >=0 && diffDays % 28 ===0) txToday.push(tx);
+                }
+            });
 
             if(txToday.length>0){
                 txToday.forEach(tx=>{
@@ -123,7 +141,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     else balance -= tx.amount;
                     const row = document.createElement("tr");
                     row.innerHTML=`
-                        <td class="freeze-col">${formatDateDDMMMYYYY(currentDate.toISOString())}</td>
+                        <td class="freeze-col">${formatDateDDMMMYYYY(date.toISOString())}</td>
                         <td>${tx.description}</td>
                         <td>${tx.type}</td>
                         <td>${tx.amount.toFixed(2)}</td>
@@ -132,10 +150,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     tbody.appendChild(row);
                 });
             } else {
-                // No transaction today, add blank row with balance
                 const row = document.createElement("tr");
                 row.innerHTML=`
-                    <td class="freeze-col">${formatDateDDMMMYYYY(currentDate.toISOString())}</td>
+                    <td class="freeze-col">${formatDateDDMMMYYYY(date.toISOString())}</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -143,9 +160,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 `;
                 tbody.appendChild(row);
             }
-
-            currentDate.setDate(currentDate.getDate()+1);
-        }
+        });
     }
 
     // ---------- Find Date ----------
