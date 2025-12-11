@@ -80,13 +80,11 @@
 
 <!-- Transaction List -->
 <section id="transactionList" class="table-section">
-    <div class="section-header">
-        <h2 id="transactionsTop">Transactions (including projection)</h2>
-        <div class="header-controls">
-            <button id="goToChartBtn" class="jump-btn">Go to Chart ↓</button>
-        </div>
+    <h2>Transactions</h2>
+    <div class="transaction-controls">
+        <button id="exportTransactionsCSVBtn">Export Transactions CSV</button>
+        <button id="jumpToProjectionBtn" class="jump-btn">Go to Daily Projection ↓</button>
     </div>
-
     <div class="table-wrapper">
         <table id="transactionsTable">
             <thead>
@@ -105,47 +103,33 @@
     </div>
 </section>
 
-<!-- Daily Projection (24 months) -->
-<section id="dailyProjectionSection" class="table-section">
+<!-- Daily Projection Section -->
+<section id="projectionSection">
     <h2>Daily Projection (24 Months)</h2>
+
     <div class="projection-controls">
-        <button id="regenProjectionBtn">Regenerate Projection</button>
-        <span class="hint">Projection updates automatically when you add/delete transactions or save setup.</span>
+        <button id="exportProjectionCSVBtn">Export Daily Projection CSV</button>
+        <button id="jumpToChartBtn" class="jump-btn">Go to Chart ↓</button>
     </div>
 
-    <div class="table-wrapper projection-wrapper">
-        <table id="dailyProjectionTable">
+    <div class="daily-projection-container table-wrapper">
+        <table id="projectionTable">
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Income (£)</th>
-                    <th>Expense (£)</th>
-                    <th>Balance (£)</th>
+                    <th>Opening Balance (£)</th>
+                    <th>Total Income (£)</th>
+                    <th>Total Expense (£)</th>
+                    <th>Closing Balance (£)</th>
                 </tr>
             </thead>
-            <tbody id="dailyProjectionBody"></tbody>
+            <tbody id="projectionBody"></tbody>
         </table>
     </div>
-</section>
 
-<!-- Monthly Summary -->
-<section id="monthlySummary">
-    <div class="summary-header">
-        <h2>Monthly Summary</h2>
+    <div class="projection-bottom">
+        <button id="backToTopBtn1" class="jump-btn">Back to Top ↑</button>
     </div>
-
-    <table id="summaryTable">
-        <thead>
-            <tr>
-                <th>Month</th>
-                <th>Total Income (£)</th>
-                <th>Total Expenses (£)</th>
-                <th>Net (£)</th>
-                <th>Closing Balance (£)</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
 </section>
 
 <!-- Chart -->
@@ -156,10 +140,11 @@
     </div>
 
     <div class="chart-bottom">
-        <button id="backToTopBtn" class="jump-btn">Back to Top ↑</button>
+        <button id="backToTopBtn2" class="jump-btn">Back to Top ↑</button>
     </div>
 </section>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
