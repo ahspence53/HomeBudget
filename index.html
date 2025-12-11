@@ -78,13 +78,12 @@
 
 <hr>
 
+<!-- Jump to Projection/Chart -->
+<button id="jumpToProjectionBtn" class="jump-btn">Jump to Projection / Chart ↓</button>
+
 <!-- Transaction List -->
 <section id="transactionList" class="table-section">
     <h2>Transactions</h2>
-    <div class="transaction-controls">
-        <button id="exportTransactionsCSVBtn">Export Transactions CSV</button>
-        <button id="jumpToProjectionBtn" class="jump-btn">Go to Daily Projection ↓</button>
-    </div>
     <div class="table-wrapper">
         <table id="transactionsTable">
             <thead>
@@ -103,33 +102,43 @@
     </div>
 </section>
 
-<!-- Daily Projection Section -->
-<section id="projectionSection">
-    <h2>Daily Projection (24 Months)</h2>
-
-    <div class="projection-controls">
-        <button id="exportProjectionCSVBtn">Export Daily Projection CSV</button>
-        <button id="jumpToChartBtn" class="jump-btn">Go to Chart ↓</button>
-    </div>
-
-    <div class="daily-projection-container table-wrapper">
+<!-- Monthly Projection Table -->
+<section id="projectionSection" class="table-section">
+    <h2>24-Month Projection</h2>
+    <div class="table-wrapper">
         <table id="projectionTable">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Opening Balance (£)</th>
+                    <th>Month</th>
                     <th>Total Income (£)</th>
-                    <th>Total Expense (£)</th>
+                    <th>Total Expenses (£)</th>
+                    <th>Net (£)</th>
                     <th>Closing Balance (£)</th>
                 </tr>
             </thead>
-            <tbody id="projectionBody"></tbody>
+            <tbody></tbody>
         </table>
     </div>
+    <button id="exportProjectionBtn" class="jump-btn">Export Projection CSV</button>
+</section>
 
-    <div class="projection-bottom">
-        <button id="backToTopBtn1" class="jump-btn">Back to Top ↑</button>
+<!-- Monthly Summary -->
+<section id="monthlySummary">
+    <div class="summary-header">
+        <h2>Monthly Summary</h2>
     </div>
+    <table id="summaryTable">
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Total Income (£)</th>
+                <th>Total Expenses (£)</th>
+                <th>Net (£)</th>
+                <th>Closing Balance (£)</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 </section>
 
 <!-- Chart -->
@@ -138,9 +147,8 @@
     <div id="chartContainer">
         <canvas id="budgetChart" width="800" height="300"></canvas>
     </div>
-
     <div class="chart-bottom">
-        <button id="backToTopBtn2" class="jump-btn">Back to Top ↑</button>
+        <button id="backToTopBtn" class="jump-btn">Back to Top ↑</button>
     </div>
 </section>
 
