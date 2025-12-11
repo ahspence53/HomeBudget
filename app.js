@@ -73,8 +73,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     transactions.splice(idx, 1);
                     renderTransactions();
                     renderProjection();
-                    renderSummary();
-                    renderChart();
                 }
             });
         });
@@ -105,8 +103,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
         renderTransactions();
         renderProjection();
-        renderSummary();
-        renderChart();
     }
 
     // ---------- Save Config ----------
@@ -115,8 +111,6 @@ document.addEventListener("DOMContentLoaded", function() {
         localStorage.setItem("openingBalance", openingBalanceEl.value);
         renderTransactions();
         renderProjection();
-        renderSummary();
-        renderChart();
     });
 
     addBtn.addEventListener("click", function(e) {
@@ -124,42 +118,46 @@ document.addEventListener("DOMContentLoaded", function() {
         addTransaction();
     });
 
-    // ---------- Projection ----------
-    function generateProjection() {
+    // ---------- Daily Projection ----------
+    function generateDailyProjection() {
         const startDateStr = startDateEl.value;
-        let balance = parseFloat(openingBalanceEl.value) || 0;
         if (!startDateStr) return [];
 
+        let balance = parseFloat(openingBalanceEl.value) || 0;
         const projection = [];
         const startDate = new Date(startDateStr);
+        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 24, startDate.getDate());
 
-        for (let monthOffset = 0; monthOffset < 24; monthOffset++) {
-            const monthDate = new Date(startDate.getFullYear(), startDate.getMonth() + monthOffset, 1);
-            const monthStr = monthDate.toLocaleString("default", { month: "short", year: "numeric" });
-
-            let monthlyIncome = 0;
-            let monthlyExpense = 0;
+        for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
+            let dailyIncome = 0;
+            let dailyExpense = 0;
 
             transactions.forEach(tx => {
                 const txDate = new Date(tx.date);
-                const freq = tx.frequency;
-
-                if (freq === "monthly" && txDate <= monthDate) {
-                    tx.type === "income" ? monthlyIncome += tx.amount : monthlyExpense += tx.amount;
-                } else if (freq === "4weekly" && txDate <= monthDate) {
-                    tx.type === "income" ? monthlyIncome += tx.amount : monthlyExpense += tx.amount;
-                } else if (freq === "irregular" && txDate.getMonth() === monthDate.getMonth() && txDate.getFullYear() === monthDate.getFullYear()) {
-                    tx.type === "income" ? monthlyIncome += tx.amount : monthlyExpense += tx.amount;
+                if (tx.frequency === "monthly") {
+                    if (txDate.getDate() === d.getDate() && txDate <= d) {
+                        tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
+                    }
+                } else if (tx.frequency === "4weekly") {
+                    // Repeat every 28 days from txDate
+                    const diffDays = Math.floor((d - txDate) / (1000*60*60*24));
+                    if (diffDays >= 0 && diffDays % 28 === 0) {
+                        tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
+                    }
+                } else if (tx.frequency === "irregular") {
+                    if (txDate.toDateString() === d.toDateString()) {
+                        tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
+                    }
                 }
             });
 
-            const net = monthlyIncome - monthlyExpense;
+            const net = dailyIncome - dailyExpense;
             balance += net;
 
             projection.push({
-                month: monthStr,
-                income: monthlyIncome,
-                expense: monthlyExpense,
+                date: new Date(d),
+                income: dailyIncome,
+                expense: dailyExpense,
                 net: net,
                 balance: balance
             });
@@ -168,57 +166,22 @@ document.addEventListener("DOMContentLoaded", function() {
         return projection;
     }
 
-    // ---------- Render Projection Table ----------
+    // ---------- Render Daily Projection Table ----------
     function renderProjection() {
         const tbody = document.querySelector("#projectionTable tbody");
         tbody.innerHTML = "";
-        const projection = generateProjection();
+        const projection = generateDailyProjection();
 
         projection.forEach(p => {
             const row = document.createElement("tr");
             row.innerHTML = `
-                <td>${p.month}</td>
+                <td>${formatDateDDMMMYYYY(p.date)}</td>
                 <td>${p.income.toFixed(2)}</td>
                 <td>${p.expense.toFixed(2)}</td>
                 <td>${p.net.toFixed(2)}</td>
                 <td>${p.balance.toFixed(2)}</td>
             `;
             tbody.appendChild(row);
-        });
-    }
-
-    // ---------- Export Projection CSV ----------
-    document.getElementById("exportProjectionBtn").addEventListener("click", () => {
-        const projection = generateProjection();
-        let csv = "Month,Total Income (£),Total Expenses (£),Net (£),Closing Balance (£)\n";
-        projection.forEach(p => {
-            csv += `${p.month},${p.income.toFixed(2)},${p.expense.toFixed(2)},${p.net.toFixed(2)},${p.balance.toFixed(2)}\n`;
-        });
-        const blob = new Blob([csv], { type: "text/csv" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "projection.csv";
-        a.click();
-        URL.revokeObjectURL(url);
-    });
-
-    // ---------- Render Monthly Summary ----------
-    function renderSummary() {
-        const summaryTbody = document.querySelector("#summaryTable tbody");
-        summaryTbody.innerHTML = "";
-        const projection = generateProjection();
-
-        projection.forEach(p => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${p.month}</td>
-                <td>${p.income.toFixed(2)}</td>
-                <td>${p.expense.toFixed(2)}</td>
-                <td>${p.net.toFixed(2)}</td>
-                <td>${p.balance.toFixed(2)}</td>
-            `;
-            summaryTbody.appendChild(row);
         });
     }
 
@@ -230,44 +193,25 @@ document.addEventListener("DOMContentLoaded", function() {
         window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    // ---------- Chart ----------
-    let budgetChart;
-    function renderChart() {
-        const projection = generateProjection();
-        const labels = projection.map(p => p.month);
-        const incomeData = projection.map(p => p.income);
-        const expenseData = projection.map(p => p.expense);
-        const balanceData = projection.map(p => p.balance);
-
-        const ctx = document.getElementById("budgetChart").getContext("2d");
-        if (budgetChart) budgetChart.destroy();
-
-        budgetChart = new Chart(ctx, {
-            data: {
-                labels: labels,
-                datasets: [
-                    { type: 'bar', label: 'Income (£)', data: incomeData, backgroundColor: 'rgba(26,143,46,0.7)', stack: 'financial' },
-                    { type: 'bar', label: 'Expenses (£)', data: expenseData, backgroundColor: 'rgba(204,0,0,0.7)', stack: 'financial' },
-                    { type: 'line', label: 'Cumulative Balance (£)', data: balanceData, borderColor: '#2a7bff', backgroundColor: 'rgba(42,123,255,0.2)', yAxisID: 'balanceAxis', tension: 0.3, fill: false }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'top' }, title: { display: true, text: 'Financial Overview' } },
-                scales: {
-                    x: { stacked: true },
-                    y: { stacked: true, title: { display: true, text: 'Income / Expenses (£)' } },
-                    balanceAxis: { position: 'right', beginAtZero: true, title: { display: true, text: 'Cumulative Balance (£)' } }
-                }
-            }
+    // ---------- Export Daily Projection CSV ----------
+    document.getElementById("exportProjectionBtn").addEventListener("click", () => {
+        const projection = generateDailyProjection();
+        let csv = "Date,Total Income (£),Total Expenses (£),Net (£),Closing Balance (£)\n";
+        projection.forEach(p => {
+            const dStr = formatDateDDMMMYYYY(p.date);
+            csv += `${dStr},${p.income.toFixed(2)},${p.expense.toFixed(2)},${p.net.toFixed(2)},${p.balance.toFixed(2)}\n`;
         });
-    }
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "daily_projection.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+    });
 
     // ---------- Initial Render ----------
     renderTransactions();
     renderProjection();
-    renderSummary();
-    renderChart();
 
 });
