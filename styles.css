@@ -52,3 +52,20 @@ td.expense { color:#cc0000; font-weight:bold; }
 .controls, .projection-controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
 
 @media(max-width:900px) { .grid{ grid-template-columns:1fr;} .config-row{ flex-direction:column;} }
+
+/* Freeze Date column */
+.freeze-col {
+    position: sticky;
+    left: 0;
+    background: #2a7bff;
+    color: #fff;
+    z-index: 2;
+}
+
+/* Table header */
+#dailyProjectionTable thead th.freeze-col {
+    z-index: 3;
+}
+
+/* Highlighted find result */
+.highlight-row { background: #fff59d !important; }
