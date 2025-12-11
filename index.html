@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Home Budget Tracker</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -12,7 +12,7 @@
     <h1>Home Budget Tracker</h1>
 </header>
 
-<!-- Setup -->
+<!-- Setup (Start Date + Opening Balance + Save) -->
 <section id="config" class="config-row">
     <div class="config-item">
         <label for="startDate">Start Date:</label>
@@ -34,6 +34,7 @@
 <!-- Add Transaction -->
 <section id="addTransaction" class="grid-section">
     <h2>Add Transaction</h2>
+
     <div class="grid">
         <div class="cell">
             <label for="description">Description:</label>
@@ -77,20 +78,7 @@
 
 <hr>
 
-<!-- Export / Restore -->
-<section id="backupRestore" class="grid-section">
-    <div class="cell">
-        <button id="exportCSVBtn" class="jump-btn">Export Transactions CSV</button>
-    </div>
-    <div class="cell">
-        <input type="file" id="restoreCSVInput" accept=".csv">
-        <button id="restoreCSVBtn" class="jump-btn">Restore from CSV</button>
-    </div>
-</section>
-
-<hr>
-
-<!-- Transactions Table -->
+<!-- Transaction List -->
 <section id="transactionList" class="table-section">
     <h2>Transactions</h2>
     <div class="table-wrapper">
@@ -111,25 +99,19 @@
     </div>
 </section>
 
-<hr>
-
-<!-- Daily 24-Month Projection -->
-<section id="dailyProjection">
-    <div class="projection-header">
+<!-- Daily 24-month Projection -->
+<section id="projectionSection">
+    <div class="projection-controls">
         <h2>Daily 24-Month Projection</h2>
-        <div class="projection-controls">
-            <label for="findDateInput">Find Date:</label>
-            <input type="date" id="findDateInput">
-            <button id="findDateBtn" class="jump-btn">Find Date</button>
-            <button id="jumpToBottomBtn" class="jump-btn">Jump to Bottom ↓</button>
-        </div>
+        <input type="date" id="findDateInput">
+        <button id="findDateBtn">Find Date</button>
     </div>
 
-    <div class="daily-projection-container table-wrapper">
+    <div class="table-wrapper">
         <table id="dailyProjectionTable">
             <thead>
                 <tr>
-                    <th>Date</th>
+                    <th class="freeze-col">Date</th>
                     <th>Description</th>
                     <th>Category</th>
                     <th>Type</th>
@@ -137,14 +119,8 @@
                     <th>Balance (£)</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- Rows inserted by JS -->
-            </tbody>
+            <tbody></tbody>
         </table>
-    </div>
-
-    <div class="projection-bottom">
-        <button id="backToTopBtn" class="jump-btn">Back to Top ↑</button>
     </div>
 </section>
 
