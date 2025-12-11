@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const descriptionEl = document.getElementById("description");
     const typeEl = document.getElementById("type");
     const amountEl = document.getElementById("amount");
-    const categoryEl = document.getElementById("category");
     const frequencyEl = document.getElementById("frequency");
     const dateEl = document.getElementById("date");
     const addBtn = document.getElementById("addBtn");
@@ -50,7 +49,6 @@ document.addEventListener("DOMContentLoaded", function() {
             row.innerHTML = `
                 <td>${formatDateDDMMMYYYY(tx.date)}</td>
                 <td class="${tx.frequency==='irregular'?'desc-strong':''}">${tx.description}</td>
-                <td>${tx.category}</td>
                 <td class="${tx.type}">${tx.type}</td>
                 <td>${tx.amount.toFixed(2)}</td>
                 <td>${tx.balance.toFixed(2)}</td>
@@ -76,7 +74,6 @@ document.addEventListener("DOMContentLoaded", function() {
             description: descriptionEl.value.trim(),
             type: typeEl.value,
             amount: parseFloat(amountEl.value),
-            category: categoryEl.value.trim(),
             frequency: frequencyEl.value,
             date: dateEl.value
         };
@@ -85,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
         transactions.push(tx);
-        descriptionEl.value=""; amountEl.value=""; categoryEl.value=""; dateEl.value="";
+        descriptionEl.value=""; amountEl.value=""; dateEl.value="";
         renderTransactions();
         renderDailyProjection();
     }
@@ -123,7 +120,6 @@ document.addEventListener("DOMContentLoaded", function() {
             row.innerHTML = `
                 <td class="freeze-col">${formatDateDDMMMYYYY(d.toISOString())}</td>
                 <td>${txToday.map(tx=>tx.description).join(", ")}</td>
-                <td>${txToday.map(tx=>tx.category).join(", ")}</td>
                 <td>${txToday.map(tx=>tx.type).join(", ")}</td>
                 <td>${txToday.map(tx=>tx.amount.toFixed(2)).join(", ")}</td>
                 <td>${balance.toFixed(2)}</td>
@@ -135,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // ---------- Find Date ----------
     findDateBtn.addEventListener("click", function(){
         const targetDateStr = findDateInput.value;
-        if(!targetDateStr) return alert("Please enter a valid date.");
+        if(!targetDateStr) return alert("Please select a valid date.");
         const rows = document.querySelectorAll("#dailyProjectionTable tbody tr");
         let found=false;
         rows.forEach(r=>r.classList.remove("highlight-row"));
