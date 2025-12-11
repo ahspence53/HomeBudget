@@ -121,12 +121,21 @@ td.expense { color: #cc0000; font-weight: bold; }
 /* Highlighted find result */
 .highlight-row { background: #fff59d !important; }
 
-/* Projection table frozen column */
-#dailyProjectionTable td.freeze-col, #dailyProjectionTable th {
+/* Projection table frozen Date column */
+#dailyProjectionTable th.freeze-col {
     position: sticky;
     left: 0;
-    background: #2a7bff;
+    background: #2a7bff;  /* header blue */
     color: white;
+    z-index: 10;
+}
+
+/* Data cells in frozen Date column */
+#dailyProjectionTable td.freeze-col {
+    position: sticky;
+    left: 0;
+    background: white;  /* data rows white */
+    color: black;
     z-index: 5;
 }
 
