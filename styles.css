@@ -51,6 +51,14 @@ td.expense { color: #cc0000; font-weight: bold; }
 .jump-btn { margin: 8px 0; padding: 8px 12px; border-radius: 5px; background: #2a7bff; color: white; font-weight: bold; cursor: pointer; }
 .jump-btn:hover { background: #1a5cd8; }
 
+/* Freeze first column */
+.freeze-col {
+    position: sticky;
+    left: 0;
+    background: #f4f6f8;
+    z-index: 2;
+}
+
 @media (max-width: 900px) {
     .grid { grid-template-columns: 1fr; }
     .config-row { flex-direction: column; }
