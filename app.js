@@ -110,7 +110,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const endDate = new Date(startDate);
         endDate.setMonth(endDate.getMonth()+24);
 
-        // Generate an array of dates for the 24-month period
         const projectionDates = [];
         let currentDate = new Date(startDate);
         while(currentDate <= endDate){
@@ -118,20 +117,18 @@ document.addEventListener("DOMContentLoaded", function() {
             currentDate.setDate(currentDate.getDate()+1);
         }
 
-        projectionDates.forEach(date => {
-            // Gather transactions that occur on this day
+        projectionDates.forEach(date=>{
             const txToday = [];
 
-            transactions.forEach(tx => {
+            transactions.forEach(tx=>{
                 const txDate = new Date(tx.date);
                 if(tx.frequency==='irregular'){
                     if(txDate.toDateString() === date.toDateString()) txToday.push(tx);
                 } else if(tx.frequency==='monthly'){
-                    if(txDate.getDate() === date.getDate() &&
-                       txDate <= date) txToday.push(tx);
+                    if(date >= txDate && txDate.getDate() === date.getDate()) txToday.push(tx);
                 } else if(tx.frequency==='4weekly'){
                     const diffDays = Math.floor((date - txDate)/(1000*60*60*24));
-                    if(diffDays >=0 && diffDays % 28 ===0) txToday.push(tx);
+                    if(diffDays>=0 && diffDays % 28 === 0) txToday.push(tx);
                 }
             });
 
