@@ -1,62 +1,48 @@
-/* General Page Styling */
+/* -------------------------------
+   GLOBAL STYLES
+--------------------------------*/
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
-    background-color: #f4f4f4;
+    background-color: #f5f7fa;
     color: #333;
 }
 
-h2 {
-    margin-top: 30px;
-}
-
-/* Layout Containers */
-.container {
-    display: flex;
-    gap: 30px;
-    flex-wrap: wrap;
-}
-
-.section {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    flex: 1;
-    min-width: 300px;
-}
-
-/* Form Elements */
-input, select, button {
-    padding: 10px;
-    margin: 5px 0;
-    width: 100%;
-    box-sizing: border-box;
-    font-size: 14px;
+h1, h2 {
+    color: #007BFF;
 }
 
 button {
+    padding: 8px 14px;
     background-color: #007BFF;
     border: none;
+    border-radius: 4px;
     color: white;
-    font-weight: bold;
     cursor: pointer;
-    border-radius: 5px;
+    margin: 5px 0;
 }
 
 button:hover {
     background-color: #0056b3;
 }
 
-/* Tables */
+input, select {
+    padding: 6px;
+    margin: 4px 0;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+}
+
+
+/* -------------------------------
+   TRANSACTION TABLE
+--------------------------------*/
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
-    font-size: 14px;
 }
 
-/* Header Row */
 th {
     background-color: #007BFF;
     color: white;
@@ -64,64 +50,62 @@ th {
     text-align: left;
 }
 
-/* Sticky header ONLY for the projection table */
+td {
+    padding: 6px;
+    border-bottom: 1px solid #ccc;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f6ff;
+}
+
+
+/* -------------------------------
+   DAILY 24-MONTH PROJECTION TABLE
+--------------------------------*/
+
+/* Scrollable frame for sticky header */
+.projection-wrapper {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: white;
+    position: relative;
+}
+
+/* MAKE THE ENTIRE HEADER ROW STICKY */
 #projectionTable thead th {
     position: sticky;
     top: 0;
-    background-color: #007BFF;
-    color: white;
-    z-index: 3;
+    z-index: 10;
+    background-color: #007BFF !important;
+    color: white !important;
 }
 
-/* Table Cells */
-td {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
+/* Highlight used by Find Date */
+.highlight-row {
+    background: #fff59d !important;
 }
 
-/* Alternating row colours */
-tr:nth-child(even) {
-    background-color: #f9f9f9;
+
+/* -------------------------------
+   SMALL BUTTONS
+--------------------------------*/
+.small-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+    margin-left: 6px;
 }
 
-/* Highlight hovered row */
-tr:hover {
-    background-color: #eef6ff;
+
+/* -------------------------------
+   JUMP BUTTONS (Top/Bottom)
+--------------------------------*/
+.jump-btn {
+    background-color: #28a745;
 }
 
-/* Scrollable container for projection table */
-.projection-wrapper {
-    max-height: 500px;
-    overflow-y: scroll;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background: white;
-}
-
-/* Totals and summaries */
-.summary-box {
-    background: #fff;
-    padding: 15px;
-    margin-top: 10px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    font-weight: bold;
-}
-
-/* Find Date input/button alignment */
-.find-date-bar {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.find-date-bar input {
-    flex: 0 0 160px;
-}
-
-/* Fix for iPad Safari sticky header clipping */
-#projectionTable thead th {
-    -webkit-backdrop-filter: blur(0);
-    backdrop-filter: blur(0);
+.jump-btn:hover {
+    background-color: #1e7e34;
 }
