@@ -71,26 +71,13 @@ button:hover { background: #1a5cd8; }
     width: 100%;
 }
 
-/* Controls (find + jump) */
-.controls {
-    display: flex;
-    gap: 12px;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-}
-.find-controls {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
 /* Table wrapper for scroll & sticky header */
 .table-wrapper {
     max-height: 320px;
     overflow: auto;
     border-radius: 8px;
     background: white;
+    box-shadow: 0 0 6px rgba(0,0,0,0.05);
 }
 
 /* Table styling (Transactions & Monthly Summary) */
@@ -98,6 +85,7 @@ table {
     width: 100%;
     border-collapse: collapse;
     min-width: 800px;
+    font-size: 14px;
 }
 thead {
     background: #2a7bff;
@@ -145,33 +133,41 @@ td.expense { color: #cc0000; font-weight: bold; }
     border-bottom: 1px solid #999;
 }
 
-/* Daily Projection table styling */
+/* Daily Projection modern styling */
+.daily-projection-container {
+    max-height: 450px;
+    overflow-y: auto;
+    border-radius: 8px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.08);
+}
+
 #projectionTable {
     width: 100%;
-    border-collapse: collapse;
-    min-width: 800px;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
 }
-#projectionTable thead {
-    background: #2a7bff;
-    color: white;
+
+#projectionTable thead th {
     position: sticky;
     top: 0;
-    z-index: 10;
-}
-#projectionTable th, #projectionTable td {
-    padding: 10px;
-    border-bottom: 1px solid #e5e7eb;
+    background: #1e5ecf;
+    color: #fff;
     text-align: left;
+    padding: 6px 10px;
+    font-weight: bold;
+    z-index: 5;
+    border-bottom: 2px solid #14479a;
 }
-#projectionTable tbody tr:nth-child(even) { background: #f1f5ff; }
-#projectionTable tbody tr:nth-child(odd) { background: #ffffff; }
-#projectionTable tbody tr:hover { background: #dfe9ff; }
 
-/* Daily Projection container scroll */
-.daily-projection-container {
-    max-height: 500px;
-    overflow-y: auto;
+#projectionTable td {
+    padding: 4px 8px;
+    border-bottom: 1px solid #ddd;
 }
+
+#projectionTable tbody tr:nth-child(even) { background: #f9faff; }
+#projectionTable tbody tr:nth-child(odd)  { background: #ffffff; }
+#projectionTable tbody tr:hover { background: #e6f0ff; }
 
 /* Chart container */
 #chartContainer {
