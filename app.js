@@ -1,4 +1,6 @@
-// Load from localStorage
+// -------------------------
+// Local Storage Handling
+// -------------------------
 function load() {
     return JSON.parse(localStorage.getItem("transactions") || "[]");
 }
@@ -17,7 +19,10 @@ function loadConfig() {
     document.getElementById("openingBalance").value = localStorage.getItem("openingBalance") || "";
 }
 
-// Add a transaction
+
+// -------------------------
+// Add New Transaction
+// -------------------------
 document.getElementById("addBtn").addEventListener("click", () => {
     let transactions = load();
 
@@ -33,42 +38,51 @@ document.getElementById("addBtn").addEventListener("click", () => {
 
     transactions.push(tx);
     save(transactions);
+
+    // Clear fields after adding
+    document.getElementById("description").value = "";
+    document.getElementById("category").value = "";
+    document.getElementById("type").value = "expense";
+    document.getElementById("frequency").value = "monthly";
+    document.getElementById("amount").value = "";
+    document.getElementById("date").value = "";
+
     renderTransactions();
-    // Clear input fields
-document.getElementById("description").value = "";
-document.getElementById("category").value = "";
-document.getElementById("type").value = "expense";
-document.getElementById("frequency").value = "monthly";
-document.getElementById("amount").value = "";
-document.getElementById("date").value = "";
 });
 
-// Save configuration
 document.getElementById("saveConfigBtn").addEventListener("click", () => {
     saveConfig();
     renderTransactions();
 });
 
-// Generate recurring monthly
+
+// -------------------------
+// Recurrence Generators
+// -------------------------
 function addMonths(date, n) {
     let d = new Date(date);
     d.setMonth(d.getMonth() + n);
     return d;
 }
 
-// Generate 4-weekly recurrence
 function addWeeks(date, n) {
     let d = new Date(date);
     d.setDate(d.getDate() + n * 7);
     return d;
 }
 
-// Create a 24-month projection based on frequency
-function buildProjection(transactions) {
-    let projected = [];
 
-    const startDate = new Date(localStorage.getItem("startDate"));
+// -------------------------
+// Build 24-Month Projection
+// -------------------------
+function buildProjection(transactions) {
+    const savedStart = localStorage.getItem("startDate");
+    if (!savedStart) return [];
+
+    const startDate = new Date(savedStart);
     const endDate = addMonths(startDate, 24);
+
+    let projected = [];
 
     transactions.forEach(tx => {
         let d = new Date(tx.date);
@@ -84,7 +98,7 @@ function buildProjection(transactions) {
             } else if (tx.frequency === "4weekly") {
                 d = addWeeks(d, 4);
             } else {
-                break; // irregular: no repetition
+                break; // irregular
             }
         }
     });
@@ -92,9 +106,13 @@ function buildProjection(transactions) {
     return projected;
 }
 
-// Render the table
+
+// -------------------------
+// Render Transaction Table
+// -------------------------
 function renderTransactions() {
     loadConfig();
+
     let transactions = load();
     let projected = buildProjection(transactions);
 
@@ -110,21 +128,54 @@ function renderTransactions() {
         else balance -= tx.amount;
 
         const row = document.createElement("tr");
-
         row.innerHTML = `
             <td>${formatDate(tx.date)}</td>
             <td>${tx.description}</td>
             <td>${tx.category}</td>
             <td>${tx.type}</td>
-            <td>£${tx.amount.toFixed(2)}</td>
+            <td class="${tx.type}">£${tx.amount.toFixed(2)}</td>
             <td>£${balance.toFixed(2)}</td>
             <td><button onclick="deleteTx(${tx.id})">X</button></td>
         `;
 
         tbody.appendChild(row);
     });
+
+    renderMonthlySummary(projected);
+    renderChart(projected);
 }
+
+
+// -------------------------
+// Delete Transaction
+// -------------------------
+function deleteTx(id) {
+    let transactions = load();
+    transactions = transactions.filter(t => t.id !== id);
+    save(transactions);
+    renderTransactions();
+}
+
+
+// -------------------------
+// Date Formatting
+// -------------------------
+function formatDate(d) {
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const date = new Date(d);
+    return `${String(date.getDate()).padStart(2, "0")}-${months[date.getMonth()]}-${date.getFullYear()}`;
+}
+
+
+// -------------------------
+// Monthly Summary
+// -------------------------
 function renderMonthlySummary(projected) {
+    const tbody = document.querySelector("#summaryTable tbody");
+    tbody.innerHTML = "";
+
+    if (!projected.length) return;
+
     const startBalance = parseFloat(localStorage.getItem("openingBalance") || "0");
     let running = startBalance;
 
@@ -135,20 +186,12 @@ function renderMonthlySummary(projected) {
         const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
 
         if (!summary[key]) {
-            summary[key] = {
-                income: 0,
-                expense: 0,
-                closing: 0
-            };
+            summary[key] = { income: 0, expense: 0, closing: 0 };
         }
 
         if (tx.type === "income") summary[key].income += tx.amount;
         else summary[key].expense += tx.amount;
     });
-
-    // Now compute monthly closing balances
-    const tbody = document.querySelector("#summaryTable tbody");
-    tbody.innerHTML = "";
 
     let keys = Object.keys(summary).sort();
 
@@ -159,31 +202,74 @@ function renderMonthlySummary(projected) {
         m.closing = running;
 
         const row = document.createElement("tr");
+
+        const label = new Date(key + "-01").toLocaleString("en-GB", {
+            month: "short",
+            year: "numeric"
+        });
+
         row.innerHTML = `
-            <td>${key}</td>
+            <td>${label}</td>
             <td>£${m.income.toFixed(2)}</td>
             <td>£${m.expense.toFixed(2)}</td>
             <td>£${(m.income - m.expense).toFixed(2)}</td>
             <td>£${m.closing.toFixed(2)}</td>
         `;
+
         tbody.appendChild(row);
     });
 }
 
-// Delete transaction
-function deleteTx(id) {
-    let transactions = load();
-    transactions = transactions.filter(t => t.id !== id);
-    save(transactions);
-    renderTransactions();
+
+// -------------------------
+// Chart Rendering
+// -------------------------
+function renderChart(projected) {
+    const canvas = document.getElementById("budgetChart");
+    const ctx = canvas.getContext("2d");
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!projected.length) return;
+
+    const startBalance = parseFloat(localStorage.getItem("openingBalance") || "0");
+    let bal = startBalance;
+
+    let balances = [];
+
+    projected.forEach(tx => {
+        if (tx.type === "income") bal += tx.amount;
+        else bal -= tx.amount;
+
+        balances.push(bal);
+    });
+
+    // Draw axes
+    ctx.beginPath();
+    ctx.moveTo(40, 10);
+    ctx.lineTo(40, 330);
+    ctx.lineTo(880, 330);
+    ctx.stroke();
+
+    const max = Math.max(...balances);
+    const scale = 300 / max;
+
+    // Draw line
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+
+    balances.forEach((v, i) => {
+        const x = 40 + i * (820 / balances.length);
+        const y = 330 - v * scale;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+
+    ctx.stroke();
 }
 
-// Format date dd-mon-yyyy
-function formatDate(d) {
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const date = new Date(d);
-    return `${String(date.getDate()).padStart(2, "0")}-${months[date.getMonth()]}-${date.getFullYear()}`;
-}
 
+// -------------------------
+// Init
+// -------------------------
 loadConfig();
 renderTransactions();
