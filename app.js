@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
 
-    // ---------- Data ----------
     let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
     const startDateEl = document.getElementById("startDate");
@@ -21,6 +20,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const findDateInput = document.getElementById("findDateInput");
     const findDateBtn = document.getElementById("findDateBtn");
+
+    const backToTopBtn = document.getElementById("backToTopBtn");
+    const jumpToBottomBtn = document.getElementById("jumpToBottomBtn");
 
     startDateEl.value = localStorage.getItem("startDate") || "";
     openingBalanceEl.value = localStorage.getItem("openingBalance") || "";
@@ -49,32 +51,29 @@ document.addEventListener("DOMContentLoaded", function() {
         const tbody = document.querySelector("#transactionsTable tbody");
         tbody.innerHTML = "";
 
-        transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
-
+        transactions.sort((a,b) => new Date(a.date) - new Date(b.date));
         calculateBalances();
         saveTransactions();
 
-        transactions.forEach((tx, index) => {
+        transactions.forEach((tx,index) => {
             const row = document.createElement("tr");
-
             row.innerHTML = `
                 <td>${formatDateDDMMMYYYY(tx.date)}</td>
-                <td class="${tx.frequency === "irregular" ? "desc-strong" : ""}">${tx.description}</td>
+                <td class="${tx.frequency==="irregular"?"desc-strong":""}">${tx.description}</td>
                 <td>${tx.category}</td>
                 <td class="${tx.type}">${tx.type}</td>
                 <td>${tx.amount.toFixed(2)}</td>
                 <td>${tx.balance.toFixed(2)}</td>
                 <td><button class="delete-btn" data-index="${index}">Delete</button></td>
             `;
-
             tbody.appendChild(row);
         });
 
-        document.querySelectorAll(".delete-btn").forEach(btn => {
-            btn.addEventListener("click", function() {
+        document.querySelectorAll(".delete-btn").forEach(btn=>{
+            btn.addEventListener("click",function(){
                 const idx = parseInt(this.dataset.index);
-                if (confirm(`Delete transaction "${transactions[idx].description}" on ${formatDateDDMMMYYYY(transactions[idx].date)}?`)) {
-                    transactions.splice(idx, 1);
+                if(confirm(`Delete transaction "${transactions[idx].description}" on ${formatDateDDMMMYYYY(transactions[idx].date)}?`)){
+                    transactions.splice(idx,1);
                     renderTransactions();
                     renderDailyProjection();
                 }
@@ -92,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function() {
             frequency: frequencyEl.value,
             date: dateEl.value
         };
-        if (!tx.description || isNaN(tx.amount) || !tx.date) return alert("Please fill in Description, Amount, and Date.");
+        if(!tx.description || isNaN(tx.amount) || !tx.date) return alert("Please fill in Description, Amount, and Date.");
         transactions.push(tx);
 
         descriptionEl.value = "";
@@ -104,65 +103,65 @@ document.addEventListener("DOMContentLoaded", function() {
         renderDailyProjection();
     }
 
-    saveConfigBtn.addEventListener("click", function() {
+    saveConfigBtn.addEventListener("click", function(){
         localStorage.setItem("startDate", startDateEl.value);
         localStorage.setItem("openingBalance", openingBalanceEl.value);
         renderTransactions();
         renderDailyProjection();
     });
 
-    addBtn.addEventListener("click", function(e) {
+    addBtn.addEventListener("click", function(e){
         e.preventDefault();
         addTransaction();
     });
 
     // ---------- Export CSV ----------
-    exportCSVBtn.addEventListener("click", function() {
-        if (transactions.length === 0) return alert("No transactions to export.");
-        const headers = ["Date","Description","Category","Type","Amount","Balance"];
-        const csvRows = [headers.join(",")];
-        transactions.forEach(tx => {
-            const row = [
+    exportCSVBtn.addEventListener("click", function(){
+        if(transactions.length===0) return alert("No transactions to export.");
+        const headers=["Date","Description","Category","Type","Amount","Balance"];
+        const csvRows=[headers.join(",")];
+        transactions.forEach(tx=>{
+            const row=[
                 tx.date,
                 `"${tx.description}"`,
                 `"${tx.category}"`,
                 tx.type,
                 tx.amount.toFixed(2),
-                tx.balance ? tx.balance.toFixed(2) : ""
+                tx.balance?tx.balance.toFixed(2):""
             ];
             csvRows.push(row.join(","));
         });
         const csvString = csvRows.join("\n");
-        const blob = new Blob([csvString], { type: "text/csv" });
+        const blob = new Blob([csvString],{type:"text/csv"});
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "transactions_backup.csv";
+        const a=document.createElement("a");
+        a.href=url;
+        a.download="transactions_backup.csv";
         a.click();
         URL.revokeObjectURL(url);
     });
 
     // ---------- Restore CSV ----------
-    restoreCSVBtn.addEventListener("click", function() {
-        const file = restoreCSVInput.files[0];
-        if (!file) return alert("Please select a CSV file to restore.");
+    restoreCSVBtn.addEventListener("click", function(){
+        const file=restoreCSVInput.files[0];
+        if(!file) return alert("Please select a CSV file to restore.");
         const reader = new FileReader();
-        reader.onload = function(e) {
-            const text = e.target.result;
-            const rows = text.split("\n").slice(1);
-            const restored = rows.map(row => {
-                const [date, desc, cat, type, amount, balance] = row.split(",");
+        reader.onload=function(e){
+            const text=e.target.result;
+            const rows=text.split("\n").slice(1);
+            const restored=rows.map(row=>{
+                const [date,desc,cat,type,amount,balance]=row.split(",");
                 return {
                     date,
-                    description: desc.replace(/^"|"$/g, ""),
-                    category: cat.replace(/^"|"$/g, ""),
+                    description:desc.replace(/^"|"$/g,""),
+                    category:cat.replace(/^"|"$/g,""),
                     type,
-                    amount: parseFloat(amount),
-                    balance: balance ? parseFloat(balance) : 0,
-                    frequency: "irregular"
+                    amount:parseFloat(amount),
+                    balance:balance?parseFloat(balance):0,
+                    frequency:"irregular"
                 };
             });
-            transactions = restored;
+            transactions=restored;
             saveTransactions();
             renderTransactions();
             renderDailyProjection();
@@ -171,24 +170,24 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // ---------- Daily Projection ----------
-    function renderDailyProjection() {
-        const tbody = document.querySelector("#dailyProjectionTable tbody");
-        tbody.innerHTML = "";
-        const startDateStr = startDateEl.value;
-        if (!startDateStr) return;
+    function renderDailyProjection(){
+        const tbody=document.querySelector("#dailyProjectionTable tbody");
+        tbody.innerHTML="";
+        const startDateStr=startDateEl.value;
+        if(!startDateStr) return;
 
-        let balance = parseFloat(openingBalanceEl.value) || 0;
-        const startDate = new Date(startDateStr);
-        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 24, startDate.getDate());
+        let balance=parseFloat(openingBalanceEl.value)||0;
+        const startDate=new Date(startDateStr);
+        const endDate=new Date(startDate.getFullYear(),startDate.getMonth()+24,startDate.getDate());
 
-        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate()+1)) {
-            transactions.forEach(tx => {
-                const txDate = new Date(tx.date);
-                if (txDate.toDateString() === d.toDateString()) {
-                    if (tx.type === "income") balance += tx.amount;
-                    else balance -= tx.amount;
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
+        for(let d=new Date(startDate); d<=endDate; d.setDate(d.getDate()+1)){
+            transactions.forEach(tx=>{
+                const txDate=new Date(tx.date);
+                if(txDate.toDateString()===d.toDateString()){
+                    if(tx.type==="income") balance+=tx.amount;
+                    else balance-=tx.amount;
+                    const row=document.createElement("tr");
+                    row.innerHTML=`
                         <td class="freeze-col">${formatDateDDMMMYYYY(tx.date)}</td>
                         <td>${tx.description}</td>
                         <td>${tx.category}</td>
@@ -203,27 +202,36 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ---------- Find Date ----------
-    findDateBtn.addEventListener("click", function() {
-        const targetDate = new Date(findDateInput.value);
-        if (!targetDate || isNaN(targetDate)) return alert("Please enter a valid date.");
+    findDateBtn.addEventListener("click", function(){
+        const targetDate=new Date(findDateInput.value);
+        if(!targetDate||isNaN(targetDate)) return alert("Please enter a valid date.");
 
-        const rows = document.querySelectorAll("#dailyProjectionTable tbody tr");
-        let found = false;
+        const rows=document.querySelectorAll("#dailyProjectionTable tbody tr");
+        let found=false;
+        rows.forEach(row=>row.classList.remove("highlight-row"));
 
-        rows.forEach(row => row.classList.remove("highlight-row")); // remove previous highlights
-
-        rows.forEach(row => {
-            const rowDateStr = row.cells[0].textContent;
-            const [day, monthShort, year] = rowDateStr.split("-");
-            const rowDate = new Date(`${monthShort} ${day} ${year}`);
-            if (rowDate.toDateString() === targetDate.toDateString()) {
-                row.scrollIntoView({ behavior: "smooth", block: "center" });
+        rows.forEach(row=>{
+            const [day,monthShort,year]=row.cells[0].textContent.split("-");
+            const rowDate=new Date(`${monthShort} ${day} ${year}`);
+            if(rowDate.toDateString()===targetDate.toDateString()){
+                row.scrollIntoView({behavior:"smooth", block:"center"});
                 row.classList.add("highlight-row");
-                found = true;
+                found=true;
             }
         });
 
-        if (!found) alert("Date not found in projection.");
+        if(!found) alert("Date not found in projection.");
+    });
+
+    // ---------- Jump Top / Bottom ----------
+    backToTopBtn.addEventListener("click", function(){
+        const section=document.getElementById("dailyProjection");
+        section.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+
+    jumpToBottomBtn.addEventListener("click", function(){
+        const tbody=document.querySelector("#dailyProjectionTable tbody");
+        if(tbody.lastElementChild) tbody.lastElementChild.scrollIntoView({behavior:"smooth", block:"end"});
     });
 
     // ---------- Initial Render ----------
