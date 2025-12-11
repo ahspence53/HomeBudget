@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const descriptionEl = document.getElementById("description");
     const typeEl = document.getElementById("type");
     const amountEl = document.getElementById("amount");
+    const categoryEl = document.getElementById("category");
     const frequencyEl = document.getElementById("frequency");
     const dateEl = document.getElementById("date");
     const addBtn = document.getElementById("addBtn");
@@ -37,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // Render main transaction table
     function renderTransactions() {
         const tbody = document.querySelector("#transactionsTable tbody");
         tbody.innerHTML="";
@@ -49,6 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
             row.innerHTML = `
                 <td>${formatDateDDMMMYYYY(tx.date)}</td>
                 <td class="${tx.frequency==='irregular'?'desc-strong':''}">${tx.description}</td>
+                <td>${tx.category}</td>
                 <td>${tx.type}</td>
                 <td>${tx.amount.toFixed(2)}</td>
                 <td>${tx.balance.toFixed(2)}</td>
@@ -69,20 +72,22 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // Add new transaction
     function addTransaction() {
         const tx = {
             description: descriptionEl.value.trim(),
             type: typeEl.value,
+            category: categoryEl.value.trim(),
             amount: parseFloat(amountEl.value),
             frequency: frequencyEl.value,
             date: dateEl.value
         };
         if(!tx.description || isNaN(tx.amount) || !tx.date){
-            alert("Please fill in Description, Amount, and Date.");
+            alert("Please fill in Description, Category, Amount, and Date.");
             return;
         }
         transactions.push(tx);
-        descriptionEl.value=""; amountEl.value=""; dateEl.value="";
+        descriptionEl.value=""; categoryEl.value=""; amountEl.value=""; dateEl.value="";
         renderTransactions();
         renderDailyProjection();
     }
@@ -119,14 +124,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 if(tx.frequency==='irregular'){
                     if(txDate.toDateString() === currentDate.toDateString()) txToday.push(tx);
                 } else if(tx.frequency==='monthly'){
-                    if(currentDate >= txDate && txDate.getDate() === currentDate.getDate()) txToday.push(tx);
+                    if(currentDate >= txDate && txDate.getDate() === txDate.getDate()) txToday.push(tx);
                 } else if(tx.frequency==='4weekly'){
                     const diffDays = Math.floor((currentDate - txDate)/(1000*60*60*24));
                     if(diffDays>=0 && diffDays % 28 === 0) txToday.push(tx);
                 }
             });
 
-            const isoDate = currentDate.toISOString().slice(0,10); // YYYY-MM-DD
+            const isoDate = currentDate.toISOString().slice(0,10);
 
             if(txToday.length>0){
                 txToday.forEach(tx=>{
@@ -153,18 +158,16 @@ document.addEventListener("DOMContentLoaded", function() {
                 `;
                 tbody.appendChild(row);
             }
-
             currentDate.setDate(currentDate.getDate()+1);
         }
     }
 
     // ---------- Find Date ----------
     findDateBtn.addEventListener("click", function(){
-        const targetDateStr = findDateInput.value; // YYYY-MM-DD
-        if(!targetDateStr || !/^\d{4}-\d{2}-\d{2}$/.test(targetDateStr)) {
-            return alert("Please select a valid date.");
+        const targetDateStr = findDateInput.value;
+        if(!targetDateStr || !/^\d{4}-\d{2}-\d{2}$/.test(targetDateStr)){
+            return alert("Please enter a valid date in YYYY-MM-DD format.");
         }
-
         const rows = document.querySelectorAll("#dailyProjectionTable tbody tr");
         let found=false;
         rows.forEach(r => r.classList.remove("highlight-row"));
