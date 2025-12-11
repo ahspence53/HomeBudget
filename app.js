@@ -57,14 +57,18 @@ document.addEventListener("DOMContentLoaded", function() {
             tbody.appendChild(row);
         });
 
-        // Attach delete handlers
+        // Attach delete handlers with confirmation
         document.querySelectorAll(".delete-btn").forEach(btn => {
             btn.addEventListener("click", function() {
                 const idx = parseInt(this.dataset.index);
-                transactions.splice(idx, 1);
-                renderTransactions();
-                renderSummary();
-                renderChart();
+                const tx = transactions[idx];
+                const confirmDelete = confirm(`Are you sure you want to delete the transaction:\n"${tx.description}" on ${tx.date} (£${tx.amount.toFixed(2)})?`);
+                if (confirmDelete) {
+                    transactions.splice(idx, 1);
+                    renderTransactions();
+                    renderSummary();
+                    renderChart();
+                }
             });
         });
     }
@@ -181,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ---------- Chart ----------
-    let budgetChart;  // Chart instance
+    let budgetChart;
 
     function renderChart() {
         const projection = generateProjection();
@@ -192,37 +196,35 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const ctx = document.getElementById("budgetChart").getContext("2d");
 
-        // Destroy previous chart instance if exists
         if (budgetChart) budgetChart.destroy();
 
         budgetChart = new Chart(ctx, {
-            type: 'line',
             data: {
                 labels: labels,
                 datasets: [
                     {
+                        type: 'bar',
                         label: 'Income (£)',
                         data: incomeData,
-                        borderColor: '#1a8f2e',
-                        backgroundColor: 'rgba(26,143,46,0.2)',
-                        fill: true,
-                        tension: 0.3
+                        backgroundColor: 'rgba(26,143,46,0.7)',
+                        stack: 'financial'
                     },
                     {
+                        type: 'bar',
                         label: 'Expenses (£)',
                         data: expenseData,
-                        borderColor: '#cc0000',
-                        backgroundColor: 'rgba(204,0,0,0.2)',
-                        fill: true,
-                        tension: 0.3
+                        backgroundColor: 'rgba(204,0,0,0.7)',
+                        stack: 'financial'
                     },
                     {
+                        type: 'line',
                         label: 'Cumulative Balance (£)',
                         data: balanceData,
                         borderColor: '#2a7bff',
                         backgroundColor: 'rgba(42,123,255,0.2)',
-                        fill: true,
-                        tension: 0.3
+                        yAxisID: 'balanceAxis',
+                        tension: 0.3,
+                        fill: false
                     }
                 ]
             },
@@ -234,7 +236,16 @@ document.addEventListener("DOMContentLoaded", function() {
                     title: { display: true, text: 'Financial Overview' }
                 },
                 scales: {
-                    y: { beginAtZero: true }
+                    x: { stacked: true },
+                    y: {
+                        stacked: true,
+                        title: { display: true, text: 'Income / Expenses (£)' }
+                    },
+                    balanceAxis: {
+                        position: 'right',
+                        beginAtZero: true,
+                        title: { display: true, text: 'Cumulative Balance (£)' }
+                    }
                 }
             }
         });
@@ -244,4 +255,5 @@ document.addEventListener("DOMContentLoaded", function() {
     renderTransactions();
     renderSummary();
     renderChart();
+
 });
