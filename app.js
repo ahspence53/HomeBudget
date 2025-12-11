@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
 
-    // ---------- Initial Setup ----------
     let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
     const startDateEl = document.getElementById("startDate");
@@ -15,11 +14,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const dateEl = document.getElementById("date");
     const addBtn = document.getElementById("addBtn");
 
-    // Load start date and opening balance from localStorage
     startDateEl.value = localStorage.getItem("startDate") || "";
     openingBalanceEl.value = localStorage.getItem("openingBalance") || "";
 
-    // ---------- Helper Functions ----------
     function saveTransactions() {
         localStorage.setItem("transactions", JSON.stringify(transactions));
     }
@@ -38,19 +35,16 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // ---------- Render Transactions ----------
     function renderTransactions() {
         const tbody = document.querySelector("#transactionsTable tbody");
         tbody.innerHTML = "";
 
         transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
-
         calculateBalances();
         saveTransactions();
 
         transactions.forEach((tx, index) => {
             const row = document.createElement("tr");
-
             row.innerHTML = `
                 <td>${formatDateDDMMMYYYY(tx.date)}</td>
                 <td class="${tx.frequency === "irregular" ? "desc-strong" : ""}">${tx.description}</td>
@@ -60,16 +54,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 <td>${tx.balance.toFixed(2)}</td>
                 <td><button class="delete-btn" data-index="${index}">Delete</button></td>
             `;
-
             tbody.appendChild(row);
         });
 
         document.querySelectorAll(".delete-btn").forEach(btn => {
             btn.addEventListener("click", function() {
                 const idx = parseInt(this.dataset.index);
-                const tx = transactions[idx];
-                const confirmDelete = confirm(`Are you sure you want to delete "${tx.description}" on ${formatDateDDMMMYYYY(tx.date)} (£${tx.amount.toFixed(2)})?`);
-                if (confirmDelete) {
+                if (confirm(`Delete "${transactions[idx].description}" on ${formatDateDDMMMYYYY(transactions[idx].date)} (£${transactions[idx].amount.toFixed(2)})?`)) {
                     transactions.splice(idx, 1);
                     renderTransactions();
                     renderProjection();
@@ -78,7 +69,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // ---------- Add Transaction ----------
     function addTransaction() {
         const tx = {
             description: descriptionEl.value.trim(),
@@ -95,7 +85,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         transactions.push(tx);
-
         descriptionEl.value = "";
         amountEl.value = "";
         categoryEl.value = "";
@@ -105,7 +94,6 @@ document.addEventListener("DOMContentLoaded", function() {
         renderProjection();
     }
 
-    // ---------- Save Config ----------
     saveConfigBtn.addEventListener("click", function() {
         localStorage.setItem("startDate", startDateEl.value);
         localStorage.setItem("openingBalance", openingBalanceEl.value);
@@ -113,12 +101,8 @@ document.addEventListener("DOMContentLoaded", function() {
         renderProjection();
     });
 
-    addBtn.addEventListener("click", function(e) {
-        e.preventDefault();
-        addTransaction();
-    });
+    addBtn.addEventListener("click", function(e) { e.preventDefault(); addTransaction(); });
 
-    // ---------- Daily Projection ----------
     function generateDailyProjection() {
         const startDateStr = startDateEl.value;
         if (!startDateStr) return [];
@@ -135,38 +119,24 @@ document.addEventListener("DOMContentLoaded", function() {
             transactions.forEach(tx => {
                 const txDate = new Date(tx.date);
                 if (tx.frequency === "monthly") {
-                    if (txDate.getDate() === d.getDate() && txDate <= d) {
-                        tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
-                    }
+                    if (txDate.getDate() === d.getDate() && txDate <= d) tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
                 } else if (tx.frequency === "4weekly") {
-                    // Repeat every 28 days from txDate
-                    const diffDays = Math.floor((d - txDate) / (1000*60*60*24));
-                    if (diffDays >= 0 && diffDays % 28 === 0) {
-                        tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
-                    }
+                    const diffDays = Math.floor((d - txDate)/(1000*60*60*24));
+                    if (diffDays >= 0 && diffDays % 28 === 0) tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
                 } else if (tx.frequency === "irregular") {
-                    if (txDate.toDateString() === d.toDateString()) {
-                        tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
-                    }
+                    if (txDate.toDateString() === d.toDateString()) tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
                 }
             });
 
             const net = dailyIncome - dailyExpense;
             balance += net;
 
-            projection.push({
-                date: new Date(d),
-                income: dailyIncome,
-                expense: dailyExpense,
-                net: net,
-                balance: balance
-            });
+            projection.push({ date: new Date(d), income: dailyIncome, expense: dailyExpense, net: net, balance: balance });
         }
 
         return projection;
     }
 
-    // ---------- Render Daily Projection Table ----------
     function renderProjection() {
         const tbody = document.querySelector("#projectionTable tbody");
         tbody.innerHTML = "";
@@ -185,7 +155,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // ---------- Jump Buttons ----------
     document.getElementById("jumpToProjectionBtn").addEventListener("click", () => {
         document.getElementById("projectionSection").scrollIntoView({ behavior: "smooth" });
     });
@@ -193,7 +162,6 @@ document.addEventListener("DOMContentLoaded", function() {
         window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    // ---------- Export Daily Projection CSV ----------
     document.getElementById("exportProjectionBtn").addEventListener("click", () => {
         const projection = generateDailyProjection();
         let csv = "Date,Total Income (£),Total Expenses (£),Net (£),Closing Balance (£)\n";
@@ -210,8 +178,6 @@ document.addEventListener("DOMContentLoaded", function() {
         URL.revokeObjectURL(url);
     });
 
-    // ---------- Initial Render ----------
     renderTransactions();
     renderProjection();
-
 });
