@@ -1,4 +1,4 @@
-/* Basic page styling */
+/* Basic Page */
 body {
     font-family: Arial, sans-serif;
     margin: 18px;
@@ -6,7 +6,7 @@ body {
     color: #222;
 }
 
-h1, h2 {
+h1 {
     margin: 0 0 10px 0;
     color: #222;
 }
@@ -20,26 +20,23 @@ section {
     box-shadow: 0 0 6px rgba(0,0,0,0.06);
 }
 
-/* Config row / Add Transaction form layout */
+/* Config row - flex layout */
 .config-row {
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-/* 2x3 Add Transaction Form */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     align-items: end;
+    flex-wrap: wrap;
 }
-.cell .add-btn {
-    margin-top: 8px;
-    width: 100%;
+.config-item {
+    display: flex;
+    flex-direction: column;
+}
+.config-save {
+    margin-left: auto;
+    align-self: center;
 }
 
-/* Labels and Inputs */
+/* Inputs & labels */
 label {
     font-weight: bold;
     margin-bottom: 6px;
@@ -61,25 +58,33 @@ button {
 }
 button:hover { background: #1a5cd8; }
 
+/* Add Transaction grid - 3 x 2 */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    align-items: end;
+}
+.cell .add-btn {
+    margin-top: 8px;
+    width: 100%;
+}
+
 /* Table wrapper for scroll & sticky header */
 .table-wrapper {
-    max-height: 560px;
-    overflow: auto;
     border-radius: 8px;
     background: white;
 }
 
-/* Table styling */
+/* Table Styling */
 table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 700px;
 }
-thead th {
-    position: sticky;
-    top: 0;
+thead {
     background: #2a7bff;
     color: white;
-    z-index: 5;
 }
 th, td {
     padding: 10px;
@@ -87,33 +92,35 @@ th, td {
     text-align: left;
 }
 
-/* Freeze first column in daily projection table body */
-#dailyProjectionTable tbody td:nth-child(1) {
+/* Sticky headers */
+thead th {
     position: sticky;
-    left: 0;
-    background: #ffffff; /* body cells white */
-    color: #222; /* text dark */
-    z-index: 4;
+    top: 0;
+    z-index: 10;
 }
 
-/* Alternate row colors and hover effect */
+/* Freeze first column (Date) */
+.freeze-col {
+    position: sticky;
+    left: 0;
+    background: #2a7bff;
+    color: white;
+    z-index: 11;
+}
+
+/* Alternating rows + hover */
 tbody tr:nth-child(even) { background: #f1f5ff; }
 tbody tr:nth-child(odd)  { background: #ffffff; }
 tbody tr:hover { background: #dfe9ff; }
 
-/* Highlighted row for Find Date */
+/* Highlighted find result */
 .highlight-row { background: #fff59d !important; }
 
-/* Income / Expense Colors */
+/* Income / expense colors in transaction list */
 td.income { color: #1a8f2e; font-weight: bold; }
 td.expense { color: #cc0000; font-weight: bold; }
 
-/* Jump Buttons Container */
-.jump-btn {
-    margin: 8px 0;
-}
-
-/* Responsive adjustments */
+/* Responsive tweaks */
 @media (max-width: 900px) {
     .grid { grid-template-columns: 1fr; }
     .config-row { flex-direction: column; }
