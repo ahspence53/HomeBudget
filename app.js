@@ -1,4 +1,4 @@
-// Home Budget Tracker - Full 24-month table with blank rows, categories & highlighting
+// Home Budget Tracker - Daily 24-month table with blank rows, multiple transactions, categories & highlighting
 
 // Load transactions and categories
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
@@ -14,7 +14,7 @@ function saveCategories() {
     localStorage.setItem('categories', JSON.stringify(categories));
 }
 
-// Format date
+// Format date as dd-MMM-yyyy
 function formatDate(date) {
     const d = new Date(date);
     const day = String(d.getDate()).padStart(2, '0');
@@ -37,35 +37,37 @@ function addMonths(date, months) {
     return d;
 }
 
-// Generate 24-month projection with blank rows
-function generateProjectionWithBlanks() {
+// Generate daily projection for 24 months with blank rows and multiple transactions
+function generateDailyProjection() {
     if (!startDate) return [];
     const projection = [];
+    const start = new Date(startDate);
+    const end = addMonths(start, 24);
 
-    // Map transactions by date string
+    // Map transactions by date string (yyyy-mm-dd)
     const txByDate = {};
     transactions.forEach(tx => {
         const freq = tx.frequency;
         let current = new Date(tx.date);
-        const endDate = addMonths(new Date(startDate), 24);
+        const lastDate = end;
 
         if(freq === 'irregular') {
-            const key = formatDate(current);
+            const key = current.toISOString().slice(0,10);
             if(!txByDate[key]) txByDate[key] = [];
             txByDate[key].push(tx);
         } else if(freq === 'monthly') {
-            while(current <= endDate) {
-                if(current >= new Date(startDate)){
-                    const key = formatDate(current);
+            while(current <= lastDate) {
+                if(current >= start){
+                    const key = current.toISOString().slice(0,10);
                     if(!txByDate[key]) txByDate[key] = [];
                     txByDate[key].push(tx);
                 }
                 current = addMonths(current,1);
             }
         } else if(freq === '4-weekly') {
-            while(current <= endDate) {
-                if(current >= new Date(startDate)){
-                    const key = formatDate(current);
+            while(current <= lastDate) {
+                if(current >= start){
+                    const key = current.toISOString().slice(0,10);
                     if(!txByDate[key]) txByDate[key] = [];
                     txByDate[key].push(tx);
                 }
@@ -74,21 +76,23 @@ function generateProjectionWithBlanks() {
         }
     });
 
-    // Generate rows for every day in 24 months
-    let currentDate = new Date(startDate);
-    const endDate = addMonths(new Date(startDate),24);
+    // Generate row for every day
+    let currentDate = new Date(start);
+    let balance = openingBalance;
 
-    while(currentDate <= endDate){
-        const key = formatDate(currentDate);
+    while(currentDate <= end) {
+        const key = currentDate.toISOString().slice(0,10);
         if(txByDate[key]) {
+            // multiple transactions on the same day
             txByDate[key].forEach(tx => {
-                projection.push({...tx, date: new Date(currentDate)});
+                balance = tx.type === 'income' ? balance + tx.amount : (tx.type==='expense'? balance - tx.amount : balance);
+                projection.push({...tx, date:new Date(currentDate), balance});
             });
         } else {
-            // Blank row
-            projection.push({description:'', amount:0, type:'', frequency:'', category:'', date: new Date(currentDate)});
+            // blank row for this day
+            projection.push({description:'', amount:0, type:'', frequency:'', category:'', date:new Date(currentDate), balance});
         }
-        currentDate.setDate(currentDate.getDate()+1); // daily increments
+        currentDate.setDate(currentDate.getDate() + 1);
     }
 
     return projection;
@@ -99,10 +103,9 @@ function renderTransactions() {
     const table = document.getElementById('transaction-table').querySelector('tbody');
     table.innerHTML = '';
 
-    const projection = generateProjectionWithBlanks();
-    let balance = openingBalance;
+    const projection = generateDailyProjection();
 
-    for(const tx of projection){
+    projection.forEach(tx => {
         const row = document.createElement('tr');
 
         // Highlight irregular transactions
@@ -132,12 +135,11 @@ function renderTransactions() {
         categoryCell.style.fontWeight = 'bold';
 
         const balanceCell = document.createElement('td');
-        balance = tx.type === 'income' ? balance + tx.amount : (tx.type==='expense'? balance - tx.amount : balance);
-        balanceCell.textContent = balance.toFixed(2);
+        balanceCell.textContent = tx.balance.toFixed(2);
 
         row.append(dateCell, descCell, typeCell, amountCell, categoryCell, balanceCell);
         table.appendChild(row);
-    }
+    });
 }
 
 // Update category dropdown
