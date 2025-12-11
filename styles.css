@@ -29,7 +29,7 @@ button:hover { background: #1a5cd8; }
 .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: end; }
 .cell .add-btn { margin-top: 8px; width: 100%; }
 
-.table-wrapper { max-height: 320px; overflow: auto; border-radius: 8px; background: white; box-shadow: 0 0 6px rgba(0,0,0,0.05); }
+.table-wrapper { max-height: 400px; overflow: auto; border-radius: 8px; background: white; box-shadow: 0 0 6px rgba(0,0,0,0.05); }
 
 table { width: 100%; border-collapse: collapse; min-width: 800px; font-size: 14px; }
 thead { background: #2a7bff; color: white; }
@@ -43,8 +43,6 @@ tbody tr:hover { background: #dfe9ff; }
 td.desc-strong { font-weight: 700; }
 td.income { color: #1a8f2e; font-weight: bold; }
 td.expense { color: #cc0000; font-weight: bold; }
-
-.highlight-row { background: #fff59d !important; }
 
 .daily-projection-container { max-height: 600px; overflow-y: auto; }
 
