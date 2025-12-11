@@ -107,13 +107,14 @@ document.addEventListener("DOMContentLoaded", function() {
         const startStr = startDateEl.value;
         if(!startStr) return;
         const startDate = new Date(startStr);
-        const endDate = new Date(startDate); endDate.setMonth(endDate.getMonth()+24);
-        let dateCursor = new Date(startDate);
+        const endDate = new Date(startDate); 
+        endDate.setMonth(endDate.getMonth()+24);
         let balance = parseFloat(openingBalanceEl.value)||0;
 
+        let dateCursor = new Date(startDate);
         while(dateCursor <= endDate){
             const dateStr = formatDateDDMMYYYY(dateCursor);
-            let transactionsFound=false;
+            let dayTransactions = [];
 
             transactions.forEach(tx=>{
                 const txDate = new Date(tx.date);
@@ -126,8 +127,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
                 if(tx.frequency==="irregular" && txDate.toDateString()===dateCursor.toDateString()) include=true;
 
-                if(include){
-                    transactionsFound=true;
+                if(include) dayTransactions.push(tx);
+            });
+
+            if(dayTransactions.length>0){
+                dayTransactions.forEach(tx=>{
                     balance += tx.type==="income"?tx.amount:-tx.amount;
                     const row=document.createElement("tr");
                     row.innerHTML=`
@@ -138,11 +142,9 @@ document.addEventListener("DOMContentLoaded", function() {
                         <td>${balance.toFixed(2)}</td>
                     `;
                     dailyTableBody.appendChild(row);
-                }
-            });
-
-            // If no transaction, add blank row with balance
-            if(!transactionsFound){
+                });
+            } else {
+                // Blank row
                 const row=document.createElement("tr");
                 row.innerHTML=`
                     <td>${dateStr}</td>
