@@ -1,202 +1,127 @@
-document.addEventListener("DOMContentLoaded", function() {
+// Home Budget Tracker - Updated app.js
 
-    let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+// Load transactions from localStorage
+let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+let startDate = localStorage.getItem('startDate') || '';
+let openingBalance = parseFloat(localStorage.getItem('openingBalance')) || 0;
 
-    const startDateEl = document.getElementById("startDate");
-    const openingBalanceEl = document.getElementById("openingBalance");
-    const saveConfigBtn = document.getElementById("saveConfigBtn");
+// Utility functions
+function formatDate(date) {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = d.toLocaleString('en-GB', { month: 'short' });
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+}
 
-    const descriptionEl = document.getElementById("description");
-    const typeEl = document.getElementById("type");
-    const amountEl = document.getElementById("amount");
-    const categoryEl = document.getElementById("category");
-    const frequencyEl = document.getElementById("frequency");
-    const dateEl = document.getElementById("date");
-    const addBtn = document.getElementById("addBtn");
+function saveTransactions() {
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+}
 
-    const dailyTableBody = document.querySelector("#dailyProjectionTable tbody");
-    const dailyWrapper = document.getElementById("dailyProjectionWrapper");
-    const findInput = document.getElementById("findDateInput");
-    const findBtn = document.getElementById("findDateBtn");
-    const backToTopBtn = document.getElementById("backToTopBtn");
-
-    startDateEl.value = localStorage.getItem("startDate") || "";
-    openingBalanceEl.value = localStorage.getItem("openingBalance") || "";
-
-    function saveTransactions() {
-        localStorage.setItem("transactions", JSON.stringify(transactions));
-    }
-
-    function formatDateDDMMYYYY(dateStr) {
-        const d = new Date(dateStr);
-        const dd = String(d.getDate()).padStart(2, '0');
-        const mm = String(d.getMonth() + 1).padStart(2, '0');
-        const yyyy = d.getFullYear();
-        return `${dd}-${mm}-${yyyy}`;
-    }
-
-    function calculateBalances() {
-        let balance = parseFloat(openingBalanceEl.value) || 0;
-        transactions.forEach(tx => {
-            if (tx.type === "income") balance += tx.amount;
-            else balance -= tx.amount;
-            tx.balance = balance;
-        });
-    }
-
-    function renderTransactions() {
-        const tbody = document.querySelector("#transactionsTable tbody");
-        tbody.innerHTML = "";
-
-        transactions.sort((a,b)=>new Date(a.date)-new Date(b.date));
-        calculateBalances();
-        saveTransactions();
-
-        transactions.forEach((tx,index)=>{
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${formatDateDDMMYYYY(tx.date)}</td>
-                <td>${tx.description}</td>
-                <td>${tx.category||''}</td>
-                <td class="${tx.type}">${tx.type}</td>
-                <td>${tx.amount.toFixed(2)}</td>
-                <td>${tx.balance.toFixed(2)}</td>
-                <td><button class="delete-btn" data-index="${index}">Delete</button></td>
-            `;
-            tbody.appendChild(row);
-        });
-
-        document.querySelectorAll(".delete-btn").forEach(btn=>{
-            btn.addEventListener("click", function(){
-                const idx = parseInt(this.dataset.index);
-                if(confirm(`Delete transaction "${transactions[idx].description}" on ${formatDateDDMMYYYY(transactions[idx].date)} (£${transactions[idx].amount.toFixed(2)})?`)){
-                    transactions.splice(idx,1);
-                    renderTransactions();
-                    renderDailyProjection();
-                }
-            });
-        });
-    }
-
-    function addTransaction() {
-        const tx = {
-            description: descriptionEl.value.trim(),
-            type: typeEl.value,
-            amount: parseFloat(amountEl.value),
-            category: categoryEl.value.trim(),
-            frequency: frequencyEl.value,
-            date: dateEl.value
-        };
-        if(!tx.description || isNaN(tx.amount) || !tx.date){ alert("Please fill in Description, Amount, and Date."); return; }
-        transactions.push(tx);
-        descriptionEl.value=""; amountEl.value=""; categoryEl.value=""; dateEl.value="";
-        renderTransactions();
-        renderDailyProjection();
-    }
-    addBtn.addEventListener("click", e=>{ e.preventDefault(); addTransaction(); });
-
-    saveConfigBtn.addEventListener("click", function(){
-        localStorage.setItem("startDate", startDateEl.value);
-        localStorage.setItem("openingBalance", openingBalanceEl.value);
-        renderTransactions();
-        renderDailyProjection();
-    });
-
-    function renderDailyProjection(){
-        dailyTableBody.innerHTML = "";
-        const startStr = startDateEl.value;
-        if(!startStr) return;
-
-        const startDate = new Date(startStr);
-        const endDate = new Date(startDate);
-        endDate.setMonth(endDate.getMonth()+24);
-
-        let balance = parseFloat(openingBalanceEl.value) || 0;
-
-        // Loop through each date from start to end
-        for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate()+1)){
-            const dateStr = formatDateDDMMYYYY(d);
-            let transactionsForDay = [];
-
-            transactions.forEach(tx=>{
-                const txDate = new Date(tx.date);
-                let include=false;
-
-                if(tx.frequency==="monthly" && txDate.getDate()===d.getDate() && txDate<=d) include=true;
-                if(tx.frequency==="4weekly" && txDate<=d){
-                    const diff=Math.floor((d-txDate)/(1000*60*60*24));
-                    if(diff % 28 === 0) include=true;
-                }
-                if(tx.frequency==="irregular" && txDate.toDateString()===d.toDateString()) include=true;
-
-                if(include) transactionsForDay.push(tx);
-            });
-
-            if(transactionsForDay.length>0){
-                // Sort income first for same-date
-                transactionsForDay.sort((a,b)=>{
-                    if(a.type==="income" && b.type==="expense") return -1;
-                    if(a.type==="expense" && b.type==="income") return 1;
-                    return 0;
-                });
-
-                transactionsForDay.forEach(tx=>{
-                    balance += tx.type==="income"?tx.amount:-tx.amount;
-                    const row=document.createElement("tr");
-                    row.id = `row-${dateStr.replace(/-/g,'')}`; // for Find Date
-                    row.innerHTML=`
-                        <td>${dateStr}</td>
-                        <td>${tx.description}</td>
-                        <td class="${tx.type}">${tx.type}</td>
-                        <td>${tx.amount.toFixed(2)}</td>
-                        <td>${balance.toFixed(2)}</td>
-                    `;
-                    dailyTableBody.appendChild(row);
-                });
-            } else {
-                // Add blank row for this day
-                const row=document.createElement("tr");
-                row.id = `row-${dateStr.replace(/-/g,'')}`;
-                row.innerHTML=`
-                    <td>${dateStr}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>${balance.toFixed(2)}</td>
-                `;
-                dailyTableBody.appendChild(row);
-            }
-        }
-    }
-
-    findBtn.addEventListener("click", function(){
-        const val=findInput.value;
-        if(!val){ alert("Please select a date."); return; }
-
-        const selected=new Date(val);
-        const dd=String(selected.getDate()).padStart(2,'0');
-        const mm=String(selected.getMonth()+1).padStart(2,'0');
-        const yyyy=selected.getFullYear();
-        const dateStr=`${dd}-${mm}-${yyyy}`;
-
-        let found=false;
-        document.querySelectorAll("#dailyProjectionTable tbody tr").forEach(tr=>tr.classList.remove("highlight-row"));
-
-        const rows = document.querySelectorAll("#dailyProjectionTable tbody tr");
-        for(const tr of rows){
-            if(tr.children[0].textContent===dateStr){
-                tr.classList.add("highlight-row");
-                const topPos = tr.offsetTop - dailyWrapper.offsetTop;
-                dailyWrapper.scrollTo({top: topPos, behavior:"smooth"});
-                found=true;
-                break;
-            }
-        }
-        if(!found) alert("No transactions found on this date.");
-    });
-
-    backToTopBtn.addEventListener("click", function(){ window.scrollTo({top:0, behavior:"smooth"}); });
-
+// Add transaction
+function addTransaction(description, amount, type, frequency, date) {
+    transactions.push({ description, amount: parseFloat(amount), type, frequency, date });
+    saveTransactions();
     renderTransactions();
-    renderDailyProjection();
+}
+
+// Generate 24-month projection
+function generateProjection() {
+    if (!startDate) return [];
+    const projection = [];
+    const start = new Date(startDate);
+
+    for (const tx of transactions) {
+        const txDate = new Date(tx.date);
+        const freq = tx.frequency;
+        let current = new Date(txDate);
+
+        if (freq === 'irregular') {
+            projection.push({ ...tx, date: new Date(current) });
+        } else if (freq === 'monthly') {
+            while (current <= addMonths(start, 24)) {
+                if (current >= start) projection.push({ ...tx, date: new Date(current) });
+                current = addMonths(current, 1);
+            }
+        } else if (freq === '4-weekly') {
+            while (current <= addMonths(start, 24)) {
+                if (current >= start) projection.push({ ...tx, date: new Date(current) });
+                current.setDate(current.getDate() + 28); // Strict 28-day increments
+            }
+        }
+    }
+
+    projection.sort((a, b) => new Date(a.date) - new Date(b.date));
+    return projection;
+}
+
+// Helper to add months correctly
+function addMonths(date, months) {
+    const d = new Date(date);
+    d.setMonth(d.getMonth() + months);
+    return d;
+}
+
+// Render transactions table
+function renderTransactions() {
+    const table = document.getElementById('transaction-table');
+    table.innerHTML = '';
+
+    const projection = generateProjection();
+    let balance = openingBalance;
+
+    for (const tx of projection) {
+        const row = document.createElement('tr');
+        const dateCell = document.createElement('td');
+        dateCell.textContent = formatDate(tx.date);
+
+        const descCell = document.createElement('td');
+        descCell.textContent = tx.description;
+
+        const typeCell = document.createElement('td');
+        typeCell.textContent = tx.type;
+
+        const amountCell = document.createElement('td');
+        amountCell.textContent = tx.amount.toFixed(2);
+
+        const balanceCell = document.createElement('td');
+        balance = tx.type === 'income' ? balance + tx.amount : balance - tx.amount;
+        balanceCell.textContent = balance.toFixed(2);
+
+        row.append(dateCell, descCell, typeCell, amountCell, balanceCell);
+        table.appendChild(row);
+    }
+}
+
+// Load initial values
+document.getElementById('start-date').value = startDate;
+document.getElementById('opening-balance').value = openingBalance;
+
+// Save start date and opening balance
+document.getElementById('save-config').addEventListener('click', () => {
+    startDate = document.getElementById('start-date').value;
+    openingBalance = parseFloat(document.getElementById('opening-balance').value) || 0;
+    localStorage.setItem('startDate', startDate);
+    localStorage.setItem('openingBalance', openingBalance);
+    renderTransactions();
 });
+
+// Add transaction form
+document.getElementById('add-transaction').addEventListener('click', () => {
+    const desc = document.getElementById('tx-desc').value;
+    const amt = document.getElementById('tx-amount').value;
+    const type = document.getElementById('tx-type').value;
+    const freq = document.getElementById('tx-frequency').value;
+    const date = document.getElementById('tx-date').value;
+
+    if (!desc || !amt || !date) return alert('Please fill in all fields');
+    addTransaction(desc, amt, type, freq, date);
+
+    // Clear form
+    document.getElementById('tx-desc').value = '';
+    document.getElementById('tx-amount').value = '';
+    document.getElementById('tx-date').value = '';
+});
+
+// Initial render
+renderTransactions();
