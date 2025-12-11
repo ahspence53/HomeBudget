@@ -80,7 +80,13 @@
 
 <!-- Transaction List -->
 <section id="transactionList" class="table-section">
-    <h2>Transactions (including projection)</h2>
+    <div class="section-header">
+        <h2 id="transactionsTop">Transactions (including projection)</h2>
+        <div class="header-controls">
+            <button id="goToChartBtn" class="jump-btn">Go to Chart ↓</button>
+        </div>
+    </div>
+
     <div class="table-wrapper">
         <table id="transactionsTable">
             <thead>
@@ -95,6 +101,29 @@
                 </tr>
             </thead>
             <tbody id="transaction-list"></tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Daily Projection (24 months) -->
+<section id="dailyProjectionSection" class="table-section">
+    <h2>Daily Projection (24 Months)</h2>
+    <div class="projection-controls">
+        <button id="regenProjectionBtn">Regenerate Projection</button>
+        <span class="hint">Projection updates automatically when you add/delete transactions or save setup.</span>
+    </div>
+
+    <div class="table-wrapper projection-wrapper">
+        <table id="dailyProjectionTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Income (£)</th>
+                    <th>Expense (£)</th>
+                    <th>Balance (£)</th>
+                </tr>
+            </thead>
+            <tbody id="dailyProjectionBody"></tbody>
         </table>
     </div>
 </section>
@@ -117,6 +146,18 @@
         </thead>
         <tbody></tbody>
     </table>
+</section>
+
+<!-- Chart -->
+<section id="chartSection">
+    <h2>Chart</h2>
+    <div id="chartContainer">
+        <canvas id="budgetChart" width="800" height="300"></canvas>
+    </div>
+
+    <div class="chart-bottom">
+        <button id="backToTopBtn" class="jump-btn">Back to Top ↑</button>
+    </div>
 </section>
 
 <script src="app.js"></script>
