@@ -15,6 +15,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const dateEl = document.getElementById("date");
     const addBtn = document.getElementById("addBtn");
 
+    const goToChartBtn = document.getElementById("goToChartBtn");
+    const backToTopBtn = document.getElementById("backToTopBtn");
+    const regenProjectionBtn = document.getElementById("regenProjectionBtn");
+
     // Load start date and opening balance from localStorage
     startDateEl.value = localStorage.getItem("startDate") || "";
     openingBalanceEl.value = localStorage.getItem("openingBalance") || "";
@@ -26,11 +30,19 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function formatDateDDMMMYYYY(dateStr) {
         const options = { day: '2-digit', month: 'short', year: 'numeric' };
-        return new Date(dateStr).toLocaleDateString('en-GB', options).replace(/ /g, '-');
+        // dateStr might be a Date or a string
+        const d = (dateStr instanceof Date) ? dateStr : new Date(dateStr);
+        return d.toLocaleDateString('en-GB', options).replace(/ /g, '-');
+    }
+
+    function daysInMonth(year, monthIndex) {
+        // monthIndex: 0-based (0 = Jan)
+        return new Date(year, monthIndex + 1, 0).getDate();
     }
 
     function calculateBalances() {
         let balance = parseFloat(openingBalanceEl.value) || 0;
+        // transactions already sorted by date
         transactions.forEach(tx => {
             if (tx.type === "income") balance += tx.amount;
             else balance -= tx.amount;
@@ -76,9 +88,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     renderTransactions();
                     renderSummary();
                     renderChart();
+                    renderDailyProjection();
                 }
             });
         });
+
+        // regenerate daily projection after rendering transactions
+        renderDailyProjection();
     }
 
     // ---------- Add Transaction ----------
@@ -117,6 +133,7 @@ document.addEventListener("DOMContentLoaded", function() {
         renderTransactions();
         renderSummary();
         renderChart();
+        renderDailyProjection();
     });
 
     // ---------- Add Button ----------
@@ -125,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function() {
         addTransaction();
     });
 
-    // ---------- Projection (24 months) ----------
+    // ---------- Monthly Projection (existing) ----------
     function generateProjection() {
         const startDateStr = startDateEl.value;
         let balance = parseFloat(openingBalanceEl.value) || 0;
@@ -172,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function() {
         return projection;
     }
 
-    // ---------- Render Projection Table ----------
+    // ---------- Render Projection Table (Monthly Summary) ----------
     function renderSummary() {
         const summaryTbody = document.querySelector("#summaryTable tbody");
         summaryTbody.innerHTML = "";
@@ -192,6 +209,116 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // ---------- Daily Projection (24 months, one line per day) ----------
+    function generateDailyProjectionArray() {
+        const startDateStr = startDateEl.value;
+        let runningBalance = parseFloat(openingBalanceEl.value) || 0;
+        if (!startDateStr) return [];
+
+        const result = [];
+        const startDate = new Date(startDateStr);
+        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 24, startDate.getDate());
+        // ensure endDate is 24 months ahead minus one day (we include start day through the day before same day 24 months later)
+        // But to include exactly 24 months of days starting at startDate, we'll advance 24 months and subtract 1 day
+        endDate.setMonth(startDate.getMonth() + 24);
+        endDate.setDate(endDate.getDate() - 1);
+
+        // Normalize transactions' date objects for speed
+        const txs = transactions.map(tx => {
+            return {
+                ...tx,
+                _date: new Date(tx.date)
+            };
+        });
+
+        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+            // create a copy of date for storage
+            const currentDate = new Date(d);
+            let incomeForDay = 0;
+            let expenseForDay = 0;
+
+            txs.forEach(tx => {
+                const txDate = tx._date;
+                const freq = tx.frequency;
+
+                if (freq === "irregular") {
+                    // only on exact date
+                    if (txDate.getFullYear() === currentDate.getFullYear() &&
+                        txDate.getMonth() === currentDate.getMonth() &&
+                        txDate.getDate() === currentDate.getDate()) {
+                        if (tx.type === "income") incomeForDay += tx.amount;
+                        else expenseForDay += tx.amount;
+                    }
+                } else if (freq === "monthly") {
+                    // occurs on the same day-of-month; if original day > days in this month, use last day
+                    const desiredDay = txDate.getDate();
+                    const dim = daysInMonth(currentDate.getFullYear(), currentDate.getMonth());
+                    const occurrenceDay = (desiredDay > dim) ? dim : desiredDay;
+                    if (currentDate.getDate() === occurrenceDay && currentDate >= txDate) {
+                        if (tx.type === "income") incomeForDay += tx.amount;
+                        else expenseForDay += tx.amount;
+                    }
+                } else if (freq === "4weekly") {
+                    // repeats every 28 days from tx.date
+                    if (currentDate >= txDate) {
+                        const diffMs = currentDate - txDate;
+                        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                        if (diffDays % 28 === 0) {
+                            if (tx.type === "income") incomeForDay += tx.amount;
+                            else expenseForDay += tx.amount;
+                        }
+                    }
+                }
+            });
+
+            runningBalance += (incomeForDay - expenseForDay);
+
+            result.push({
+                date: new Date(currentDate),
+                income: incomeForDay,
+                expense: expenseForDay,
+                balance: runningBalance
+            });
+        }
+
+        return result;
+    }
+
+    function renderDailyProjection() {
+        const tbody = document.getElementById("dailyProjectionBody");
+        tbody.innerHTML = "";
+
+        const arr = generateDailyProjectionArray();
+        if (!arr || arr.length === 0) {
+            const row = document.createElement("tr");
+            row.innerHTML = `<td colspan="4">No projection. Please set a start date and opening balance.</td>`;
+            tbody.appendChild(row);
+            return;
+        }
+
+        // For performance: build HTML string then set once
+        let html = "";
+        arr.forEach(rowObj => {
+            html += `
+                <tr>
+                    <td>${formatDateDDMMMYYYY(rowObj.date)}</td>
+                    <td>${rowObj.income.toFixed(2)}</td>
+                    <td>${rowObj.expense.toFixed(2)}</td>
+                    <td>${rowObj.balance.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = html;
+    }
+
+    // Hook regen button
+    regenProjectionBtn.addEventListener("click", function() {
+        renderDailyProjection();
+        // smooth scroll to projection if user clicked regenerate
+        document.getElementById("dailyProjectionSection").scrollIntoView({ behavior: 'smooth' });
+    });
+
     // ---------- Chart ----------
     let budgetChart;
 
@@ -202,11 +329,17 @@ document.addEventListener("DOMContentLoaded", function() {
         const expenseData = projection.map(p => p.expense);
         const balanceData = projection.map(p => p.balance);
 
-        const ctx = document.getElementById("budgetChart").getContext("2d");
+        const canvas = document.getElementById("budgetChart");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
 
         if (budgetChart) budgetChart.destroy();
 
+        // Chart.js expects to be available. If Chart is not defined, skip silently.
+        if (typeof Chart === "undefined") return;
+
         budgetChart = new Chart(ctx, {
+            type: 'bar',
             data: {
                 labels: labels,
                 datasets: [
@@ -259,9 +392,21 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // ---------- Jump Buttons (smooth scroll) ----------
+    goToChartBtn.addEventListener("click", function() {
+        const el = document.getElementById("chartSection");
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    backToTopBtn.addEventListener("click", function() {
+        const el = document.getElementById("transactionsTop");
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    });
+
     // ---------- Initial Render ----------
     renderTransactions();
     renderSummary();
     renderChart();
+    renderDailyProjection();
 
 });
