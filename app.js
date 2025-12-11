@@ -1,3 +1,29 @@
+// ----------------------
+// Normalize stored transactions to ISO dates
+// ----------------------
+function normalizeStoredTransactions() {
+    let changed = false;
+    transactions = transactions.map(t => {
+        const d = new Date(t.date);
+        if (d instanceof Date && !isNaN(d)) {
+            const iso = d.toISOString().split('T')[0];
+            if (iso !== t.date) changed = true;
+            t.date = iso;
+        }
+        // ensure fields exist
+        t.frequency = t.frequency || 'irregular';
+        t.category = t.category || "";
+        t.description = t.description || "";
+        t.type = t.type || 'expense';
+        t.amount = parseFloat(t.amount) || 0;
+        return t;
+    });
+    if (changed) localStorage.setItem('transactions', JSON.stringify(transactions));
+}
+
+// call this at the start
+normalizeStoredTransactions();
+
 // ================================
 // app.js - Home Budget Tracker
 // Recurrence-enabled projection + transaction management
