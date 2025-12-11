@@ -14,9 +14,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const dateEl = document.getElementById("date");
     const addBtn = document.getElementById("addBtn");
 
+    const exportCSVBtn = document.getElementById("exportCSVBtn");
+    const restoreCSVInput = document.getElementById("restoreCSVInput");
+    const restoreCSVBtn = document.getElementById("restoreCSVBtn");
+
     startDateEl.value = localStorage.getItem("startDate") || "";
     openingBalanceEl.value = localStorage.getItem("openingBalance") || "";
 
+    // ---------- Helper ----------
     function saveTransactions() {
         localStorage.setItem("transactions", JSON.stringify(transactions));
     }
@@ -35,16 +40,19 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // ---------- Render Transactions ----------
     function renderTransactions() {
         const tbody = document.querySelector("#transactionsTable tbody");
         tbody.innerHTML = "";
 
         transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+
         calculateBalances();
         saveTransactions();
 
         transactions.forEach((tx, index) => {
             const row = document.createElement("tr");
+
             row.innerHTML = `
                 <td>${formatDateDDMMMYYYY(tx.date)}</td>
                 <td class="${tx.frequency === "irregular" ? "desc-strong" : ""}">${tx.description}</td>
@@ -54,21 +62,23 @@ document.addEventListener("DOMContentLoaded", function() {
                 <td>${tx.balance.toFixed(2)}</td>
                 <td><button class="delete-btn" data-index="${index}">Delete</button></td>
             `;
+
             tbody.appendChild(row);
         });
 
         document.querySelectorAll(".delete-btn").forEach(btn => {
             btn.addEventListener("click", function() {
                 const idx = parseInt(this.dataset.index);
-                if (confirm(`Delete "${transactions[idx].description}" on ${formatDateDDMMMYYYY(transactions[idx].date)} (£${transactions[idx].amount.toFixed(2)})?`)) {
+                if (confirm(`Delete transaction "${transactions[idx].description}" on ${formatDateDDMMMYYYY(transactions[idx].date)}?`)) {
                     transactions.splice(idx, 1);
                     renderTransactions();
-                    renderProjection();
+                    renderDailyProjection();
                 }
             });
         });
     }
 
+    // ---------- Add Transaction ----------
     function addTransaction() {
         const tx = {
             description: descriptionEl.value.trim(),
@@ -78,149 +88,117 @@ document.addEventListener("DOMContentLoaded", function() {
             frequency: frequencyEl.value,
             date: dateEl.value
         };
-
-        if (!tx.description || isNaN(tx.amount) || !tx.date) {
-            alert("Please fill in Description, Amount, and Date.");
-            return;
-        }
-
+        if (!tx.description || isNaN(tx.amount) || !tx.date) return alert("Please fill in Description, Amount, and Date.");
         transactions.push(tx);
+
         descriptionEl.value = "";
         amountEl.value = "";
         categoryEl.value = "";
         dateEl.value = "";
 
         renderTransactions();
-        renderProjection();
+        renderDailyProjection();
     }
 
     saveConfigBtn.addEventListener("click", function() {
         localStorage.setItem("startDate", startDateEl.value);
         localStorage.setItem("openingBalance", openingBalanceEl.value);
         renderTransactions();
-        renderProjection();
+        renderDailyProjection();
     });
 
-    addBtn.addEventListener("click", function(e) { e.preventDefault(); addTransaction(); });
+    addBtn.addEventListener("click", function(e) {
+        e.preventDefault();
+        addTransaction();
+    });
 
-    function generateDailyProjection() {
-        const startDateStr = startDateEl.value;
-        if (!startDateStr) return [];
-
-        let balance = parseFloat(openingBalanceEl.value) || 0;
-        const projection = [];
-        const startDate = new Date(startDateStr);
-        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 24, startDate.getDate());
-
-        for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
-            let dailyIncome = 0;
-            let dailyExpense = 0;
-            let descriptions = [];
-
-            transactions.forEach(tx => {
-                const txDate = new Date(tx.date);
-                if (tx.frequency === "monthly") {
-                    if (txDate.getDate() === d.getDate() && txDate <= d) {
-                        tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
-                        descriptions.push(tx.description);
-                    }
-                } else if (tx.frequency === "4weekly") {
-                    const diffDays = Math.floor((d - txDate)/(1000*60*60*24));
-                    if (diffDays >= 0 && diffDays % 28 === 0) {
-                        tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
-                        descriptions.push(tx.description);
-                    }
-                } else if (tx.frequency === "irregular") {
-                    if (txDate.toDateString() === d.toDateString()) {
-                        tx.type === "income" ? dailyIncome += tx.amount : dailyExpense += tx.amount;
-                        descriptions.push(tx.description);
-                    }
-                }
-            });
-
-            const net = dailyIncome - dailyExpense;
-            balance += net;
-
-            projection.push({
-                date: new Date(d),
-                income: dailyIncome,
-                expense: dailyExpense,
-                net: net,
-                balance: balance,
-                description: descriptions.join(", ")
-            });
-        }
-
-        return projection;
-    }
-
-    function renderProjection() {
-        const tbody = document.querySelector("#projectionTable tbody");
-        tbody.innerHTML = "";
-        const projection = generateDailyProjection();
-
-        projection.forEach(p => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td class="freeze-col">${formatDateDDMMMYYYY(p.date)}</td>
-                <td>${p.description}</td>
-                <td>${p.income.toFixed(2)}</td>
-                <td>${p.expense.toFixed(2)}</td>
-                <td>${p.net.toFixed(2)}</td>
-                <td>${p.balance.toFixed(2)}</td>
-            `;
-            tbody.appendChild(row);
+    // ---------- Export CSV ----------
+    exportCSVBtn.addEventListener("click", function() {
+        if (transactions.length === 0) return alert("No transactions to export.");
+        const headers = ["Date","Description","Category","Type","Amount","Balance"];
+        const csvRows = [headers.join(",")];
+        transactions.forEach(tx => {
+            const row = [
+                tx.date,
+                `"${tx.description}"`,
+                `"${tx.category}"`,
+                tx.type,
+                tx.amount.toFixed(2),
+                tx.balance ? tx.balance.toFixed(2) : ""
+            ];
+            csvRows.push(row.join(","));
         });
-    }
-
-    // Jump to daily projection
-    document.getElementById("jumpToProjectionBtn").addEventListener("click", () => {
-        document.getElementById("projectionSection").scrollIntoView({ behavior: "smooth" });
-    });
-
-    // Back to top
-    document.getElementById("backToTopBtn").addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-
-    // Find date
-    document.getElementById("findDateBtn").addEventListener("click", () => {
-        const findDateStr = document.getElementById("findDateInput").value;
-        if (!findDateStr) return alert("Please select a date.");
-
-        const tbody = document.querySelector("#projectionTable tbody");
-        const rows = Array.from(tbody.querySelectorAll("tr"));
-        const targetRow = rows.find(row => {
-            const cellDate = row.children[0].textContent;
-            return cellDate === formatDateDDMMMYYYY(findDateStr);
-        });
-
-        if (targetRow) {
-            targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
-            rows.forEach(r => r.classList.remove("highlight-row"));
-            targetRow.classList.add("highlight-row");
-        } else {
-            alert("Date not found in projection.");
-        }
-    });
-
-    // Export CSV
-    document.getElementById("exportProjectionBtn").addEventListener("click", () => {
-        const projection = generateDailyProjection();
-        let csv = "Date,Description,Total Income (£),Total Expenses (£),Net (£),Closing Balance (£)\n";
-        projection.forEach(p => {
-            const dStr = formatDateDDMMMYYYY(p.date);
-            csv += `"${dStr}","${p.description}",${p.income.toFixed(2)},${p.expense.toFixed(2)},${p.net.toFixed(2)},${p.balance.toFixed(2)}\n`;
-        });
-        const blob = new Blob([csv], { type: "text/csv" });
+        const csvString = csvRows.join("\n");
+        const blob = new Blob([csvString], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "daily_projection.csv";
+        a.download = "transactions_backup.csv";
         a.click();
         URL.revokeObjectURL(url);
     });
 
+    // ---------- Restore CSV ----------
+    restoreCSVBtn.addEventListener("click", function() {
+        const file = restoreCSVInput.files[0];
+        if (!file) return alert("Please select a CSV file to restore.");
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const text = e.target.result;
+            const rows = text.split("\n").slice(1);
+            const restored = rows.map(row => {
+                const [date, desc, cat, type, amount, balance] = row.split(",");
+                return {
+                    date,
+                    description: desc.replace(/^"|"$/g, ""),
+                    category: cat.replace(/^"|"$/g, ""),
+                    type,
+                    amount: parseFloat(amount),
+                    balance: balance ? parseFloat(balance) : 0,
+                    frequency: "irregular" // default restored frequency
+                };
+            });
+            transactions = restored;
+            saveTransactions();
+            renderTransactions();
+            renderDailyProjection();
+        };
+        reader.readAsText(file);
+    });
+
+    // ---------- Daily Projection ----------
+    function renderDailyProjection() {
+        const tbody = document.querySelector("#dailyProjectionTable tbody");
+        tbody.innerHTML = "";
+        const startDateStr = startDateEl.value;
+        if (!startDateStr) return;
+
+        let balance = parseFloat(openingBalanceEl.value) || 0;
+        const startDate = new Date(startDateStr);
+        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 24, startDate.getDate());
+
+        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate()+1)) {
+            transactions.forEach(tx => {
+                const txDate = new Date(tx.date);
+                if (txDate.toDateString() === d.toDateString()) {
+                    if (tx.type === "income") balance += tx.amount;
+                    else balance -= tx.amount;
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="freeze-col">${formatDateDDMMMYYYY(tx.date)}</td>
+                        <td>${tx.description}</td>
+                        <td>${tx.category}</td>
+                        <td>${tx.type}</td>
+                        <td>${tx.amount.toFixed(2)}</td>
+                        <td>${balance.toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            });
+        }
+    }
+
+    // ---------- Initial render ----------
     renderTransactions();
-    renderProjection();
+    renderDailyProjection();
 });
