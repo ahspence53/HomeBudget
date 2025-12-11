@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
-    // --- Elements ---
+    // Elements
     const startDateEl = document.getElementById("startDate");
     const openingBalanceEl = document.getElementById("openingBalance");
     const saveConfigBtn = document.getElementById("saveConfigBtn");
@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const typeEl = document.getElementById("type");
     const amountEl = document.getElementById("amount");
     const categoryEl = document.getElementById("category");
+    const frequencyEl = document.getElementById("frequency");
     const dateEl = document.getElementById("date");
     const addBtn = document.getElementById("addBtn");
 
@@ -28,13 +29,13 @@ document.addEventListener("DOMContentLoaded", function() {
     startDateEl.value = localStorage.getItem("startDate") || "";
     openingBalanceEl.value = localStorage.getItem("openingBalance") || "";
 
-    // --- Helper Functions ---
+    // Helper Functions
     function saveTransactions() {
         localStorage.setItem("transactions", JSON.stringify(transactions));
     }
 
-    function formatDateDDMMYYYY(dateStr) {
-        const d = new Date(dateStr);
+    function formatDateDDMMYYYY(date) {
+        const d = new Date(date);
         const dd = String(d.getDate()).padStart(2,'0');
         const mm = String(d.getMonth()+1).padStart(2,'0');
         const yyyy = d.getFullYear();
@@ -50,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // --- Render Transactions ---
+    // Render Transactions Table
     function renderTransactions() {
         transactionsTbody.innerHTML = "";
         transactions.sort((a,b) => new Date(a.date) - new Date(b.date));
@@ -82,14 +83,14 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // --- Add Transaction ---
+    // Add Transaction
     function addTransaction() {
         const tx = {
             description: descriptionEl.value.trim(),
             type: typeEl.value,
             amount: parseFloat(amountEl.value),
             category: categoryEl.value.trim(),
-            frequency: document.getElementById("frequency").value,
+            frequency: frequencyEl.value,
             date: dateEl.value
         };
         if (!tx.description || !tx.date || isNaN(tx.amount)) {
@@ -102,6 +103,7 @@ document.addEventListener("DOMContentLoaded", function() {
         typeEl.value = "income";
         amountEl.value = "";
         categoryEl.value = "";
+        frequencyEl.value = "monthly";
         dateEl.value = "";
 
         renderTransactions();
@@ -117,12 +119,11 @@ document.addEventListener("DOMContentLoaded", function() {
         renderDailyProjection();
     });
 
-    // --- Daily 24-Month Projection with repeating transactions ---
+    // Render Daily 24-Month Projection
     function renderDailyProjection() {
         dailyTbody.innerHTML = "";
-
         const startDateStr = startDateEl.value;
-        if (!startDateStr) return;
+        if(!startDateStr) return;
 
         const startDate = new Date(startDateStr);
         const endDate = new Date(startDate);
@@ -134,15 +135,13 @@ document.addEventListener("DOMContentLoaded", function() {
         while(current <= endDate) {
             transactions.forEach(tx => {
                 const txDate = new Date(tx.date);
-                const freq = tx.frequency;
-
                 let addThis = false;
 
-                if(freq === "irregular") {
+                if(tx.frequency==="irregular") {
                     if(txDate.toDateString() === current.toDateString()) addThis = true;
-                } else if(freq === "monthly") {
+                } else if(tx.frequency==="monthly") {
                     if(txDate.getDate() === current.getDate()) addThis = true;
-                } else if(freq === "4weekly") {
+                } else if(tx.frequency==="4weekly") {
                     const diffDays = Math.floor((current - txDate)/(1000*60*60*24));
                     if(diffDays >=0 && diffDays % 28 === 0) addThis = true;
                 }
@@ -166,12 +165,12 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // --- Find Date ---
+    // Find Date
     findBtn.addEventListener("click", function() {
         const val = findInput.value;
         if(!val) { alert("Please select a date."); return; }
-
         const dateStr = formatDateDDMMYYYY(val);
+
         let found = false;
         document.querySelectorAll("#dailyProjectionTable tbody tr").forEach(tr=>{
             tr.classList.remove("highlight-row");
@@ -184,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if(!found) alert("No transactions found on this date.");
     });
 
-    // --- Jump Buttons ---
+    // Jump Buttons
     if(scrollToProjectionBtn && backToTopBtn && dailyProjectionSection) {
         scrollToProjectionBtn.addEventListener("click", ()=>{
             dailyProjectionSection.scrollIntoView({behavior:"smooth", block:"start"});
@@ -195,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // --- Initial Render ---
+    // Initial render
     renderTransactions();
     renderDailyProjection();
 
