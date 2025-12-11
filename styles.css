@@ -1,96 +1,108 @@
-:root{
-  --bg:#f6f6f8;
-  --card:#ffffff;
-  --accent:#0077cc;
-  --danger:#c0392b;
-  --muted:#666;
-  --gap:12px;
-  font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: #f4f6f8;
+    color: #222;
 }
 
-*{box-sizing:border-box}
-body{
-  margin:0;
-  background:var(--bg);
-  color:#111;
-  padding:20px;
+h1, h2 {
+    color: #333;
 }
 
-.container{
-  max-width:980px;
-  margin:0 auto;
+section {
+    background: white;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.1);
 }
 
-h1{margin:0 0 12px 0}
-.form-card, .table-card{
-  background:var(--card);
-  padding:16px;
-  border-radius:8px;
-  box-shadow:0 1px 3px rgba(0,0,0,0.06);
-  margin-bottom:16px;
+/* Inputs & labels */
+label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
 }
 
-.row{
-  display:flex;
-  gap:var(--gap);
-  flex-wrap:wrap;
-  align-items:center;
+input, select, button {
+    margin-top: 4px;
+    padding: 8px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 300px;
 }
 
-label{
-  display:flex;
-  flex-direction:column;
-  font-size:14px;
-  min-width:160px;
+button {
+    background: #2a7bff;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 12px;
 }
 
-input[type="text"], input[type="number"], input[type="date"], select{
-  padding:8px;
-  border-radius:6px;
-  border:1px solid #ddd;
-  margin-top:6px;
-  font-size:14px;
+button:hover {
+    background: #1a5cd8;
 }
 
-.actions{margin-top:8px}
-button{
-  padding:8px 12px;
-  border-radius:6px;
-  border:0;
-  cursor:pointer;
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-#addBtn{background:var(--accent); color:white}
-#clearBtn{background:#eee; color:#111}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:14px;
+thead {
+    background: #2a7bff;
+    color: white;
 }
 
-thead th{
-  text-align:left;
-  padding:8px;
-  border-bottom:1px solid #eee;
-  color:var(--muted);
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
 }
 
-tbody td{
-  padding:10px 8px;
-  border-bottom:1px solid #fafafa;
-  vertical-align:middle;
+/* Alternating row shading */
+tbody tr:nth-child(even) {
+    background: #f1f5ff;
+}
+tbody tr:nth-child(odd) {
+    background: #ffffff;
 }
 
-.amount-negative{color:var(--danger)}
-.actions-cell button{
-  margin-right:8px;
-  padding:6px 8px;
-  font-size:13px;
-  border-radius:6px;
+/* Hover highlight */
+tbody tr:hover {
+    background: #dfe9ff;
 }
 
-.btn-delete-single{background:#f2dede; color:var(--danger); border:1px solid #e0b4b4}
-.btn-delete-series{background:#e6f2ff; color:var(--accent); border:1px solid #c7e0ff}
+/* Colour income vs expense */
+td.income {
+    color: #1a8f2e;
+    font-weight: bold;
+}
 
-.small-muted{font-size:12px;color:var(--muted)}
+td.expense {
+    color: #cc0000;
+    font-weight: bold;
+}
+
+/* Summary table styling */
+#summaryTable th {
+    background: #444;
+    color: #fff;
+}
+
+#summaryTable td, #summaryTable th {
+    border-bottom: 1px solid #999;
+}
+
+/* Chart container */
+#chartContainer {
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.1);
+}
