@@ -1,101 +1,127 @@
+/* General Page Styling */
 body {
     font-family: Arial, sans-serif;
-    margin: 18px;
-    background: #f4f6f8;
-    color: #222;
+    margin: 20px;
+    background-color: #f4f4f4;
+    color: #333;
 }
 
-h1 { margin:0 0 10px 0; color:#222; }
-
-section { background:white; padding:12px; margin-bottom:18px; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.06); }
-
-.config-row { display:flex; gap:12px; align-items:end; flex-wrap:wrap; }
-.config-item { display:flex; flex-direction:column; }
-.config-save { margin-left:auto; align-self:center; }
-
-label { font-weight:bold; margin-bottom:6px; }
-input[type="text"], input[type="date"], input[type="number"], select {
-    padding:8px; border:1px solid #bbb; border-radius:4px; width:100%; box-sizing:border-box;
-}
-button { padding:8px 10px; border:none; border-radius:5px; background:#2a7bff; color:white; cursor:pointer; }
-button:hover { background:#1a5cd8; }
-
-.grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; align-items:end; }
-.cell .add-btn { margin-top:8px; width:100%; }
-
-.table-wrapper { max-height:320px; overflow:auto; border-radius:8px; background:white; }
-
-table { width:100%; border-collapse:collapse; min-width:800px; }
-thead { background:#2a7bff; color:white; }
-th, td { padding:10px; border-bottom:1px solid #e5e7eb; text-align:left; }
-
-thead th { position:sticky; top:0; z-index:10; }
-
-tbody tr:nth-child(even) { background:#f1f5ff; }
-tbody tr:nth-child(odd) { background:#ffffff; }
-tbody tr:hover { background:#dfe9ff; }
-
-td.desc-strong { font-weight:700; }
-td.income { color:#1a8f2e; font-weight:bold; }
-td.expense { color:#cc0000; font-weight:bold; }
-.highlight-row { background:#fff59d !important; }
-
-#dailyProjectionTable th.freeze-col {
-    position:sticky; left:0; background:#2a7bff; color:white; z-index:10;
-}
-#dailyProjectionTable td.freeze-col {
-    position:sticky; left:0; background:white; color:black; z-index:5;
+h2 {
+    margin-top: 30px;
 }
 
-#dailyProjectionTable th, #dailyProjectionTable td { padding:8px; border-bottom:1px solid #999; text-align:left; }
+/* Layout Containers */
+.container {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
 
-.controls, .projection-controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    min-width: 300px;
+}
 
-@media(max-width:900px) { .grid{ grid-template-columns:1fr;} .config-row{ flex-direction:column;} }
+/* Form Elements */
+input, select, button {
+    padding: 10px;
+    margin: 5px 0;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 14px;
+}
 
-/* Freeze Date column */
-.freeze-col {
+button {
+    background-color: #007BFF;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+/* Header Row */
+th {
+    background-color: #007BFF;
+    color: white;
+    padding: 8px;
+    text-align: left;
+}
+
+/* Sticky header ONLY for the projection table */
+#projectionTable thead th {
     position: sticky;
-    left: 0;
-    background: #2a7bff;
-    color: #fff;
-    z-index: 2;
-}
-
-/* Table header */
-#dailyProjectionTable thead th.freeze-col {
+    top: 0;
+    background-color: #007BFF;
+    color: white;
     z-index: 3;
 }
 
-/* Highlighted find result */
-.highlight-row { background: #fff59d !important; }
-
-/* Freeze Date column: header blue, body white, frozen */
-#dailyProjectionTable thead th.freeze-col {
-    position: sticky;
-    left: 0;
-    top: 0;
-    background: #2a7bff;
-    color: #fff;
-    z-index: 4;
-    border-right: 1px solid #e5e7eb;
+/* Table Cells */
+td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
 }
 
-#dailyProjectionTable td.freeze-col {
-    position: sticky;
-    left: 0;
-    background: white !important;
-    color: #222;
-    z-index: 2;
-    border-right: 1px solid #e5e7eb;
+/* Alternating row colours */
+tr:nth-child(even) {
+    background-color: #f9f9f9;
 }
 
-/* Ensure header stays on top */
-#dailyProjectionTable thead th {
-    position: sticky;
-    top: 0;
-    z-index: 3;
+/* Highlight hovered row */
+tr:hover {
+    background-color: #eef6ff;
 }
 
-/* Highlight row for find */
-.highlight-row { background: #fff59d !important; }
+/* Scrollable container for projection table */
+.projection-wrapper {
+    max-height: 500px;
+    overflow-y: scroll;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: white;
+}
+
+/* Totals and summaries */
+.summary-box {
+    background: #fff;
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-weight: bold;
+}
+
+/* Find Date input/button alignment */
+.find-date-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.find-date-bar input {
+    flex: 0 0 160px;
+}
+
+/* Fix for iPad Safari sticky header clipping */
+#projectionTable thead th {
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+}
