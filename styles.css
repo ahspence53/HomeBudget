@@ -8,7 +8,7 @@ body {
 
 /* Top banner */
 .top-banner {
-    background-color: #0b66d1; /* strong blue */
+    background-color: #0b66d1;
     color: white;
     padding: 12px 20px;
     display: flex;
@@ -53,12 +53,18 @@ section {
     margin-top: 4px;
 }
 
-/* Find controls: keep Find + Find Next grouped and inline */
+/* Find controls: keep Find + Find Next grouped and inline and sticky */
 .controls-row.small.find-controls {
     display: flex;
     gap: 12px;
     align-items: center;
     flex-wrap: wrap;
+    position: sticky;
+    top: 68px; /* below the top banner */
+    z-index: 1000;
+    background: white;
+    padding: 10px 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 .find-inline { display:flex; gap:8px; align-items:center; }
 
@@ -88,8 +94,8 @@ table {
     min-width: 700px;
 }
 thead { background: #2a7bff; color: white; }
-th, td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
-thead th { position: sticky; top: 0; z-index: 10; }
+th, td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: middle; }
+thead th { position: sticky; top: 120px; z-index: 10; } /* keep header visible — tuned below sticky find */
 tbody tr:nth-child(even) { background: #f1f5ff; }
 tbody tr:nth-child(odd) { background: #ffffff; }
 tbody tr:hover { background: #dfe9ff; }
@@ -97,23 +103,63 @@ tbody tr:hover { background: #dfe9ff; }
 td.income { color: #1a8f2e; font-weight: bold; }
 td.expense { color: #cc0000; font-weight: bold; }
 
-/* highlight used by Find/Go */
-.highlight { background: #fff59d !important; }
+/* Simple Find highlight (distinct from Advanced) */
+.simple-find-highlight { background: #fff59d !important; }
 
-/* Projection negative styling:
-   - negative rows have slightly red background
-   - the daily balance cell for negatives is displayed in red and bold */
+/* Advanced Search highlight */
+.adv-highlight { background: #fff3b0 !important; }
+
+/* Projection negative styling */
 .proj-negative { background: #fff0f0 !important; }
 .proj-negative td.daily-balance { color: #cc0000; font-weight: 700; }
 
-/* Backwards compatibility class when a row has data-negative attribute */
+/* daily-balance color by data-negative attr (fallback) */
 [data-negative="1"] td.daily-balance { color: #cc0000; font-weight: 700; }
 
-/* Irregular marker */
 .irregular { font-weight: 700; }
 .small { font-size: .9rem; color: #444; }
 
-/* small results table from range search */
+/* ---------------- Modal (Advanced Search) ---------------- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2147483646;
+}
+
+.modal {
+    background: white;
+    max-width: 780px;
+    width: 96%;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+}
+
+.modal-header {
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.modal-header h3 { margin: 0; }
+.modal-close {
+    background: transparent;
+    color: #444;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.modal-body .modal-row { display:flex; gap:10px; margin:8px 0; align-items:center; flex-wrap:wrap; }
+.modal-body label { font-weight: 600; }
+.modal-actions { justify-content: flex-start; gap: 8px; }
+.modal-feedback { margin-top: 8px; color: #333; }
+
+/* small results table from advanced search (if needed inside modal) */
 .small-results { margin-top: 8px; border: 1px solid #e6e6e6; border-radius: 6px; overflow: hidden; }
 .small-results thead { background: #f0f4ff; color: #111; }
 .small-results th, .small-results td { padding: 8px; border-bottom: 1px solid #eee; }
@@ -134,9 +180,8 @@ td.expense { color: #cc0000; font-weight: bold; }
 }
 
 /* ---------------- Responsive ---------------- */
-@media (max-width: 600px) {
-    .controls-row {
-        grid-template-columns: 1fr;
-    }
-    table { min-width: 0; font-size: 0.95rem; }
+@media (max-width: 800px) {
+    .controls-row { grid-template-columns: 1fr; }
+    thead th { position: sticky; top: 160px; }
+    .modal { width: 96%; }
 }
