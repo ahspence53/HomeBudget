@@ -20,23 +20,21 @@ section {
 /* ---------------- Config / Controls ---------------- */
 .config-row, .controls-row {
     display: flex;
-    gap: 12px;
     flex-wrap: wrap;
-    align-items: end;
+    gap: 12px;
 }
 
-.controls-row input,
-.controls-row select {
-    flex: 1 1 150px; /* grow, shrink, min width */
+.control-cell {
+    flex: 1 1 150px;   /* grow, shrink, min width */
     min-width: 120px;
+    margin-bottom: 8px; /* vertical spacing */
 }
 
 .controls-row button {
     flex: 0 0 auto; /* keep natural width */
 }
 
-.controls-row.small input,
-.controls-row.small select {
+.controls-row.small .control-cell {
     flex: 1 1 120px;
 }
 
@@ -94,14 +92,6 @@ td.expense { color: #cc0000; font-weight: bold; }
 
 /* ---------------- Responsive ---------------- */
 @media (max-width: 900px) {
-    .grid, .config-row, .controls-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .controls-row input,
-    .controls-row select,
-    .controls-row button {
-        flex: 1 1 100%;
-        min-width: auto;
-    }
+    .controls-row { flex-direction: column; }
+    .control-cell { flex: 1 1 100%; min-width: auto; }
 }
