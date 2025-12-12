@@ -1,4 +1,6 @@
-/* Basic Page */
+/* ----------------------------------------------------------
+   Basic Page
+---------------------------------------------------------- */
 body {
     font-family: Arial, sans-serif;
     margin: 18px;
@@ -11,7 +13,9 @@ h1 {
     color: #222;
 }
 
-/* Sections */
+/* ----------------------------------------------------------
+   Sections
+---------------------------------------------------------- */
 section {
     background: white;
     padding: 12px;
@@ -20,7 +24,9 @@ section {
     box-shadow: 0 0 6px rgba(0,0,0,0.06);
 }
 
-/* Config row - flex layout */
+/* ----------------------------------------------------------
+   Config Layout
+---------------------------------------------------------- */
 .config-row {
     display: flex;
     gap: 12px;
@@ -36,7 +42,9 @@ section {
     align-self: center;
 }
 
-/* Inputs & labels */
+/* ----------------------------------------------------------
+   Inputs & Buttons
+---------------------------------------------------------- */
 label {
     font-weight: bold;
     margin-bottom: 6px;
@@ -56,9 +64,13 @@ button {
     color: white;
     cursor: pointer;
 }
-button:hover { background: #1a5cd8; }
+button:hover {
+    background: #1a5cd8;
+}
 
-/* Add Transaction grid - 3 x 2 */
+/* ----------------------------------------------------------
+   Add Transaction Grid
+---------------------------------------------------------- */
 .grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -70,13 +82,9 @@ button:hover { background: #1a5cd8; }
     width: 100%;
 }
 
-/* Table wrapper for scroll & sticky header */
-.table-wrapper {
-    border-radius: 8px;
-    background: white;
-}
-
-/* Table Styling */
+/* ----------------------------------------------------------
+   Tables
+---------------------------------------------------------- */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -99,7 +107,7 @@ thead th {
     z-index: 10;
 }
 
-/* Freeze first column (Date) */
+/* Freeze first column */
 .freeze-col {
     position: sticky;
     left: 0;
@@ -113,27 +121,45 @@ tbody tr:nth-child(even) { background: #f1f5ff; }
 tbody tr:nth-child(odd)  { background: #ffffff; }
 tbody tr:hover { background: #dfe9ff; }
 
-/* Highlighted find result */
-.highlight-row { background: #fff59d !important; }
+/* Highlighted search result */
+.highlight-row {
+    background: #fff59d !important;
+}
 
-/* Income / expense colors (transactions + daily projection) */
-td.income { color: #1a8f2e; font-weight: bold; }
-td.expense { color: #cc0000; font-weight: bold; }
+/* Income / Expense colouring */
+td.income {
+    color: #1a8f2e;
+    font-weight: bold;
+}
+td.expense {
+    color: #cc0000;
+    font-weight: bold;
+}
 
-/* Responsive tweaks */
-@media (max-width: 900px) {
-    .grid { grid-template-columns: 1fr; }
-    .config-row { flex-direction: column; }
-    .floating-top {
+/* ----------------------------------------------------------
+   Floating Back to Top Button (Fix applied)
+---------------------------------------------------------- */
+.floating-top {
     position: fixed;
     bottom: 20px;
     right: 20px;
     padding: 10px 14px;
     font-size: 14px;
     border-radius: 8px;
-        background: #eee;   /* <-- needed! */
-    border: none;
+    background: #eee;
+    border: 1px solid #ccc;
     cursor: pointer;
     z-index: 9999;
 }
+
+/* ----------------------------------------------------------
+   Responsive Adjustments
+---------------------------------------------------------- */
+@media (max-width: 900px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+    .config-row {
+        flex-direction: column;
+    }
 }
