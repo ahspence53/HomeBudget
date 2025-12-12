@@ -195,4 +195,71 @@ function renderProjectionTable(){
 
         tr.innerHTML=`<td>${formatDate(iso)}</td>
                       <td>${descs.join("<br>")}</td>
-                      <td>${income>0?income.toFixed(2):""}</td
+                      <td>${income>0?income.toFixed(2):""}</td>
+                      <td>${expense>0?expense.toFixed(2):""}</td>
+                      <td>${runningBalance.toFixed(2)}</td>`;
+        projectionTbody.appendChild(tr);
+    }
+}
+
+// ---------- Projection Find ----------
+projectionFindNextBtn.addEventListener("click", () => {
+    const query = projectionFindInput.value.trim().toLowerCase();
+    if(!query){ alert("Enter search text"); return; }
+
+    const rows = Array.from(projectionTbody.querySelectorAll("tr"));
+    if(rows.length === 0){ alert("No projection rows"); return; }
+
+    if(query !== lastQuery) lastProjectionFindIndex = -1;
+    lastQuery = query;
+
+    let start = (lastProjectionFindIndex + 1) % rows.length;
+    let found = false;
+    for(let i = 0; i < rows.length; i++){
+        const idx = (start + i) % rows.length;
+        const row = rows[idx];
+        const dateCell = row.cells[0]?.textContent.toLowerCase() || "";
+        const descCell = row.cells[1]?.textContent.toLowerCase() || "";
+
+        if(dateCell.includes(query) || descCell.includes(query)){
+            rows.forEach(r => r.classList.remove("projection-match-highlight"));
+            row.classList.add("projection-match-highlight");
+            row.scrollIntoView({behavior:"smooth", block:"center"});
+            lastProjectionFindIndex = idx;
+            found = true;
+            break;
+        }
+    }
+    if(!found){
+        alert("No more matches");
+        lastProjectionFindIndex = -1;
+    }
+});
+projectionFindInput.addEventListener("input", () => {
+    lastProjectionFindIndex = -1;
+});
+
+// ---------- Projection Totals ----------
+calculateTotalBtn.addEventListener("click", ()=>{
+    const from=toISO(totalFromInput.value); const to=toISO(totalToInput.value);
+    const descFilter=(totalDescInput.value||"").toLowerCase(); const catFilter=(totalCatInput.value||"").toLowerCase();
+    if(!from||!to){alert("Select From and To dates"); return;}
+    if(new Date(from)>new Date(to)){alert("From must be before To"); return;}
+    let totalIncome=0, totalExpense=0;
+    for(let d=new Date(from); d<=new Date(to); d.setDate(d.getDate()+1)){
+        const iso=toISO(d); const todays=transactions.filter(t=>txOccursOn(t,iso));
+        todays.forEach(t=>{
+            if(descFilter && !t.description.toLowerCase().includes(descFilter)) return;
+            if(catFilter && !t.category.toLowerCase().includes(catFilter)) return;
+            if(t.type==='income') totalIncome+=t.amount; else totalExpense+=t.amount;
+        });
+    }
+    alert(`Total Income: £${totalIncome.toFixed(2)}\nTotal Expense: £${totalExpense.toFixed(2)}`);
+});
+
+// ---------- Back-to-top ----------
+document.getElementById("back-to-top").addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
+
+// ---------- Init ----------
+function init(){updateCategoryDropdown(); renderTransactionTable(); renderProjectionTable();}
+init();
