@@ -24,7 +24,6 @@ const projectionTbody = document.querySelector("#projection-table tbody");
 const projectionFindInput = document.getElementById("projection-find-input");
 const projectionFindNextBtn = document.getElementById("projection-find-next");
 let lastProjectionFindIndex = -1;
-let lastProjectionFindQuery = "";
 
 // Projection Totals
 const totalFromInput = document.getElementById("total-from-date");
@@ -168,12 +167,12 @@ function renderProjectionTable(){
         const iso=toISO(d);
         let todays = transactions.filter(t=>txOccursOn(t,iso));
 
-        // Deduplicate same transaction per day
-        const uniqueDaily = new Set();
+        // Deduplicate per day (date + description + type)
+        const uniqueDaily = new Map();
         todays = todays.filter(t=>{
-            const key = `${t.description}|${t.type}|${t.amount}|${t.category}`;
+            const key = `${t.date}|${t.description}|${t.type}`;
             if(uniqueDaily.has(key)) return false;
-            uniqueDaily.add(key);
+            uniqueDaily.set(key, true);
             return true;
         });
 
@@ -207,21 +206,15 @@ function renderProjectionTable(){
 
 // ---------- Projection Find ----------
 function rowMatchesQuery(row, query){
-    if(!query) return false;
-    const q=query.toLowerCase().trim();
-    const asIso = tryParseToISO(q);
-    if(asIso){
-        if(row.getAttribute("data-date")===asIso) return true;
-        if(formatDate(asIso).toLowerCase().includes(q)) return true;
-    }
+    const q = query.toLowerCase().trim();
+    const dateText = row.cells[0]?.textContent.toLowerCase();
+    if(dateText && dateText.includes(q)) return true;
     if(row.textContent.toLowerCase().includes(q)) return true;
     return false;
 }
 
 function findNext(){
-    const q = (projectionFindInput.value||"").trim();
-    if(q && q !== lastProjectionFindQuery) lastProjectionFindIndex=-1; // reset if new query
-    const query = q || lastProjectionFindQuery;
+    const query = projectionFindInput.value.trim();
     if(!query){ alert("Enter search text"); return; }
 
     const rows = Array.from(projectionTbody.querySelectorAll("tr"));
@@ -233,18 +226,17 @@ function findNext(){
         if(rowMatchesQuery(rows[idx], query)){
             rows.forEach(r=>r.classList.remove("projection-match-highlight"));
             rows[idx].classList.add("projection-match-highlight");
-            rows[idx].scrollIntoView({behavior:"smooth",block:"center"});
+            rows[idx].scrollIntoView({behavior:"smooth", block:"center"});
             lastProjectionFindIndex = idx;
-            lastProjectionFindQuery = query;
             return;
         }
     }
-    alert("No matches found");
-    lastProjectionFindIndex=-1;
-    lastProjectionFindQuery="";
+    alert("No more matches");
+    lastProjectionFindIndex = -1;
 }
+
 projectionFindNextBtn.addEventListener("click", findNext);
-projectionFindInput.addEventListener("input", ()=> { lastProjectionFindIndex=-1; });
+projectionFindInput.addEventListener("input", ()=> lastProjectionFindIndex = -1);
 
 // ---------- Projection Totals ----------
 calculateTotalBtn.addEventListener("click", ()=>{
