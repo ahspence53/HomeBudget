@@ -124,4 +124,15 @@ td.expense { color: #cc0000; font-weight: bold; }
 @media (max-width: 900px) {
     .grid { grid-template-columns: 1fr; }
     .config-row { flex-direction: column; }
+    .floating-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 14px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    z-index: 9999;
+}
 }
