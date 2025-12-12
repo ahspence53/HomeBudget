@@ -1,8 +1,5 @@
 // ================================
-// app.js - Home Budget Tracker (updated)
-// Implements: header/version, remove transaction balance column,
-// negative-balance display & filter, corrected Find Next layout,
-// transaction range search with totals.
+// app.js - Home Budget Tracker (with Advanced Search modal + projection-find fix)
 // ================================
 
 // ---------- Persistence / Data ----------
@@ -36,16 +33,24 @@ const findNextBtn = document.getElementById("find-next");
 const gotoDateInput = document.getElementById("goto-date");
 const gotoDateBtn = document.getElementById("goto-date-btn");
 
-const rangeFrom = document.getElementById("rangeFrom");
-const rangeTo = document.getElementById("rangeTo");
-const rangeDesc = document.getElementById("rangeDesc");
-const rangeCat = document.getElementById("rangeCat");
-const rangeType = document.getElementById("rangeType");
-const rangeSearchBtn = document.getElementById("rangeSearchBtn");
-const rangeSearchResults = document.getElementById("rangeSearchResults");
-
+// Projection controls
 const showOnlyNegativeCheckbox = document.getElementById("showOnlyNegative");
 const highlightNegativesCheckbox = document.getElementById("highlightNegatives");
+
+// Advanced search modal elements
+const advOverlay = document.getElementById("adv-overlay");
+const openAdvBtn = document.getElementById("open-advanced-search");
+const closeAdvBtn = document.getElementById("close-advanced-search");
+const advDesc = document.getElementById("adv-desc");
+const advCategory = document.getElementById("adv-category");
+const advFrom = document.getElementById("adv-from");
+const advTo = document.getElementById("adv-to");
+const advAmountField = document.getElementById("adv-amount-field");
+const advAmountCompare = document.getElementById("adv-amount-compare");
+const advAmount = document.getElementById("adv-amount");
+const advSearchBtn = document.getElementById("adv-search-btn");
+const advClearBtn = document.getElementById("adv-clear-btn");
+const advFeedback = document.getElementById("adv-feedback");
 
 // ---------- Utilities ----------
 function toISO(dateLike) {
@@ -81,7 +86,8 @@ function formatDate(iso) {
 }
 
 function escapeHtml(str) {
-    if (!str && str !== 0) return "";
+    if (str === 0) return "0";
+    if (!str) return "";
     return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
@@ -122,15 +128,20 @@ function normalizeStoredTransactions() {
 // ---------- Category handling ----------
 function updateCategoryDropdown() {
     txCategorySelect.innerHTML = '<option value="" disabled>Select category</option>';
+    advCategory.innerHTML = '<option value="">(any)</option>';
     categories.forEach(cat => {
         const opt = document.createElement("option");
         opt.value = cat;
         opt.textContent = cat;
         txCategorySelect.appendChild(opt);
+
+        const opt2 = document.createElement("option");
+        opt2.value = cat;
+        opt2.textContent = cat;
+        advCategory.appendChild(opt2);
     });
 }
 
-// add category
 function addCategory() {
     const c = (newCategoryInput.value || "").trim();
     if (!c) return;
@@ -216,7 +227,7 @@ function deleteTransaction(index) {
     renderProjectionTable();
 }
 
-// ---------- Render transactions table (NO balance column) ----------
+// ---------- Render transactions table (no balance column) ----------
 function renderTransactionTable() {
     transactionTableBody.innerHTML = "";
 
@@ -291,7 +302,7 @@ function txOccursOn(tx, dateIso) {
     return false;
 }
 
-// ---------- Projection rendering (24 months, daily rows) ----------
+// ---------- Projection rendering (24 months) ----------
 function renderProjectionTable() {
     projectionTbody.innerHTML = "";
 
@@ -331,35 +342,29 @@ function renderProjectionTable() {
 
         const tr = document.createElement("tr");
         tr.setAttribute("data-date", iso);
-        const dailyBalanceCell = `<td class="daily-balance">${runningBalance.toFixed(2)}</td>`;
         tr.innerHTML = `
             <td>${formatDate(iso)}</td>
             <td>${descs.join("<br>")}</td>
             <td>${income > 0 ? income.toFixed(2) : ""}</td>
             <td>${expense > 0 ? expense.toFixed(2) : ""}</td>
-            ${dailyBalanceCell}
+            <td class="daily-balance">${runningBalance.toFixed(2)}</td>
         `;
 
-        // mark negative rows with data attribute for filtering
         if (runningBalance < 0) tr.setAttribute("data-negative", "1");
-        else tr.removeAttribute("data-negative");
-
         projectionTbody.appendChild(tr);
     }
 
     applyProjectionFilters();
 }
 
-// ---------- Projection filtering / highlight ----------
+// ---------- Projection filters/highlights ----------
 function applyProjectionFilters() {
     const showOnlyNeg = showOnlyNegativeCheckbox.checked;
     const highlight = highlightNegativesCheckbox.checked;
 
     Array.from(projectionTbody.querySelectorAll("tr")).forEach(row => {
         const isNeg = row.getAttribute("data-negative") === "1";
-        // Show/hide
         row.style.display = (showOnlyNeg && !isNeg) ? "none" : "";
-        // Apply highlight/negative-colour classes
         row.classList.toggle("proj-negative", highlight && isNeg);
     });
 }
@@ -367,31 +372,51 @@ function applyProjectionFilters() {
 showOnlyNegativeCheckbox.addEventListener("change", applyProjectionFilters);
 highlightNegativesCheckbox.addEventListener("change", applyProjectionFilters);
 
-// ---------- Find / Find Next (transaction table) ----------
-let lastFindIndex = -1;
-function findNext() {
+// ---------- Simple Find (search projection descriptions only) ----------
+let simpleFindMatchIndexes = [];
+let simpleFindCursor = -1;
+
+function computeSimpleFindMatches() {
+    simpleFindMatchIndexes = [];
+    simpleFindCursor = -1;
     const q = (findInput.value || "").trim().toLowerCase();
-    if (!q) { alert("Enter search text for Find."); return; }
-    const rows = Array.from(transactionTableBody.querySelectorAll("tr"));
-    if (rows.length === 0) return alert("No transactions to search.");
-    let start = lastFindIndex + 1;
-    if (start >= rows.length) start = 0;
-    for (let i = 0; i < rows.length; i++) {
-        const idx = (start + i) % rows.length;
-        const row = rows[idx];
-        const txt = row.textContent.toLowerCase();
-        if (txt.includes(q)) {
-            rows.forEach(r => r.classList.remove("highlight"));
-            row.classList.add("highlight");
-            row.scrollIntoView({ behavior: "smooth", block: "center" });
-            lastFindIndex = idx;
-            return;
-        }
-    }
-    alert("No more matches.");
+    if (!q) return;
+    const rows = Array.from(projectionTbody.querySelectorAll("tr"));
+    rows.forEach((r, i) => {
+        // description column is index 1 (second column)
+        const descCell = r.children[1];
+        const txt = descCell ? descCell.textContent.toLowerCase() : "";
+        if (txt.includes(q)) simpleFindMatchIndexes.push(i);
+    });
 }
-findNextBtn.addEventListener("click", findNext);
-findInput.addEventListener("input", () => lastFindIndex = -1);
+
+function simpleFindNext() {
+    computeSimpleFindMatches();
+    if (simpleFindMatchIndexes.length === 0) {
+        alert("No matches for simple Find in projection descriptions.");
+        return;
+    }
+    simpleFindCursor = (simpleFindCursor + 1) % simpleFindMatchIndexes.length;
+    const rows = Array.from(projectionTbody.querySelectorAll("tr"));
+    // clear previous simple highlights (but do NOT touch advanced highlights/classes)
+    rows.forEach(r => r.classList.remove("simple-find-highlight"));
+
+    const idx = simpleFindMatchIndexes[simpleFindCursor];
+    const row = rows[idx];
+    if (row) {
+        row.classList.add("simple-find-highlight");
+        row.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+}
+
+findNextBtn.addEventListener("click", simpleFindNext);
+findInput.addEventListener("input", () => {
+    // reset cursor when user types a new query
+    simpleFindMatchIndexes = [];
+    simpleFindCursor = -1;
+    // remove simple-find-highlight classes
+    Array.from(projectionTbody.querySelectorAll("tr")).forEach(r => r.classList.remove("simple-find-highlight"));
+});
 
 // ---------- Go to date in projection ----------
 function gotoDate() {
@@ -405,7 +430,7 @@ function gotoDate() {
 }
 gotoDateBtn.addEventListener("click", gotoDate);
 
-// If user clicks the date cell in transaction table, go to projection date (best effort)
+// ---------- Transaction table click date goto ----------
 transactionTableBody.addEventListener("click", (e) => {
     const cell = e.target.closest("td");
     if (!cell) return;
@@ -429,90 +454,104 @@ transactionTableBody.addEventListener("click", (e) => {
     }
 });
 
-// ---------- Range search for transactions (with totals) ----------
-function rangeSearchTransactions() {
-    const from = toISO(rangeFrom.value);
-    const to = toISO(rangeTo.value);
-    const desc = (rangeDesc.value || "").trim().toLowerCase();
-    const cat = (rangeCat.value || "").trim().toLowerCase();
-    const type = rangeType.value || "both";
+// ---------- Advanced Search Modal logic (Option B) ----------
+function openAdvModal() {
+    advOverlay.style.display = "block";
+    advOverlay.setAttribute("aria-hidden", "false");
+    advFeedback.innerHTML = "";
+}
+function closeAdvModal() {
+    advOverlay.style.display = "none";
+    advOverlay.setAttribute("aria-hidden", "true");
+}
+openAdvBtn.addEventListener("click", openAdvModal);
+closeAdvBtn.addEventListener("click", closeAdvModal);
+advOverlay.addEventListener("click", (e) => { if (e.target === advOverlay) closeAdvModal(); });
 
-    // Filter transactions by date and text/category
-    const results = transactions.filter(t => {
-        // date filter: if no date on tx (irregular without date) then exclude
-        if (from && t.date && t.date < from) return false;
-        if (to && t.date && t.date > to) return false;
-        if (from && !t.date && t.frequency !== 'irregular') {
-            // recurring entries have occurrences — for range totals we count occurrences from projections
-            // fallback: include recurring entries if their start date is within range
-            // We'll exclude ambiguous no-date irregulars
-        }
-        if (desc && !t.description.toLowerCase().includes(desc)) return false;
-        if (cat && !t.category.toLowerCase().includes(cat)) return false;
-        if (type !== 'both' && t.type !== type) return false;
-        return true;
+// helper parse float (empty => 0)
+function parseNumCell(text) {
+    if (!text) return 0;
+    const cleaned = String(text).replace(/[^0-9\.\-]/g, "");
+    const n = parseFloat(cleaned);
+    return isNaN(n) ? 0 : n;
+}
+
+function applyAdvancedSearch() {
+    // clear previous adv highlights
+    Array.from(projectionTbody.querySelectorAll("tr")).forEach(r => {
+        r.classList.remove("adv-highlight");
+        r.removeAttribute("data-adv");
     });
 
-    // For recurring transactions we should count occurrences in the date-range
-    // We'll compute totals by scanning days between from and to and matching txOccursOn.
-    let totalIncome = 0;
-    let totalExpense = 0;
-    let occurrences = [];
+    const descQ = (advDesc.value || "").trim().toLowerCase();
+    const catQ = (advCategory.value || "").trim().toLowerCase();
+    const from = toISO(advFrom.value) || "";
+    const to = toISO(advTo.value) || "";
+    const field = advAmountField.value; // none|income|expense|daily
+    const cmp = advAmountCompare.value; // =, >, <
+    const amt = advAmount.value !== "" ? parseFloat(advAmount.value) : null;
 
-    // If no range dates supplied, just sum the filtered transactions once
-    if (!from && !to) {
-        results.forEach(t => {
-            if (t.type === 'income') totalIncome += t.amount;
-            else totalExpense += t.amount;
-            occurrences.push({
-                date: t.date || "",
-                description: t.description,
-                category: t.category,
-                amount: t.amount,
-                type: t.type
-            });
-        });
-    } else {
-        const start = from ? new Date(from) : new Date(); // if no from, start from today (but better require from)
-        const end = to ? new Date(to) : new Date(from || to || start);
-        // iterate days inclusive
-        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            const iso = toISO(d);
-            // test each transaction for occurrence on iso
-            transactions.forEach(t => {
-                if (txOccursOn(t, iso)) {
-                    // apply desc/category/type filters again for occurrences
-                    if (desc && !t.description.toLowerCase().includes(desc)) return;
-                    if (cat && !t.category.toLowerCase().includes(cat)) return;
-                    if (type !== 'both' && t.type !== type) return;
-                    if (t.type === 'income') totalIncome += t.amount;
-                    else totalExpense += t.amount;
-                    occurrences.push({
-                        date: iso,
-                        description: t.description,
-                        category: t.category,
-                        amount: t.amount,
-                        type: t.type
-                    });
-                }
-            });
+    const rows = Array.from(projectionTbody.querySelectorAll("tr"));
+    let found = 0;
+
+    rows.forEach(row => {
+        // date filter
+        const date = row.getAttribute("data-date") || "";
+        if (from && date < from) return;
+        if (to && date > to) return;
+
+        // description filter (search row text — descriptions include "(Category)")
+        const rowText = row.children[1] ? row.children[1].textContent.toLowerCase() : "";
+        if (descQ && !rowText.includes(descQ)) return;
+
+        // category filter — check row text for bracketed category OR full text
+        if (catQ) {
+            const hasCat = row.textContent.toLowerCase().includes(`(${catQ})`) || rowText.includes(`(${catQ})`) || rowText.includes(catQ);
+            if (!hasCat) return;
         }
-    }
 
-    // Build HTML
-    let html = `<h4>Found ${occurrences.length} occurrences</h4>`;
-    html += `<p><strong>Total Income:</strong> £${totalIncome.toFixed(2)} &nbsp; <strong>Total Expense:</strong> £${totalExpense.toFixed(2)} &nbsp; <strong>Net:</strong> £${(totalIncome - totalExpense).toFixed(2)}</p>`;
+        // amount filter if requested
+        if (field !== "none" && amt !== null) {
+            const incomeCell = row.children[2] ? parseNumCell(row.children[2].textContent) : 0;
+            const expenseCell = row.children[3] ? parseNumCell(row.children[3].textContent) : 0;
+            const dailyCell = row.querySelector(".daily-balance") ? parseNumCell(row.querySelector(".daily-balance").textContent) : 0;
+            let val = 0;
+            if (field === "income") val = incomeCell;
+            else if (field === "expense") val = expenseCell;
+            else val = dailyCell;
 
-    if (occurrences.length > 0) {
-        html += `<table class="small-results"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th>Amount</th></tr></thead><tbody>`;
-        occurrences.forEach(o => {
-            html += `<tr><td>${o.date ? formatDate(o.date) : ""}</td><td>${escapeHtml(o.description)}</td><td>${escapeHtml(o.category)}</td><td>${escapeHtml(o.type)}</td><td class="${o.type==='income' ? 'income' : 'expense'}">${o.amount.toFixed(2)}</td></tr>`;
-        });
-        html += `</tbody></table>`;
+            // comparison
+            let ok = false;
+            if (cmp === "=") ok = Math.abs(val - amt) < 0.0001;
+            if (cmp === ">") ok = val > amt;
+            if (cmp === "<") ok = val < amt;
+            if (!ok) return;
+        }
+
+        // passed all checks -> highlight
+        row.classList.add("adv-highlight");
+        row.setAttribute("data-adv", "1");
+        found++;
+    });
+
+    advFeedback.innerHTML = `<p>Found <strong>${found}</strong> matching projection rows. Highlights applied.</p>`;
+    if (found > 0) {
+        // scroll to first match
+        const first = projectionTbody.querySelector('tr[data-adv="1"]');
+        if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
     }
-    rangeSearchResults.innerHTML = html;
 }
-rangeSearchBtn.addEventListener("click", rangeSearchTransactions);
+
+advSearchBtn.addEventListener("click", applyAdvancedSearch);
+
+function clearAdvancedHighlights() {
+    Array.from(projectionTbody.querySelectorAll("tr")).forEach(r => {
+        r.classList.remove("adv-highlight");
+        r.removeAttribute("data-adv");
+    });
+    advFeedback.innerHTML = `<p>Highlights cleared.</p>`;
+}
+advClearBtn.addEventListener("click", clearAdvancedHighlights);
 
 // ---------- Init ----------
 function init() {
@@ -520,5 +559,9 @@ function init() {
     updateCategoryDropdown();
     renderTransactionTable();
     renderProjectionTable();
+
+    // ensure modal hidden
+    advOverlay.style.display = "none";
+    advOverlay.setAttribute("aria-hidden", "true");
 }
 init();
