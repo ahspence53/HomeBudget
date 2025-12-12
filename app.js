@@ -145,61 +145,50 @@ function txOccursOn(tx, dateIso){
     if(!tx.date) return false;
     const start=new Date(tx.date), d=new Date(dateIso);
     if(d<start) return false;
-    if(tx.frequency==='monthly'){
-        const day=start.getDate();
-        const lastDay=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
-        return d.getDate()===Math.min(day,lastDay);
-    }
-    if(tx.frequency==='4-weekly'){
-        const diffDays=Math.floor((d-start)/(1000*60*60*24));
-        return diffDays>=0 && diffDays%28===0;
-    }
+    if(tx.frequency==='monthly'){const day=start.getDate(); const lastDay=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(); return d.getDate()===Math.min(day,lastDay);}
+    if(tx.frequency==='4-weekly'){const diffDays=Math.floor((d-start)/(1000*60*60*24)); return diffDays>=0 && diffDays%28===0;}
     return false;
 }
 
 // ---------- Projection ----------
+let projectionRows = [];
+
 function renderProjectionTable(){
     projectionTbody.innerHTML="";
-    if(!startDate){projectionTbody.innerHTML=`<tr><td colspan="5" class="small">Please set Start Date and press Save.</td></tr>`; return;}
-    const start=new Date(startDate); const end=new Date(start); end.setMonth(end.getMonth()+24); end.setDate(end.getDate()-1);
-    let runningBalance=openingBalance||0;
+    if(!startDate){projectionTbody.innerHTML=`<tr><td colspan="5" class="small">Please set Start Date and press Save.</td></tr>`; projectionRows = []; return;}
+    const start = new Date(startDate);
+    const end = new Date(start); end.setMonth(end.getMonth()+24); end.setDate(end.getDate()-1);
+    let runningBalance = openingBalance || 0;
 
-    for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
-        const iso=toISO(d);
-        let todays = transactions.filter(t=>txOccursOn(t,iso));
+    projectionRows = [];
 
-        // Combine duplicates per day (description+type+category)
-        const map = new Map();
-        todays.forEach(t=>{
-            const key = `${t.description}|${t.type}|${t.category||""}`;
-            if(map.has(key)) map.get(key).amount += t.amount;
-            else map.set(key, {...t});
-        });
-        todays = Array.from(map.values());
+    for(let d = new Date(start); d <= end; d.setDate(d.getDate()+1)){
+        const iso = toISO(d);
+        let todays = transactions.filter(t => txOccursOn(t, iso));
 
-        let income=0, expense=0, descs=[];
+        let income = 0, expense = 0, descs = [];
         todays.forEach(t=>{
             if(t.type==='income') income+=t.amount; else expense+=t.amount;
-            const pretty = `${escapeHtml(t.description)}${t.category?` (${escapeHtml(t.category)})`:''}`;
-            if(t.frequency==='irregular') descs.push(`<span class="irregular">${pretty}</span>`);
-            else descs.push(pretty);
+            const prettyDesc = `${escapeHtml(t.description)}${t.category?` (${escapeHtml(t.category)})`:''}`;
+            if(t.frequency==='irregular') descs.push(`<span class="irregular">${prettyDesc}</span>`); else descs.push(prettyDesc);
         });
 
         runningBalance += (income - expense);
 
-        if(showOnlyNegativeCheckbox.checked && runningBalance>=0) continue;
+        if(showOnlyNegativeCheckbox.checked && runningBalance >= 0 && todays.length===0) continue;
 
         const tr=document.createElement("tr");
         tr.setAttribute("data-date", iso);
-        if(highlightNegativesCheckbox.checked && runningBalance<0) tr.classList.add("neg-row");
-
-        tr.innerHTML=`<td>${formatDate(iso)}</td>
-                      <td>${descs.join("<br>")}</td>
-                      <td>${income>0?income.toFixed(2):""}</td>
-                      <td>${expense>0?expense.toFixed(2):""}</td>
-                      <td>${runningBalance.toFixed(2)}</td>`;
-        projectionTbody.appendChild(tr);
+        tr.innerHTML = `<td>${formatDate(iso)}</td>
+                        <td>${descs.join("<br>")}</td>
+                        <td>${income>0?income.toFixed(2):""}</td>
+                        <td>${expense>0?expense.toFixed(2):""}</td>
+                        <td>${runningBalance.toFixed(2)}</td>`;
+        if(highlightNegativesCheckbox.checked && runningBalance < 0) tr.classList.add("neg-row");
+        projectionRows.push(tr);
     }
+
+    projectionRows.forEach(r => projectionTbody.appendChild(r));
 }
 
 // ---------- Projection Find ----------
@@ -207,10 +196,10 @@ projectionFindNextBtn.addEventListener("click", () => {
     const query = projectionFindInput.value.trim().toLowerCase();
     if(!query){ alert("Enter search text"); return; }
 
-    const rows = Array.from(projectionTbody.querySelectorAll("tr"));
+    const rows = projectionRows;
     if(rows.length === 0){ alert("No projection rows"); return; }
 
-    if(query !== lastQuery) lastProjectionFindIndex = -1;
+    if(query !== lastQuery) lastProjectionFindIndex = -1; 
     lastQuery = query;
 
     let start = (lastProjectionFindIndex + 1) % rows.length;
@@ -235,9 +224,7 @@ projectionFindNextBtn.addEventListener("click", () => {
         lastProjectionFindIndex = -1;
     }
 });
-projectionFindInput.addEventListener("input", () => {
-    lastProjectionFindIndex = -1;
-});
+projectionFindInput.addEventListener("input", () => { lastProjectionFindIndex = -1; });
 
 // ---------- Projection Totals ----------
 calculateTotalBtn.addEventListener("click", ()=>{
