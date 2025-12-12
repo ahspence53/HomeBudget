@@ -1,3 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Home Budget Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header style="background-color: lightblue; padding: 12px;">
+    <h1 style="display: inline-block; margin: 0; color: white;">Home Budget Tracker</h1>
+    <span style="float: right; font-size: 0.9rem; color: white;">Version 1. December 2025</span>
+</header>
+
+<section id="config">
+    <h2>Configuration</h2>
+    <label>Start Date: <input type="date" id="start-date"></label>
+    <label>Opening Balance: <input type="number" id="opening-balance" step="0.01"></label>
+    <button id="save-config">Save</button>
+</section>
+
+<section id="add-transaction-section">
+    <h2>Add Transaction</h2>
+
+    <div class="controls-row">
+        <div class="control-cell"><input type="text" id="tx-desc" placeholder="Description" /></div>
+        <div class="control-cell"><input type="number" id="tx-amount" placeholder="Amount" step="0.01" /></div>
+        <div class="control-cell">
+            <select id="tx-type">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="controls-row">
+        <div class="control-cell">
+            <select id="tx-frequency">
+                <option value="irregular">Irregular</option>
+                <option value="monthly">Monthly</option>
+                <option value="4-weekly">4-Weekly</option>
+            </select>
+        </div>
+        <div class="control-cell"><input type="date" id="tx-date" /></div>
+        <div class="control-cell">
+            <select id="tx-category">
+                <option value="" disabled selected>Select category</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="controls-row">
+        <div class="control-cell"><input type="text" id="new-category" placeholder="Add new category" /></div>
+        <div class="control-cell"><button id="add-category">Add Category</button></div>
+        <div class="control-cell"><button id="add-transaction">Add Transaction</button></div>
+    </div>
+
+    <div class="controls-row small">
+        <div class="control-cell"><label>Find: <input type="text" id="find-input" placeholder="Search description, category or date"></label></div>
+        <div class="control-cell"><button id="find-next">Find Next</button></div>
+        <div class="control-cell"><label>Go to date: <input type="date" id="goto-date"></label></div>
+        <div class="control-cell"><button id="goto-date-btn">Go</button></div>
+    </div>
+</section>
+
+<section id="transactions">
+    <h2>Transactions</h2>
+    <table id="transaction-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Balance</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</section>
+
 <section id="projection-section">
     <h2>24-Month Projection</h2>
     <p class="small">Shows every day for 24 months from the configured Start Date. Recurring transactions: monthly / 4-weekly (28 days) / irregular.</p>
@@ -7,7 +91,7 @@
         <label><input type="checkbox" id="highlightNegatives"> Highlight negative daily balance rows</label>
     </div>
 
-    <!-- Left-side floating Find Panel -->
+    <!-- Find Panel above table -->
     <div id="projection-find-panel">
         <label for="projection-find-input">Find:</label>
         <input type="text" id="projection-find-input" placeholder="Search description, category or date">
@@ -28,3 +112,10 @@
         <tbody></tbody>
     </table>
 </section>
+
+<!-- Floating back-to-top button -->
+<button id="back-to-top" class="floating-top">⬆ Top</button>
+
+<script src="app.js"></script>
+</body>
+</html>
