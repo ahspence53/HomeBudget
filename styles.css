@@ -1,61 +1,112 @@
-/* ---------------- Floating Left Find Panel ---------------- */
+body {
+    font-family: Arial, sans-serif;
+    margin: 18px;
+    background: #f4f6f8;
+    color: #222;
+}
+
+h1 { margin: 0 0 10px 0; }
+
+/* ---------------- Sections ---------------- */
+section {
+    background: white;
+    padding: 16px;
+    margin-bottom: 24px;
+    border-radius: 8px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.06);
+}
+
+/* ---------------- Controls ---------------- */
+.controls-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.control-cell { width: 100%; }
+
+.control-cell input,
+.control-cell select { padding: 10px; font-size: 1rem; }
+
+.control-cell button {
+    width: 100%;
+    margin-top: 4px;
+}
+
+/* Small row */
+.controls-row.small .control-cell { min-width: 120px; }
+
+label { font-weight: bold; margin-bottom: 6px; }
+input, select { border: 1px solid #bbb; border-radius: 4px; box-sizing: border-box; }
+
+/* Buttons */
+button {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 5px;
+    background: #2a7bff;
+    color: white;
+    cursor: pointer;
+}
+button:hover { background: #1a5cd8; }
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+thead { background: #2a7bff; color: white; }
+th, td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+thead th { position: sticky; top: 0; z-index: 10; }
+tbody tr:nth-child(even) { background: #f1f5ff; }
+tbody tr:nth-child(odd) { background: #ffffff; }
+tbody tr:hover { background: #dfe9ff; }
+
+.irregular { font-weight: 700; }
+.negative { background: #ffe6e6; }
+.highlight-row { background: #fff59d !important; }
+.small { font-size: .9rem; color: #444; }
+td.income { color: #1a8f2e; font-weight: bold; }
+td.expense { color: #cc0000; font-weight: bold; }
+
+/* Floating Back-to-Top */
+.floating-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 14px;
+    font-size: 14px;
+    border-radius: 8px;
+    background: #2a7bff;
+    color: white;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    z-index: 2147483647;
+}
+
+/* Projection Find Panel */
 #projection-find-panel {
-    position: absolute; /* relative to #projection-section */
-    left: 0;
-    top: 60px; /* below h2 and controls */
-    width: 180px;
+    margin-bottom: 12px;
+    padding: 8px 10px;
     background: #f9f9f9;
     border: 1px solid #ccc;
-    padding: 10px;
     border-radius: 6px;
-    z-index: 10;
-    box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
 }
 
-#projection-find-panel label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 4px;
-}
+#projection-find-panel label { font-weight: bold; display: block; margin-bottom: 4px; }
+#projection-find-panel input { width: 100%; margin-bottom: 6px; padding: 6px; font-size: 0.95rem; }
+#projection-find-panel button { width: 48%; margin-right: 4%; margin-bottom: 4px; padding: 6px; font-size: 0.9rem; }
+#projection-find-panel button:last-child { margin-right: 0; }
 
-#projection-find-panel input {
-    width: 100%;
-    margin-bottom: 6px;
-    padding: 6px;
-    font-size: 0.9rem;
-}
-
-#projection-find-panel button {
-    width: 48%;
-    margin-right: 4%;
-    margin-bottom: 4px;
-    padding: 6px;
-    font-size: 0.85rem;
-}
-#projection-find-panel button:last-child {
-    margin-right: 0;
-}
-
-/* Highlight for matched row */
 .projection-match-highlight {
-    background-color: #fff59d !important; /* bright yellow */
-    transition: background 0.5s ease-in-out;
+    background-color: #fff59d !important;
     border-left: 4px solid #f1c40f;
+    transition: background 0.5s ease-in-out;
 }
 
-/* Adjust table padding to accommodate floating panel */
-#projection-section {
-    position: relative;
-    padding-left: 200px; /* leave space for panel */
-}
-
-/* Responsive: collapse floating panel on small screens */
-@media (max-width: 700px) {
-    #projection-find-panel {
-        width: 120px;
-        font-size: 0.85rem;
-    }
-    #projection-section {
-        padding-left: 130px;
-    }
+/* Responsive */
+@media (max-width: 600px) {
+    .controls-row { grid-template-columns: 1fr; }
 }
