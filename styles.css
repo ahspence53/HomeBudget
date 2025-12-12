@@ -78,8 +78,6 @@ tbody tr:nth-child(even) { background: #f1f5ff; }
 tbody tr:nth-child(odd) { background: #ffffff; }
 tbody tr:hover { background: #dfe9ff; }
 
-.irregular { font-weight: bold; }
-
 button.edit-btn,
 button.delete-btn {
     margin: 0 2px;
@@ -87,17 +85,31 @@ button.delete-btn {
     font-size: 0.85rem;
 }
 
+/* ---------------- Highlights ---------------- */
 .projection-match-highlight {
     background: #fff59d !important;
 }
 
+/* Negative daily balance row */
 .negative {
-    background: #ffe6e6;
+    background-color: #ffe6e6; /* soft red for negative balances */
 }
 
-.neg-row { background: #ffe6e6; }
-.neg-cell { color: #d8000c; font-weight: bold; }
+/* Highlight individual negative cell if needed */
+.neg-cell {
+    color: #d8000c;
+    font-weight: bold;
+}
 
+/* Irregular transaction highlight */
+.irregular {
+    font-weight: bold;
+    background-color: #fff4e6; /* subtle peach for irregular transactions */
+    border-radius: 3px;
+    padding: 1px 3px;
+}
+
+/* Floating Back-to-Top Button */
 .floating-top {
     position: fixed;
     bottom: 20px;
