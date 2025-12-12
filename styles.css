@@ -17,25 +17,26 @@ section {
     box-shadow: 0 0 6px rgba(0,0,0,0.06);
 }
 
-/* ---------------- Config / Controls ---------------- */
+/* ---------------- Controls (Add Transaction / Find / Go) ---------------- */
 .controls-row {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
 }
 
 .control-cell {
-    flex: 1 1 150px;   /* grow, shrink, min width */
-    min-width: 120px;
+    width: 100%; /* input/button fills cell */
 }
 
+/* Buttons inside control cells */
 .controls-row button {
-    flex: 0 0 auto; /* keep buttons natural width */
+    width: 100%; /* make all buttons full width */
 }
 
+/* Small controls row (Find / Go) */
 .controls-row.small .control-cell {
-    flex: 1 1 120px;
+    min-width: 120px;
 }
 
 /* ---------------- Labels & Inputs ---------------- */
@@ -46,6 +47,8 @@ input, select {
     border-radius: 4px;
     box-sizing: border-box;
 }
+
+/* ---------------- Buttons ---------------- */
 button {
     padding: 8px 10px;
     border: none;
@@ -91,7 +94,8 @@ td.expense { color: #cc0000; font-weight: bold; }
 }
 
 /* ---------------- Responsive ---------------- */
-@media (max-width: 900px) {
-    .controls-row { flex-direction: column; }
-    .control-cell { flex: 1 1 100%; min-width: auto; }
+@media (max-width: 600px) {
+    .controls-row {
+        grid-template-columns: 1fr; /* stack all controls vertically */
+    }
 }
