@@ -153,7 +153,6 @@ function renderProjectionTable(){
     const end = new Date(start); end.setMonth(end.getMonth()+24); end.setDate(end.getDate()-1);
     let runningBalance = openingBalance || 0;
 
-    // Build date => transactions map
     const dateMap = {};
     for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
         const iso=toISO(d);
@@ -176,6 +175,7 @@ function renderProjectionTable(){
         if(showOnlyNegativeCheckbox.checked && runningBalance >= 0) return;
 
         const tr = document.createElement("tr");
+        tr.setAttribute("data-date", iso);
         tr.innerHTML = `<td>${formatDate(iso)}</td>
                         <td>${descs.join("<br>")}</td>
                         <td>${income>0?income.toFixed(2):""}</td>
@@ -189,19 +189,30 @@ function renderProjectionTable(){
 
 // ---------- Projection Find ----------
 projectionFindNextBtn.addEventListener("click", ()=>{
-    const query = projectionFindInput.value.trim().toLowerCase();
+    let query = projectionFindInput.value.trim().toLowerCase();
     if(!query){ alert("Enter search text"); return; }
+
+    // Flexible date search
+    let isoQuery = "";
+    const dateParts = query.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+    if(dateParts){
+        let [_, dd, mm, yyyy] = dateParts;
+        dd = dd.padStart(2,'0'); mm = mm.padStart(2,'0');
+        isoQuery = `${yyyy}-${mm}-${dd}`;
+    }
+
     if(query!==lastFindQuery) lastFindIndex=-1;
     lastFindQuery = query;
 
     if(projectionRows.length === 0){ alert("No projection rows"); return; }
-    
+
     for(let i=1;i<=projectionRows.length;i++){
         const idx = (lastFindIndex+i) % projectionRows.length;
         const row = projectionRows[idx];
         const dateText = row.cells[0].textContent.toLowerCase();
         const descText = row.cells[1].textContent.toLowerCase();
-        if(dateText.includes(query) || descText.includes(query)){
+
+        if(descText.includes(query) || dateText.includes(query) || (isoQuery && row.getAttribute('data-date')===isoQuery)){
             projectionRows.forEach(r=>r.classList.remove("projection-match-highlight"));
             row.classList.add("projection-match-highlight");
             row.scrollIntoView({behavior:"smooth", block:"center"});
@@ -212,9 +223,30 @@ projectionFindNextBtn.addEventListener("click", ()=>{
     alert("No more matches");
     lastFindIndex = -1;
 });
-
-// Reset find when user types
 projectionFindInput.addEventListener("input", ()=>{ lastFindIndex=-1; });
+
+// ---------- Projection Totals ----------
+const totalFromInput = document.getElementById("total-from-date");
+const totalToInput = document.getElementById("total-to-date");
+const totalDescInput = document.getElementById("total-desc");
+const totalCatInput = document.getElementById("total-cat");
+const calculateTotalBtn = document.getElementById("calculate-total-btn");
+
+calculateTotalBtn.addEventListener("click", ()=>{
+    const from=toISO(totalFromInput.value); const to=toISO(totalToInput.value);
+    const descFilter=(totalDescInput.value||"").toLowerCase(); const catFilter=(totalCatInput.value||"").toLowerCase();
+    if(!from||!to){alert("Select From and To dates"); return;}
+    if(new Date(from)>new Date(to)){alert("From must be before To"); return;}
+    let totalIncome=0, totalExpense=0;
+    for(let d=new Date(from); d<=new Date(to); d.setDate(d.getDate()+1)){
+        const iso=toISO(d); const todays=transactions.filter(t=>txOccursOn(t,iso));
+        todays.forEach(t=>{if(descFilter && !t.description.toLowerCase().includes(descFilter)) return; if(catFilter && !t.category.toLowerCase().includes(catFilter)) return; if(t.type==='income') totalIncome+=t.amount; else totalExpense+=t.amount;});
+    }
+    alert(`Total Income: £${totalIncome.toFixed(2)}\nTotal Expense: £${totalExpense.toFixed(2)}`);
+});
+
+// ---------- Back-to-top ----------
+document.getElementById("back-to-top").addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
 
 // ---------- Init ----------
 function init(){updateCategoryDropdown(); renderTransactionTable(); renderProjectionTable();}
