@@ -168,18 +168,14 @@ function renderProjectionTable(){
         const iso=toISO(d);
         let todays = transactions.filter(t=>txOccursOn(t,iso));
 
-        // Combine same description+type+category per day to remove duplicates
-        const combined = [];
+        // Combine duplicates per day (description+type+category)
         const map = new Map();
         todays.forEach(t=>{
             const key = `${t.description}|${t.type}|${t.category||""}`;
-            if(map.has(key)){
-                const existing = map.get(key);
-                existing.amount += t.amount;
-            } else map.set(key, {...t});
+            if(map.has(key)) map.get(key).amount += t.amount;
+            else map.set(key, {...t});
         });
-        combined.push(...map.values());
-        todays = combined;
+        todays = Array.from(map.values());
 
         let income=0, expense=0, descs=[];
         todays.forEach(t=>{
@@ -191,12 +187,12 @@ function renderProjectionTable(){
 
         runningBalance += (income - expense);
 
-        if(showOnlyNegativeCheckbox && showOnlyNegativeCheckbox.checked && runningBalance>=0) continue;
+        if(showOnlyNegativeCheckbox.checked && runningBalance>=0) continue;
 
         const tr=document.createElement("tr");
-        tr.setAttribute("data-date",iso);
-        if(highlightNegativesCheckbox && highlightNegativesCheckbox.checked && runningBalance<0) tr.classList.add("neg-row");
+        tr.setAttribute("data-date", iso);
+        if(highlightNegativesCheckbox.checked && runningBalance<0) tr.classList.add("neg-row");
 
-        const dateCell = `<td>${formatDate(iso)}</td>`;
-        const descCell = `<td>${descs.join("<br>")}</td>`;
-        const income
+        tr.innerHTML=`<td>${formatDate(iso)}</td>
+                      <td>${descs.join("<br>")}</td>
+                      <td>${income>0?income.toFixed(2):""}</td
