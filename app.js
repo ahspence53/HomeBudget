@@ -157,6 +157,11 @@ saveConfigButton.addEventListener("click", () => {
     renderProjectionTable();
 });
 
+
+document.getElementById("back-to-top").addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
 // populate config inputs
 startDateInput.value = startDate;
 openingBalanceInput.value = isNaN(openingBalance) ? "" : openingBalance;
