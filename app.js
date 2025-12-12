@@ -33,61 +33,99 @@ const totalCatInput = document.getElementById("total-cat");
 const calculateTotalBtn = document.getElementById("calculate-total-btn");
 
 // --------- Utils ----------
-function toISO(d){if(!d)return"";return new Date(d).toISOString().split("T")[0];}
-function formatDate(iso){if(!iso)return"";return new Date(iso).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});}
+function toISO(d){
+    if(!d) return "";
+    const date = new Date(d);
+    if(isNaN(date)) return "";
+    return date.toISOString().split("T")[0];
+}
+function formatDate(iso){
+    if(!iso) return "";
+    const d = new Date(iso);
+    if(isNaN(d)) return iso;
+    return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
+}
 function escapeHtml(str){return str?String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):"";}
 
 // --------- Categories ----------
 function updateCategoryDropdown(){
     txCategorySelect.innerHTML='<option value="" disabled>Select category</option>';
-    categories.forEach(c=>{const opt=document.createElement("option"); opt.value=c; opt.textContent=c; txCategorySelect.appendChild(opt);});
+    categories.forEach(c=>{
+        const opt=document.createElement("option"); 
+        opt.value=c; 
+        opt.textContent=c; 
+        txCategorySelect.appendChild(opt);
+    });
 }
 function addCategory(){
     const c = (newCategoryInput.value||"").trim();
-    if(!c)return;
+    if(!c) return;
     if(!categories.includes(c)){categories.push(c); localStorage.setItem('categories',JSON.stringify(categories));}
-    newCategoryInput.value=""; updateCategoryDropdown(); txCategorySelect.value=c;
+    newCategoryInput.value="";
+    updateCategoryDropdown();
+    txCategorySelect.value = c;
 }
-addCategoryButton.addEventListener("click",addCategory);
+addCategoryButton.addEventListener("click", addCategory);
 
 // --------- Config ----------
 saveConfigButton.addEventListener("click",()=>{
-    startDate=toISO(startDateInput.value);
-    openingBalance=parseFloat(openingBalanceInput.value)||0;
-    localStorage.setItem('startDate',startDate);
-    localStorage.setItem('openingBalance',openingBalance);
+    startDate = toISO(startDateInput.value);
+    openingBalance = parseFloat(openingBalanceInput.value)||0;
+    localStorage.setItem('startDate', startDate);
+    localStorage.setItem('openingBalance', openingBalance);
     renderProjectionTable();
 });
 
 // --------- Transactions ----------
-function saveTransactions(){localStorage.setItem('transactions',JSON.stringify(transactions));}
+function saveTransactions(){localStorage.setItem('transactions', JSON.stringify(transactions));}
+
 function addTransactionObj(obj){
-    const tx={description:(obj.description||"").trim(),amount:parseFloat(obj.amount)||0,type:obj.type||'expense',frequency:obj.frequency||'irregular',category:obj.category||""};
-    tx.date=toISO(obj.date)||"";
-    if(!tx.description){alert("Enter description"); return;}
-    if((tx.frequency==="monthly"||tx.frequency==="4-weekly")&&!tx.date){alert("Choose start date"); return;}
+    const tx={
+        description:(obj.description||"").trim(),
+        amount:parseFloat(obj.amount)||0,
+        type: obj.type || 'expense',
+        frequency: obj.frequency || 'irregular',
+        category: obj.category || ""
+    };
+    tx.date = toISO(obj.date) || "";
+    if(!tx.description){ alert("Enter description"); return;}
+    if((tx.frequency==="monthly" || tx.frequency==="4-weekly") && !tx.date){ alert("Choose start date"); return;}
     transactions.push(tx);
-    transactions.sort((a,b)=>new Date(a.date||0)-new Date(b.date||0));
-    saveTransactions(); renderTransactionTable(); renderProjectionTable();
+    transactions.sort((a,b)=>new Date(a.date||0) - new Date(b.date||0));
+    saveTransactions();
+    renderTransactionTable();
+    renderProjectionTable();
 }
-addTxButton.addEventListener("click",()=>{
+
+addTxButton.addEventListener("click", ()=>{
     addTransactionObj({
-        date:txDate.value, description:txDesc.value, type:txType.value,
-        amount:txAmount.value, frequency:txFrequency.value, category:txCategorySelect.value||""
+        date: txDate.value,
+        description: txDesc.value,
+        type: txType.value,
+        amount: txAmount.value,
+        frequency: txFrequency.value,
+        category: txCategorySelect.value || ""
     });
     txDesc.value=""; txAmount.value=""; txDate.value=""; txCategorySelect.value=""; txFrequency.value="irregular"; txType.value="expense";
 });
-function deleteTransaction(idx){if(idx<0||idx>=transactions.length)return; transactions.splice(idx,1); saveTransactions(); renderTransactionTable(); renderProjectionTable();}
+
+function deleteTransaction(idx){
+    if(idx<0 || idx>=transactions.length) return;
+    transactions.splice(idx,1);
+    saveTransactions();
+    renderTransactionTable();
+    renderProjectionTable();
+}
 
 // Render Transactions Table
 function renderTransactionTable(){
-    transactionTableBody.innerHTML="";
-    let runningBalance=openingBalance||0;
-    const sorted=[...transactions].sort((a,b)=>new Date(a.date||0)-new Date(b.date||0));
-    sorted.forEach((tx,sortedIdx)=>{
+    transactionTableBody.innerHTML = "";
+    let runningBalance = openingBalance || 0;
+    const sorted = [...transactions].sort((a,b)=>new Date(a.date||0)-new Date(b.date||0));
+    sorted.forEach((tx, sortedIdx)=>{
         runningBalance += tx.type==='income'?tx.amount:-tx.amount;
-        const tr=document.createElement("tr");
-        tr.innerHTML=`
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
             <td>${tx.date?formatDate(tx.date):""}</td>
             <td>${tx.frequency==='irregular'?`<span class="irregular">${escapeHtml(tx.description)}</span>`:escapeHtml(tx.description)}</td>
             <td>${escapeHtml(tx.type)}</td>
@@ -97,77 +135,112 @@ function renderTransactionTable(){
             <td><button class="delete-btn" data-sorted-index="${sortedIdx}">Delete</button></td>
         `;
         transactionTableBody.appendChild(tr);
-        tr.querySelector(".delete-btn").addEventListener("click",(e)=>{
-            const sIdx=parseInt(e.target.getAttribute("data-sorted-index"),10);
-            const txToDelete=sorted[sIdx];
-            const origIdx=transactions.findIndex(t=>t.description===txToDelete.description && t.amount===txToDelete.amount && t.date===txToDelete.date && t.type===txToDelete.type && t.frequency===txToDelete.frequency && t.category===txToDelete.category);
+        tr.querySelector(".delete-btn").addEventListener("click", e=>{
+            const sIdx = parseInt(e.target.getAttribute("data-sorted-index"),10);
+            const txToDelete = sorted[sIdx];
+            const origIdx = transactions.findIndex(t=>t.description===txToDelete.description && t.amount===txToDelete.amount && t.date===txToDelete.date && t.type===txToDelete.type && t.frequency===txToDelete.frequency && t.category===txToDelete.category);
             if(origIdx!==-1 && confirm("Delete this transaction?")) deleteTransaction(origIdx);
         });
     });
 }
 
-// Recurrence check
-function txOccursOn(tx,dateIso){
-    if(!tx||!dateIso) return false;
+// --------- Recurrence ----------
+function txOccursOn(tx, dateIso){
+    if(!tx || !dateIso) return false;
     if(tx.frequency==='irregular') return tx.date===dateIso;
     if(!tx.date) return false;
-    const start=new Date(tx.date); const d=new Date(dateIso);
+    const start = new Date(tx.date);
+    const d = new Date(dateIso);
     if(d<start) return false;
-    if(tx.frequency==='monthly'){ const day=start.getDate(); const lastDay=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(); return d.getDate()===Math.min(day,lastDay);}
-    if(tx.frequency==='4-weekly'){ const diffDays=Math.floor((d-start)/(1000*60*60*24)); return diffDays>=0 && diffDays%28===0;}
+    if(tx.frequency==='monthly'){
+        const day=start.getDate();
+        const lastDay = new Date(d.getFullYear(), d.getMonth()+1,0).getDate();
+        return d.getDate()===Math.min(day,lastDay);
+    }
+    if(tx.frequency==='4-weekly'){
+        const diffDays = Math.floor((d-start)/(1000*60*60*24));
+        return diffDays>=0 && diffDays%28===0;
+    }
     return false;
 }
 
-// Render Projection
+// --------- Projection ----------
 function renderProjectionTable(){
     projectionTbody.innerHTML="";
-    if(!startDate){projectionTbody.innerHTML=`<tr><td colspan="5" class="small">Please set Start Date and press Save.</td></tr>`; return;}
-    const start=new Date(startDate); const end=new Date(start); end.setMonth(end.getMonth()+24); end.setDate(end.getDate()-1);
-    let runningBalance=openingBalance||0;
+    if(!startDate){ projectionTbody.innerHTML=`<tr><td colspan="5" class="small">Please set Start Date and press Save.</td></tr>`; return;}
+    const start = new Date(startDate);
+    const end = new Date(start); end.setMonth(end.getMonth()+24); end.setDate(end.getDate()-1);
+    let runningBalance = openingBalance || 0;
+
     for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
-        const iso=toISO(d);
-        const todays=transactions.filter(t=>txOccursOn(t,iso));
+        const iso = toISO(d);
+        const todays = transactions.filter(t=>txOccursOn(t, iso));
         let income=0, expense=0, descs=[];
-        todays.forEach(t=>{if(t.type==='income') income+=t.amount; else expense+=t.amount;
-            const label=t.frequency==='irregular'?`<span class="irregular">${escapeHtml(t.description)}${t.category?` (${escapeHtml(t.category)})`:''}</span>`:`${escapeHtml(t.description)}${t.category?` (${escapeHtml(t.category)})`:''}`;
+        todays.forEach(t=>{
+            if(t.type==='income') income+=t.amount; else expense+=t.amount;
+            const label = t.frequency==='irregular'?`<span class="irregular">${escapeHtml(t.description)}${t.category?` (${escapeHtml(t.category)})`:''}</span>`:`${escapeHtml(t.description)}${t.category?` (${escapeHtml(t.category)})`:''}`;
             descs.push(label);
         });
         runningBalance += income-expense;
         const tr=document.createElement("tr");
-        tr.setAttribute("data-date",iso);
+        tr.setAttribute("data-date", iso);
         if(runningBalance<0) tr.classList.add("negative");
-        tr.innerHTML=`<td>${formatDate(iso)}</td><td>${descs.join("<br>")}</td><td>${income>0?income.toFixed(2):""}</td><td>${expense>0?expense.toFixed(2):""}</td><td>${runningBalance.toFixed(2)}</td>`;
+        tr.innerHTML = `<td>${formatDate(iso)}</td><td>${descs.join("<br>")}</td><td>${income>0?income.toFixed(2):""}</td><td>${expense>0?expense.toFixed(2):""}</td><td>${runningBalance.toFixed(2)}</td>`;
         projectionTbody.appendChild(tr);
     }
 }
 
-// Projection Find / Find Next
-projectionFindNextBtn.addEventListener("click",()=>{
-    const q=(projectionFindInput.value||"").trim().toLowerCase();
-    if(!q) return alert("Enter search text");
-    const rows=Array.from(projectionTbody.querySelectorAll("tr"));
-    if(rows.length===0) return alert("No projection rows");
-    let start=lastProjectionFindIndex+1; if(start>=rows.length) start=0;
+// --------- Projection Find / Find Next ----------
+projectionFindNextBtn.addEventListener("click", ()=>{
+    const q = (projectionFindInput.value||"").trim().toLowerCase();
+    if(!q){ alert("Enter search text"); return;}
+    const rows = Array.from(projectionTbody.querySelectorAll("tr"));
+    if(rows.length===0){ alert("No projection rows"); return;}
+    let start = lastProjectionFindIndex+1; if(start>=rows.length) start=0;
     for(let i=0;i<rows.length;i++){
         const idx=(start+i)%rows.length; const row=rows[idx];
         if(row.textContent.toLowerCase().includes(q)){
             rows.forEach(r=>r.classList.remove("projection-match-highlight"));
             row.classList.add("projection-match-highlight");
-            row.scrollIntoView({behavior:"smooth",block:"center"});
-            lastProjectionFindIndex=idx;
+            row.scrollIntoView({behavior:"smooth", block:"center"});
+            lastProjectionFindIndex = idx;
             return;
         }
     }
-    alert("No more matches"); lastProjectionFindIndex=-1;
+    alert("No more matches");
+    lastProjectionFindIndex=-1;
 });
-projectionFindInput.addEventListener("input",()=>lastProjectionFindIndex=-1);
+projectionFindInput.addEventListener("input", ()=> lastProjectionFindIndex=-1);
 
-// Projection Totals
-calculateTotalBtn.addEventListener("click",()=>{
-    const from=toISO(totalFromInput.value), to=toISO(totalToInput.value);
-    const descFilter=(totalDescInput.value||"").toLowerCase();
-    const catFilter=(totalCatInput.value||"").toLowerCase();
-    if(!from||!to){alert("Select From and To dates"); return;}
-    if(new Date(from)>new Date(to)){alert("From must be before To"); return;}
+// --------- Projection Totals ----------
+calculateTotalBtn.addEventListener("click", ()=>{
+    const from = toISO(totalFromInput.value);
+    const to = toISO(totalToInput.value);
+    const descFilter = (totalDescInput.value||"").toLowerCase();
+    const catFilter = (totalCatInput.value||"").toLowerCase();
+    if(!from || !to){ alert("Select From and To dates"); return;}
+    if(new Date(from) > new Date(to)){ alert("From must be before To"); return;}
     let totalIncome=0, totalExpense=0;
-    for(let d=new Date(from); d<=new Date
+    for(let d=new Date(from); d<=new Date(to); d.setDate(d.getDate()+1)){
+        const iso = toISO(d);
+        const todays = transactions.filter(t=>txOccursOn(t, iso));
+        todays.forEach(t=>{
+            if(descFilter && !t.description.toLowerCase().includes(descFilter)) return;
+            if(catFilter && !t.category.toLowerCase().includes(catFilter)) return;
+            if(t.type==='income') totalIncome += t.amount;
+            else totalExpense += t.amount;
+        });
+    }
+    alert(`Total Income: £${totalIncome.toFixed(2)}\nTotal Expense: £${totalExpense.toFixed(2)}`);
+});
+
+// --------- Back-to-top ---------
+document.getElementById("back-to-top").addEventListener("click", ()=> window.scrollTo({top:0, behavior:"smooth"}));
+
+// --------- Init ---------
+function init(){
+    updateCategoryDropdown();
+    renderTransactionTable();
+    renderProjectionTable();
+}
+init();
