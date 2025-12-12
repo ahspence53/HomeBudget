@@ -1,3 +1,4 @@
+/* ---------------- Basic Page ---------------- */
 body {
     font-family: Arial, sans-serif;
     margin: 18px;
@@ -6,9 +7,8 @@ body {
 }
 
 h1 { margin: 0 0 10px 0; }
-.version-text { font-size: 0.6em; margin-left: 12px; font-weight: normal; }
 
-/* Sections */
+/* ---------------- Sections ---------------- */
 section {
     background: white;
     padding: 16px;
@@ -17,7 +17,7 @@ section {
     box-shadow: 0 0 6px rgba(0,0,0,0.06);
 }
 
-/* Controls */
+/* ---------------- Controls (Add Transaction / Find / Go) ---------------- */
 .controls-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -25,43 +25,88 @@ section {
     margin-bottom: 12px;
 }
 
-.control-cell input,
-.control-cell select { padding: 10px; font-size: 1rem; width: 100%; }
-
-.control-cell button { width: 100%; margin-top: 4px; padding: 8px; border-radius: 5px; background:#2a7bff; color:white; border:none; cursor:pointer; }
-.control-cell button:hover { background:#1a5cd8; }
-
-.controls-row.small .control-cell { min-width:120px; }
-
-/* Tables */
-table { width:100%; border-collapse: collapse; min-width:700px; }
-thead { background:#2a7bff; color:white; }
-th, td { padding:10px; border-bottom:1px solid #e5e7eb; text-align:left; }
-thead th { position: sticky; top: 0; z-index: 10; }
-tbody tr:nth-child(even) { background:#f1f5ff; }
-tbody tr:nth-child(odd) { background:#ffffff; }
-tbody tr:hover { background:#dfe9ff; }
-td.income { color:#1a8f2e; font-weight:bold; }
-td.expense { color:#cc0000; font-weight:bold; }
-.highlight { background: #fff59d !important; }
-.projection-match-highlight { background: #fff59d !important; }
-.negative { background: #ffe6e6; }
-.irregular { font-weight: 700; }
-.small { font-size: .9rem; color:#444; }
-
-/* Sticky Find/Controls */
-.projection-controls,
-.controls-row.small,
-.projection-total-search {
-    position: sticky;
-    top: 0;
-    background: white;
-    padding: 8px 0;
-    z-index: 20;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.control-cell {
+    width: 100%;
 }
 
-/* Floating Back-to-Top */
+.control-cell input,
+.control-cell select {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.control-cell button {
+    width: 100%;
+    margin-top: 4px;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    background: #2a7bff;
+    color: white;
+    cursor: pointer;
+}
+
+.control-cell button:hover { background: #1a5cd8; }
+
+/* ---------------- Small Controls ---------------- */
+.controls-row.small .control-cell {
+    min-width: 120px;
+}
+
+/* ---------------- Labels ---------------- */
+label {
+    font-weight: bold;
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* ---------------- Tables ---------------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+thead {
+    background: #2a7bff;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+tbody tr:nth-child(even) { background: #f1f5ff; }
+tbody tr:nth-child(odd) { background: #ffffff; }
+tbody tr:hover { background: #dfe9ff; }
+
+.irregular { font-weight: bold; }
+
+button.edit-btn,
+button.delete-btn {
+    margin: 0 2px;
+    padding: 4px 8px;
+    font-size: 0.85rem;
+}
+
+/* ---------------- Highlights ---------------- */
+.projection-match-highlight {
+    background: #fff59d !important;
+}
+
+.negative {
+    background: #ffe6e6;
+}
+
+/* ---------------- Floating Back-to-Top Button ---------------- */
 .floating-top {
     position: fixed;
     bottom: 20px;
@@ -76,22 +121,9 @@ td.expense { color:#cc0000; font-weight:bold; }
     z-index: 2147483647;
 }
 
-/* Responsive */
-@media (max-width:600px){
-    .controls-row { grid-template-columns: 1fr; }
-
-    body { font-family: Arial,sans-serif; margin:18px; background:#f4f6f8; color:#222; }
-h1 { margin:0 0 10px 0; }
-
-section { background:white; padding:16px; margin-bottom:24px; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.06); }
-
-.controls-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:16px; margin-bottom:12px; }
-.control-cell { width:100%; }
-.control-cell input, .control-cell select { padding:10px; font-size:1rem; border:1px solid #bbb; border-radius:4px; box-sizing:border-box; }
-.control-cell button { width:100%; margin-top:4px; padding:8px; border:none; border-radius:5px; background:#2a7bff; color:white; cursor:pointer; }
-.control-cell button:hover { background:#1a5cd8; }
-
-table { width:100%; border-collapse:collapse; min-width:700px; }
-thead { background:#2a7bff; color:white; }
-th, td { padding:10px; border-bottom:1px solid #e5e7eb; text-align:left
+/* ---------------- Responsive ---------------- */
+@media (max-width: 600px) {
+    .controls-row {
+        grid-template-columns: 1fr;
+    }
 }
