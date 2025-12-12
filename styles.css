@@ -1,3 +1,4 @@
+/* ---------------- Basic Page ---------------- */
 body {
     font-family: Arial, sans-serif;
     margin: 18px;
@@ -7,6 +8,7 @@ body {
 
 h1 { margin: 0 0 10px 0; }
 
+/* ---------------- Sections ---------------- */
 section {
     background: white;
     padding: 16px;
@@ -15,6 +17,7 @@ section {
     box-shadow: 0 0 6px rgba(0,0,0,0.06);
 }
 
+/* ---------------- Controls (Add Transaction / Find / Go) ---------------- */
 .controls-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -48,12 +51,14 @@ section {
 
 .control-cell button:hover { background: #1a5cd8; }
 
+/* ---------------- Labels ---------------- */
 label {
     font-weight: bold;
     margin-bottom: 6px;
     display: block;
 }
 
+/* ---------------- Tables ---------------- */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -80,21 +85,16 @@ tbody tr:hover { background: #dfe9ff; }
 
 .irregular { font-weight: bold; }
 
-button.edit-btn,
-button.delete-btn {
-    margin: 0 2px;
-    padding: 4px 8px;
-    font-size: 0.85rem;
-}
-
+/* ---------------- Highlights ---------------- */
 .projection-match-highlight {
     background: #fff59d !important;
 }
 
-.neg-row {
+.negative, .neg-row {
     background: #ffe6e6;
 }
 
+/* ---------------- Floating Back-to-Top Button ---------------- */
 .floating-top {
     position: fixed;
     bottom: 20px;
@@ -109,6 +109,50 @@ button.delete-btn {
     z-index: 2147483647;
 }
 
+/* ---------------- Floating Find ---------------- */
+.floating-find {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background: #2a7bff;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    z-index: 9999;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.floating-find input {
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: none;
+    font-size: 0.9rem;
+}
+
+.floating-find button {
+    background: #1a5cd8;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: white;
+    cursor: pointer;
+}
+
+.floating-find button:hover {
+    background: #0f3d99;
+}
+
+/* ---------------- Responsive ---------------- */
 @media (max-width: 600px) {
-    .controls-row { grid-template-columns: 1fr; }
+    .controls-row {
+        grid-template-columns: 1fr;
+    }
+    .floating-find {
+        top: auto;
+        bottom: 80px;
+        right: 20px;
+    }
 }
