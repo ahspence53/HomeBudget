@@ -1,92 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Home Budget Tracker</title>
-    <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-
-<header class="top-banner">
-    <h1>Home Budget Tracker</h1>
-    <span class="version-label">Version 1 — December 2025</span>
-</header>
-
-<section id="config">
-    <h2>Configuration</h2>
-    <label>Start Date: <input type="date" id="start-date"></label>
-    <label>Opening Balance: <input type="number" id="opening-balance" step="0.01"></label>
-    <button id="save-config">Save</button>
-</section>
-
-<section id="add-transaction-section">
-    <h2>Add Transaction</h2>
-
-    <!-- Row 1: Description + Amount + Type -->
-    <div class="controls-row">
-        <div class="control-cell"><input type="text" id="tx-desc" placeholder="Description" /></div>
-        <div class="control-cell"><input type="number" id="tx-amount" placeholder="Amount" step="0.01" /></div>
-        <div class="control-cell"><select id="tx-type">
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-        </select></div>
-    </div>
-
-    <!-- Row 2: Frequency + Date + Category select -->
-    <div class="controls-row">
-        <div class="control-cell"><select id="tx-frequency">
-            <option value="irregular">Irregular</option>
-            <option value="monthly">Monthly</option>
-            <option value="4-weekly">4-Weekly</option>
-        </select></div>
-        <div class="control-cell"><input type="date" id="tx-date" /></div>
-        <div class="control-cell"><select id="tx-category">
-            <option value="" disabled>Select category</option>
-        </select></div>
-    </div>
-
-    <!-- Row 3: New category + Add category + Add transaction -->
-    <div class="controls-row">
-        <div class="control-cell"><input type="text" id="new-category" placeholder="Add new category" /></div>
-        <div class="control-cell"><button id="add-category">Add Category</button></div>
-        <div class="control-cell"><button id="add-transaction">Add Transaction</button></div>
-    </div>
-
-    <!-- Row 4: Find (simple) / Advanced Search trigger / Go to date -->
-    <div class="controls-row small find-controls">
-        <div class="control-cell find-inline">
-            <label>Find (projection descriptions): <input type="text" id="find-input" placeholder="e.g. Aviva Life"></label>
-            <button id="find-next">Find Next</button>
-        </div>
-        <div class="control-cell"><button id="open-advanced-search">Advanced Search</button></div>
-        <div class="control-cell"><label>Go to date: <input type="date" id="goto-date"></label></div>
-        <div class="control-cell"><button id="goto-date-btn">Go</button></div>
-    </div>
-</section>
-
-<section id="transactions">
-    <h2>Transactions</h2>
-
-    <!-- Range search UI removed (we now use modal advanced search) -->
-
-    <div id="rangeSearchResults"></div>
-
-    <table id="transaction-table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>Category</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-</section>
-
 <section id="projection-section">
     <h2>24-Month Projection</h2>
     <p class="small">Shows every day for 24 months from the configured Start Date. Recurring transactions: monthly / 4-weekly (28 days) / irregular.</p>
@@ -94,6 +5,14 @@
     <div class="projection-controls">
         <label><input type="checkbox" id="showOnlyNegative"> Show only days with negative balance</label>
         <label><input type="checkbox" id="highlightNegatives"> Highlight negative daily balance rows</label>
+    </div>
+
+    <!-- Left-side floating Find Panel -->
+    <div id="projection-find-panel">
+        <label for="projection-find-input">Find:</label>
+        <input type="text" id="projection-find-input" placeholder="Search description, category or date">
+        <button id="projection-find-btn">Find</button>
+        <button id="projection-find-next-btn">Find Next</button>
     </div>
 
     <table id="projection-table">
@@ -109,67 +28,3 @@
         <tbody></tbody>
     </table>
 </section>
-
-<!-- Floating back-to-top button -->
-<button id="back-to-top" class="floating-top">⬆ Top</button>
-
-<!-- Advanced Search Modal (hidden by default) -->
-<div id="adv-overlay" class="modal-overlay" aria-hidden="true">
-    <div class="modal">
-        <header class="modal-header">
-            <h3>Advanced Search (projection)</h3>
-            <button id="close-advanced-search" class="modal-close">✕</button>
-        </header>
-
-        <div class="modal-body">
-            <div class="modal-row">
-                <label>Description contains: <input type="text" id="adv-desc" placeholder="part of description"></label>
-            </div>
-
-            <div class="modal-row">
-                <label>Category equals: 
-                    <select id="adv-category">
-                        <option value="">(any)</option>
-                    </select>
-                </label>
-            </div>
-
-            <div class="modal-row">
-                <label>From date: <input type="date" id="adv-from"></label>
-                <label>To date: <input type="date" id="adv-to"></label>
-            </div>
-
-            <div class="modal-row">
-                <label>Amount field:
-                    <select id="adv-amount-field">
-                        <option value="none">(ignore)</option>
-                        <option value="income">Income</option>
-                        <option value="expense">Expense</option>
-                        <option value="daily">Daily Balance</option>
-                    </select>
-                </label>
-
-                <label>Comparator:
-                    <select id="adv-amount-compare">
-                        <option value="=">=</option>
-                        <option value=">">&gt;</option>
-                        <option value="<">&lt;</option>
-                    </select>
-                </label>
-
-                <label>Amount: <input type="number" id="adv-amount" step="0.01" /></label>
-            </div>
-
-            <div class="modal-row modal-actions">
-                <button id="adv-search-btn">Search & Highlight</button>
-                <button id="adv-clear-btn">Clear Highlights</button>
-            </div>
-
-            <div id="adv-feedback" class="modal-feedback"></div>
-        </div>
-    </div>
-</div>
-
-<script src="app.js"></script>
-</body>
-</html>
