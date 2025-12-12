@@ -1,109 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Home Budget Tracker</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Home Budget Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<header style="background-color: lightblue; padding:10px;">
-    <h1 style="display:inline-block;">Home Budget Tracker</h1>
-    <span style="margin-left:20px; font-size:0.9rem;">Version 1. December 2025</span>
+<header>
+  <h1>Home Budget Tracker</h1>
+  <span class="version">Version 1 — Enhanced</span>
 </header>
 
-<section id="config">
+<main>
+  <section id="config" class="panel">
     <h2>Configuration</h2>
-    <label>Start Date: <input type="date" id="start-date"></label>
-    <label>Opening Balance: <input type="number" id="opening-balance" step="0.01"></label>
-    <button id="save-config">Save</button>
-</section>
+    <div class="row">
+      <label>Start Date: <input type="date" id="start-date"></label>
+      <label>Opening Balance: <input type="number" id="opening-balance" step="0.01"></label>
+      <button id="save-config" class="primary">Save</button>
+      <button id="export-csv">Export Projection CSV</button>
+    </div>
+  </section>
 
-<section id="add-transaction-section">
+  <section id="add-transaction-section" class="panel">
     <h2>Add Transaction</h2>
     <div class="controls-row">
-        <div class="control-cell"><input type="text" id="tx-desc" placeholder="Description" /></div>
-        <div class="control-cell"><input type="number" id="tx-amount" placeholder="Amount" step="0.01" /></div>
-        <div class="control-cell"><select id="tx-type">
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-        </select></div>
+      <input type="text" id="tx-desc" placeholder="Description" />
+      <input type="number" id="tx-amount" placeholder="Amount" step="0.01" />
+      <select id="tx-type"><option value="income">Income</option><option value="expense">Expense</option></select>
+      <select id="tx-frequency"><option value="irregular">Irregular</option><option value="monthly">Monthly</option><option value="4-weekly">4-Weekly</option></select>
+      <input type="date" id="tx-date" />
+      <select id="tx-category"><option value="" disabled selected>Select category</option></select>
+      <input type="text" id="new-category" placeholder="Add category" />
+      <button id="add-category">Add</button>
+      <button id="add-transaction" class="primary">Add Transaction</button>
     </div>
-    <div class="controls-row">
-        <div class="control-cell"><select id="tx-frequency">
-            <option value="irregular">Irregular</option>
-            <option value="monthly">Monthly</option>
-            <option value="4-weekly">4-Weekly</option>
-        </select></div>
-        <div class="control-cell"><input type="date" id="tx-date" /></div>
-        <div class="control-cell"><select id="tx-category">
-            <option value="" disabled selected>Select category</option>
-        </select></div>
-    </div>
-    <div class="controls-row">
-        <div class="control-cell"><input type="text" id="new-category" placeholder="Add new category" /></div>
-        <div class="control-cell"><button id="add-category">Add Category</button></div>
-        <div class="control-cell"><button id="add-transaction">Add Transaction</button></div>
-    </div>
-</section>
+  </section>
 
-<section id="transactions">
+  <section id="transactions" class="panel">
     <h2>Transactions</h2>
-    <button id="toggle-irregular">Toggle Irregular Transactions</button>
-    <table id="transaction-table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>Category</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
+    <button id="toggle-irregular">Toggle Irregular</button>
+    <table id="transaction-table" aria-label="Transactions table">
+      <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Category</th><th>Actions</th></tr></thead>
+      <tbody></tbody>
     </table>
-</section>
+  </section>
 
-<section id="projection-section">
+  <section id="projection-section" class="panel">
     <h2>24-Month Projection</h2>
-    <p class="small">Shows every day for 24 months from the configured Start Date. Recurring transactions: monthly / 4-weekly (28 days) / irregular.</p>
 
-    <div class="projection-controls">
-        <label><input type="checkbox" id="showOnlyNegative"> Show only days with negative balance</label>
-        <label><input type="checkbox" id="highlightNegatives"> Highlight negative daily balance rows</label>
+    <div class="chart-wrapper">
+      <canvas id="balance-chart" width="900" height="200" aria-label="Running balance chart"></canvas>
     </div>
 
-    <table id="projection-table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Descriptions</th>
-                <th>Income</th>
-                <th>Expense</th>
-                <th class="daily-balance-col">Daily Balance</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
+    <div class="projection-controls row">
+      <label><input type="checkbox" id="showOnlyNegative"> Show only days with negative balance</label>
+      <label><input type="checkbox" id="highlightNegatives"> Highlight negative daily balance rows</label>
+      <label>From: <input type="date" id="total-from-date"></label>
+      <label>To: <input type="date" id="total-to-date"></label>
+      <input type="text" id="total-desc" placeholder="Desc filter (optional)">
+      <input type="text" id="total-cat" placeholder="Category filter (optional)">
+      <button id="calculate-total-btn">Calculate Total</button>
+    </div>
+
+    <table id="projection-table" aria-label="Projection table">
+      <thead><tr><th>Date</th><th>Descriptions</th><th>Income</th><th>Expense</th><th>Daily Balance</th></tr></thead>
+      <tbody></tbody>
     </table>
+  </section>
+</main>
 
-    <div class="projection-total">
-        <label>From: <input type="date" id="total-from-date"></label>
-        <label>To: <input type="date" id="total-to-date"></label>
-        <label>Description: <input type="text" id="total-desc" placeholder="Optional"></label>
-        <label>Category: <input type="text" id="total-cat" placeholder="Optional"></label>
-        <button id="calculate-total-btn">Calculate Total</button>
-    </div>
-</section>
-
-<!-- Floating sticky Find -->
-<div id="floating-find" class="floating-find">
-    <input type="text" id="projection-find-input" placeholder="Find..." />
-    <button id="projection-find-next">Find Next</button>
+<!-- Floating sticky Find toolbar -->
+<div id="floating-find" class="floating-find" role="region" aria-label="Find toolbar">
+  <input id="projection-find-input" type="text" placeholder="Find (date or text) — e.g. 28/3/2027 or Rent" aria-label="Find input"/>
+  <button id="projection-find-prev" title="Find Previous">◀</button>
+  <button id="projection-find-next" title="Find Next">▶</button>
+  <span id="find-counter" aria-live="polite">0/0</span>
 </div>
 
-<button id="back-to-top" class="floating-top">⬆ Top</button>
+<button id="back-to-top" class="floating-top" aria-label="Back to top">⬆ Top</button>
 
 <script src="app.js"></script>
 </body>
