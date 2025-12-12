@@ -91,11 +91,10 @@ button.delete-btn {
 }
 
 /* Negative daily balance row */
-.negative {
-    background-color: #ffe6e6; /* soft red for negative balances */
+.negative, .neg-row {
+    background-color: #ffe6e6;
 }
 
-/* Highlight individual negative cell if needed */
 .neg-cell {
     color: #d8000c;
     font-weight: bold;
@@ -104,7 +103,7 @@ button.delete-btn {
 /* Irregular transaction highlight */
 .irregular {
     font-weight: bold;
-    background-color: #fff4e6; /* subtle peach for irregular transactions */
+    background-color: #fff4e6;
     border-radius: 3px;
     padding: 1px 3px;
 }
