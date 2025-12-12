@@ -20,10 +20,11 @@ const saveConfigButton = document.getElementById("save-config");
 const transactionTableBody = document.querySelector("#transaction-table tbody");
 const projectionTbody = document.querySelector("#projection-table tbody");
 
-// Projection Find
+// Projection Find (Option A: single Find Next button)
 const projectionFindInput = document.getElementById("projection-find-input");
 const projectionFindNextBtn = document.getElementById("projection-find-next");
 let lastProjectionFindIndex = -1;
+let lastProjectionFindQuery = "";
 
 // Projection Totals
 const totalFromInput = document.getElementById("total-from-date");
@@ -36,10 +37,40 @@ const calculateTotalBtn = document.getElementById("calculate-total-btn");
 const toggleIrregularBtn = document.getElementById("toggle-irregular");
 let showIrregular = true;
 
+// Projection options
+const showOnlyNegativeCheckbox = document.getElementById("showOnlyNegative");
+const highlightNegativesCheckbox = document.getElementById("highlightNegatives");
+
 // ---------- Utils ----------
 function toISO(d){ if(!d) return ""; const date=new Date(d); if(isNaN(date)) return ""; return date.toISOString().split("T")[0]; }
 function formatDate(iso){ if(!iso) return ""; const d=new Date(iso); if(isNaN(d)) return iso; return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}); }
 function escapeHtml(str){return str?String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):"";}
+
+// Try to parse a variety of date input forms into ISO (best-effort)
+function tryParseToISO(q){
+    if(!q) return "";
+    // direct parse
+    let d = new Date(q);
+    if(!isNaN(d)) return toISO(d);
+    // common separators normalized
+    const normalized = q.replace(/-/g,'/').replace(/\s+/g,' ').trim();
+    d = new Date(normalized);
+    if(!isNaN(d)) return toISO(d);
+    // fallback: attempt dd mmm yyyy patterns
+    // simple manual dd mmm yyyy detection
+    const dt = normalized.match(/(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})/);
+    if(dt){
+        const day = parseInt(dt[1],10);
+        const mon = dt[2];
+        const year = parseInt(dt[3],10);
+        const monIndex = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"].indexOf(mon.toLowerCase().substr(0,3));
+        if(monIndex>=0){
+            const dd = new Date(year, monIndex, day);
+            if(!isNaN(dd)) return toISO(dd);
+        }
+    }
+    return "";
+}
 
 // ---------- Categories ----------
 function updateCategoryDropdown(){
@@ -127,6 +158,8 @@ function renderTransactionTable(){
             txFrequency.value=tx.frequency; txDate.value=tx.date; txCategorySelect.value=tx.category;
             const origIdx=transactions.findIndex(t=>t.description===tx.description && t.amount===tx.amount && t.date===tx.date && t.type===tx.type && t.frequency===tx.frequency && t.category===tx.category);
             if(origIdx!==-1) transactions.splice(origIdx,1);
+            saveTransactions();
+            renderTransactionTable();
         });
     });
 }
@@ -142,8 +175,15 @@ function txOccursOn(tx, dateIso){
     if(!tx.date) return false;
     const start=new Date(tx.date), d=new Date(dateIso);
     if(d<start) return false;
-    if(tx.frequency==='monthly'){const day=start.getDate(); const lastDay=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(); return d.getDate()===Math.min(day,lastDay);}
-    if(tx.frequency==='4-weekly'){const diffDays=Math.floor((d-start)/(1000*60*60*24)); return diffDays>=0 && diffDays%28===0;}
+    if(tx.frequency==='monthly'){
+        const day=start.getDate();
+        const lastDay=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+        return d.getDate()===Math.min(day,lastDay);
+    }
+    if(tx.frequency==='4-weekly'){
+        const diffDays=Math.floor((d-start)/(1000*60*60*24));
+        return diffDays>=0 && diffDays%28===0;
+    }
     return false;
 }
 
@@ -153,35 +193,133 @@ function renderProjectionTable(){
     if(!startDate){projectionTbody.innerHTML=`<tr><td colspan="5" class="small">Please set Start Date and press Save.</td></tr>`; return;}
     const start=new Date(startDate); const end=new Date(start); end.setMonth(end.getMonth()+24); end.setDate(end.getDate()-1);
     let runningBalance=openingBalance||0;
+
     for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
-        const iso=toISO(d); const todays=transactions.filter(t=>txOccursOn(t,iso));
+        const iso=toISO(d);
+
+        // collect today's transactions
+        let todays = transactions.filter(t=>txOccursOn(t,iso));
+
+        // de-duplicate generated or identical trans with same date/desc/amount/type/frequency/category
+        const seen = new Set();
+        todays = todays.filter(t=>{
+            const key = `${t.date}|${t.description}|${t.amount}|${t.type}|${t.frequency}|${t.category}`;
+            if(seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+
+        // compute totals and description list
         let income=0, expense=0, descs=[];
-        todays.forEach(t=>{if(t.type==='income') income+=t.amount; else expense+=t.amount; descs.push(t.frequency==='irregular'?`<span class="irregular">${escapeHtml(t.description)}${t.category?` (${escapeHtml(t.category)})`:''}</span>`:`${escapeHtml(t.description)}${t.category?` (${escapeHtml(t.category)})`:''}`);});
-        runningBalance+=income-expense;
-        const tr=document.createElement("tr"); tr.setAttribute("data-date",iso); if(runningBalance<0) tr.classList.add("negative");
-        tr.innerHTML=`<td>${formatDate(iso)}</td><td>${descs.join("<br>")}</td><td>${income>0?income.toFixed(2):""}</td><td>${expense>0?expense.toFixed(2):""}</td><td>${runningBalance.toFixed(2)}</td>`;
+        todays.forEach(t=>{
+            if(t.type==='income') income+=t.amount; else expense+=t.amount;
+            const pretty = `${escapeHtml(t.description)}${t.category?` (${escapeHtml(t.category)})`:''}`;
+            if(t.frequency==='irregular') descs.push(`<span class="irregular">${pretty}</span>`);
+            else descs.push(pretty);
+        });
+
+        runningBalance += (income - expense);
+
+        // skip row if Show only negatives is checked and balance not negative
+        if(showOnlyNegativeCheckbox && showOnlyNegativeCheckbox.checked && runningBalance >= 0) {
+            continue;
+        }
+
+        const tr=document.createElement("tr");
+        tr.setAttribute("data-date",iso);
+
+        // apply row highlight if user asked for whole-row highlighting of negatives
+        if(highlightNegativesCheckbox && highlightNegativesCheckbox.checked && runningBalance < 0){
+            tr.classList.add("neg-row");
+        }
+
+        // apply irregular-row marker (for rows containing irregular txns)
+        if(todays.some(t=>t.frequency==='irregular')){
+            // keep descriptions styled via span.irregular; no need to apply a class to the whole row
+        }
+
+        // build cells
+        const dateCell = `<td>${formatDate(iso)}</td>`;
+        const descCell = `<td>${descs.join("<br>")}</td>`;
+        const incomeCell = `<td>${income>0?income.toFixed(2):""}</td>`;
+        const expenseCell = `<td>${expense>0?expense.toFixed(2):""}</td>`;
+
+        // daily balance cell: add neg-cell class if negative
+        const balClass = runningBalance < 0 ? ' class="neg-cell"' : "";
+        const balCell = `<td${balClass}>${runningBalance.toFixed(2)}</td>`;
+
+        tr.innerHTML = dateCell + descCell + incomeCell + expenseCell + balCell;
         projectionTbody.appendChild(tr);
     }
 }
 
-// ---------- Projection Find ----------
-projectionFindNextBtn.addEventListener("click", ()=>{
-    const q=(projectionFindInput.value||"").trim().toLowerCase();
-    if(!q){alert("Enter search text"); return;}
-    const rows=Array.from(projectionTbody.querySelectorAll("tr"));
-    if(rows.length===0){alert("No projection rows"); return;}
-    let start=lastProjectionFindIndex+1; if(start>=rows.length) start=0;
-    for(let i=0;i<rows.length;i++){const idx=(start+i)%rows.length; const row=rows[idx];
-        if(row.textContent.toLowerCase().includes(q)){
+// ---------- Projection Find (single "Find Next" button) ----------
+function rowMatchesQuery(row, query){
+    if(!query) return false;
+    const q = query.toLowerCase().trim();
+    const asIso = tryParseToISO(q);
+    if(asIso){
+        if(row.getAttribute("data-date") === asIso) return true;
+        if(formatDate(asIso).toLowerCase().includes(q)) return true;
+    }
+    if(row.textContent.toLowerCase().includes(q)) return true;
+    return false;
+}
+
+function performFind(query){
+    const rows = Array.from(projectionTbody.querySelectorAll("tr"));
+    if(rows.length===0) return false;
+    for(let i=0;i<rows.length;i++){
+        if(rowMatchesQuery(rows[i], query)){
             rows.forEach(r=>r.classList.remove("projection-match-highlight"));
-            row.classList.add("projection-match-highlight");
-            row.scrollIntoView({behavior:"smooth",block:"center"});
-            lastProjectionFindIndex=idx; return;
+            rows[i].classList.add("projection-match-highlight");
+            rows[i].scrollIntoView({behavior:"smooth",block:"center"});
+            lastProjectionFindIndex = i;
+            lastProjectionFindQuery = query;
+            return true;
         }
     }
-    alert("No more matches"); lastProjectionFindIndex=-1;
+    lastProjectionFindIndex = -1;
+    lastProjectionFindQuery = "";
+    return false;
+}
+
+function findNext(){
+    const q = (projectionFindInput.value||"").trim();
+    const query = q || lastProjectionFindQuery;
+    if(!query){ alert("Enter search text"); return; }
+    const rows = Array.from(projectionTbody.querySelectorAll("tr"));
+    if(rows.length===0){ alert("No projection rows"); return; }
+    let start = (lastProjectionFindIndex + 1) % rows.length;
+    for(let i=0;i<rows.length;i++){
+        const idx = (start + i) % rows.length;
+        if(rowMatchesQuery(rows[idx], query)){
+            rows.forEach(r=>r.classList.remove("projection-match-highlight"));
+            rows[idx].classList.add("projection-match-highlight");
+            rows[idx].scrollIntoView({behavior:"smooth",block:"center"});
+            lastProjectionFindIndex = idx;
+            lastProjectionFindQuery = query;
+            return;
+        }
+    }
+    alert("No matches found");
+    lastProjectionFindIndex = -1;
+    lastProjectionFindQuery = "";
+}
+
+projectionFindNextBtn.addEventListener("click", ()=>{
+    const q = (projectionFindInput.value||"").trim();
+    if(q && q !== lastProjectionFindQuery){
+        if(!performFind(q)) alert("No matches found");
+        return;
+    }
+    findNext();
 });
-projectionFindInput.addEventListener("input",()=>lastProjectionFindIndex=-1);
+
+projectionFindInput.addEventListener("input", ()=> {
+    lastProjectionFindIndex = -1;
+    // leave lastProjectionFindQuery until Find Next pressed
+});
 
 // ---------- Projection Totals ----------
 calculateTotalBtn.addEventListener("click", ()=>{
@@ -192,7 +330,11 @@ calculateTotalBtn.addEventListener("click", ()=>{
     let totalIncome=0, totalExpense=0;
     for(let d=new Date(from); d<=new Date(to); d.setDate(d.getDate()+1)){
         const iso=toISO(d); const todays=transactions.filter(t=>txOccursOn(t,iso));
-        todays.forEach(t=>{if(descFilter && !t.description.toLowerCase().includes(descFilter)) return; if(catFilter && !t.category.toLowerCase().includes(catFilter)) return; if(t.type==='income') totalIncome+=t.amount; else totalExpense+=t.amount;});
+        todays.forEach(t=>{
+            if(descFilter && !t.description.toLowerCase().includes(descFilter)) return;
+            if(catFilter && !t.category.toLowerCase().includes(catFilter)) return;
+            if(t.type==='income') totalIncome+=t.amount; else totalExpense+=t.amount;
+        });
     }
     alert(`Total Income: £${totalIncome.toFixed(2)}\nTotal Expense: £${totalExpense.toFixed(2)}`);
 });
