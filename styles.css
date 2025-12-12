@@ -11,8 +11,8 @@ h1 { margin: 0 0 10px 0; }
 /* ---------------- Sections ---------------- */
 section {
     background: white;
-    padding: 12px;
-    margin-bottom: 18px;
+    padding: 16px;        /* increased padding for breathing room */
+    margin-bottom: 24px;  /* more space between sections */
     border-radius: 8px;
     box-shadow: 0 0 6px rgba(0,0,0,0.06);
 }
@@ -21,17 +21,23 @@ section {
 .controls-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    margin-bottom: 8px;
+    gap: 16px;           /* increased gap for spacing */
+    margin-bottom: 12px; /* increased vertical spacing between rows */
 }
 
 .control-cell {
     width: 100%; /* input/button fills cell */
 }
 
-/* Buttons inside control cells */
-.controls-row button {
-    width: 100%; /* make all buttons full width */
+.control-cell input,
+.control-cell select {
+    padding: 10px;   /* slightly larger padding */
+    font-size: 1rem; /* improved readability */
+}
+
+.control-cell button {
+    width: 100%;     /* full-width buttons */
+    margin-top: 4px; /* small gap above buttons */
 }
 
 /* Small controls row (Find / Go) */
@@ -42,7 +48,6 @@ section {
 /* ---------------- Labels & Inputs ---------------- */
 label { font-weight: bold; margin-bottom: 6px; }
 input, select {
-    padding: 8px;
     border: 1px solid #bbb;
     border-radius: 4px;
     box-sizing: border-box;
