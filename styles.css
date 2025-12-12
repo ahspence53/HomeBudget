@@ -18,20 +18,20 @@ section {
 }
 
 /* ---------------- Config / Controls ---------------- */
-.config-row, .controls-row {
+.controls-row {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
+    margin-bottom: 4px;
 }
 
 .control-cell {
     flex: 1 1 150px;   /* grow, shrink, min width */
     min-width: 120px;
-    margin-bottom: 8px; /* vertical spacing */
 }
 
 .controls-row button {
-    flex: 0 0 auto; /* keep natural width */
+    flex: 0 0 auto; /* keep buttons natural width */
 }
 
 .controls-row.small .control-cell {
@@ -87,7 +87,7 @@ td.expense { color: #cc0000; font-weight: bold; }
     color: white;
     border: 1px solid #ccc;
     cursor: pointer;
-    z-index: 2147483647; /* ensures it's above sticky tables */
+    z-index: 2147483647;
 }
 
 /* ---------------- Responsive ---------------- */
