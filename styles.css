@@ -131,6 +131,7 @@ td.expense { color: #cc0000; font-weight: bold; }
     padding: 10px 14px;
     font-size: 14px;
     border-radius: 8px;
+        background: #eee;   /* <-- needed! */
     border: none;
     cursor: pointer;
     z-index: 9999;
