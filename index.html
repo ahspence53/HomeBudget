@@ -75,11 +75,6 @@
         <label><input type="checkbox" id="highlightNegatives"> Highlight negative daily balance rows</label>
     </div>
 
-    <div class="projection-find">
-        <label>Find: <input type="text" id="projection-find-input"></label>
-        <button id="projection-find-next">Find Next</button>
-    </div>
-
     <table id="projection-table">
         <thead>
             <tr>
@@ -101,6 +96,12 @@
         <button id="calculate-total-btn">Calculate Total</button>
     </div>
 </section>
+
+<!-- Floating sticky Find -->
+<div id="floating-find" class="floating-find">
+    <input type="text" id="projection-find-input" placeholder="Find..." />
+    <button id="projection-find-next">Find Next</button>
+</div>
 
 <button id="back-to-top" class="floating-top">⬆ Top</button>
 
