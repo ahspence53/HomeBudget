@@ -20,7 +20,7 @@ const saveConfigButton = document.getElementById("save-config");
 const transactionTableBody = document.querySelector("#transaction-table tbody");
 const projectionTbody = document.querySelector("#projection-table tbody");
 
-// Projection Find (Option A: single Find Next button)
+// Projection Find
 const projectionFindInput = document.getElementById("projection-find-input");
 const projectionFindNextBtn = document.getElementById("projection-find-next");
 let lastProjectionFindIndex = -1;
@@ -45,32 +45,6 @@ const highlightNegativesCheckbox = document.getElementById("highlightNegatives")
 function toISO(d){ if(!d) return ""; const date=new Date(d); if(isNaN(date)) return ""; return date.toISOString().split("T")[0]; }
 function formatDate(iso){ if(!iso) return ""; const d=new Date(iso); if(isNaN(d)) return iso; return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}); }
 function escapeHtml(str){return str?String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):"";}
-
-// Try to parse a variety of date input forms into ISO (best-effort)
-function tryParseToISO(q){
-    if(!q) return "";
-    // direct parse
-    let d = new Date(q);
-    if(!isNaN(d)) return toISO(d);
-    // common separators normalized
-    const normalized = q.replace(/-/g,'/').replace(/\s+/g,' ').trim();
-    d = new Date(normalized);
-    if(!isNaN(d)) return toISO(d);
-    // fallback: attempt dd mmm yyyy patterns
-    // simple manual dd mmm yyyy detection
-    const dt = normalized.match(/(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})/);
-    if(dt){
-        const day = parseInt(dt[1],10);
-        const mon = dt[2];
-        const year = parseInt(dt[3],10);
-        const monIndex = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"].indexOf(mon.toLowerCase().substr(0,3));
-        if(monIndex>=0){
-            const dd = new Date(year, monIndex, day);
-            if(!isNaN(dd)) return toISO(dd);
-        }
-    }
-    return "";
-}
 
 // ---------- Categories ----------
 function updateCategoryDropdown(){
@@ -97,8 +71,6 @@ saveConfigButton.addEventListener("click",()=>{
     localStorage.setItem('openingBalance', openingBalance);
     renderProjectionTable();
 });
-
-// Populate config inputs on load
 startDateInput.value = startDate;
 openingBalanceInput.value = isNaN(openingBalance) ? "" : openingBalance;
 
@@ -142,7 +114,6 @@ function renderTransactionTable(){
             </td>`;
         transactionTableBody.appendChild(tr);
 
-        // Delete
         tr.querySelector(".delete-btn").addEventListener("click", e=>{
             const sIdx=parseInt(e.target.getAttribute("data-sorted-index"),10);
             const txToDelete=sorted[sIdx];
@@ -150,7 +121,6 @@ function renderTransactionTable(){
             if(origIdx!==-1 && confirm("Delete this transaction?")) deleteTransaction(origIdx);
         });
 
-        // Edit
         tr.querySelector(".edit-btn").addEventListener("click", e=>{
             const sIdx=parseInt(e.target.getAttribute("data-sorted-index"),10);
             const tx=sorted[sIdx];
@@ -196,20 +166,17 @@ function renderProjectionTable(){
 
     for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
         const iso=toISO(d);
-
-        // collect today's transactions
         let todays = transactions.filter(t=>txOccursOn(t,iso));
 
-        // de-duplicate generated or identical trans with same date/desc/amount/type/frequency/category
-        const seen = new Set();
+        // Deduplicate same transaction per day
+        const uniqueDaily = new Set();
         todays = todays.filter(t=>{
-            const key = `${t.date}|${t.description}|${t.amount}|${t.type}|${t.frequency}|${t.category}`;
-            if(seen.has(key)) return false;
-            seen.add(key);
+            const key = `${t.description}|${t.type}|${t.amount}|${t.category}`;
+            if(uniqueDaily.has(key)) return false;
+            uniqueDaily.add(key);
             return true;
         });
 
-        // compute totals and description list
         let income=0, expense=0, descs=[];
         todays.forEach(t=>{
             if(t.type==='income') income+=t.amount; else expense+=t.amount;
@@ -220,32 +187,17 @@ function renderProjectionTable(){
 
         runningBalance += (income - expense);
 
-        // skip row if Show only negatives is checked and balance not negative
-        if(showOnlyNegativeCheckbox && showOnlyNegativeCheckbox.checked && runningBalance >= 0) {
-            continue;
-        }
+        if(showOnlyNegativeCheckbox && showOnlyNegativeCheckbox.checked && runningBalance>=0) continue;
 
         const tr=document.createElement("tr");
         tr.setAttribute("data-date",iso);
+        if(highlightNegativesCheckbox && highlightNegativesCheckbox.checked && runningBalance<0) tr.classList.add("neg-row");
 
-        // apply row highlight if user asked for whole-row highlighting of negatives
-        if(highlightNegativesCheckbox && highlightNegativesCheckbox.checked && runningBalance < 0){
-            tr.classList.add("neg-row");
-        }
-
-        // apply irregular-row marker (for rows containing irregular txns)
-        if(todays.some(t=>t.frequency==='irregular')){
-            // keep descriptions styled via span.irregular; no need to apply a class to the whole row
-        }
-
-        // build cells
         const dateCell = `<td>${formatDate(iso)}</td>`;
         const descCell = `<td>${descs.join("<br>")}</td>`;
         const incomeCell = `<td>${income>0?income.toFixed(2):""}</td>`;
         const expenseCell = `<td>${expense>0?expense.toFixed(2):""}</td>`;
-
-        // daily balance cell: add neg-cell class if negative
-        const balClass = runningBalance < 0 ? ' class="neg-cell"' : "";
+        const balClass = runningBalance<0 ? ' class="neg-cell"' : "";
         const balCell = `<td${balClass}>${runningBalance.toFixed(2)}</td>`;
 
         tr.innerHTML = dateCell + descCell + incomeCell + expenseCell + balCell;
@@ -253,43 +205,28 @@ function renderProjectionTable(){
     }
 }
 
-// ---------- Projection Find (single "Find Next" button) ----------
+// ---------- Projection Find ----------
 function rowMatchesQuery(row, query){
     if(!query) return false;
-    const q = query.toLowerCase().trim();
+    const q=query.toLowerCase().trim();
     const asIso = tryParseToISO(q);
     if(asIso){
-        if(row.getAttribute("data-date") === asIso) return true;
+        if(row.getAttribute("data-date")===asIso) return true;
         if(formatDate(asIso).toLowerCase().includes(q)) return true;
     }
     if(row.textContent.toLowerCase().includes(q)) return true;
     return false;
 }
 
-function performFind(query){
-    const rows = Array.from(projectionTbody.querySelectorAll("tr"));
-    if(rows.length===0) return false;
-    for(let i=0;i<rows.length;i++){
-        if(rowMatchesQuery(rows[i], query)){
-            rows.forEach(r=>r.classList.remove("projection-match-highlight"));
-            rows[i].classList.add("projection-match-highlight");
-            rows[i].scrollIntoView({behavior:"smooth",block:"center"});
-            lastProjectionFindIndex = i;
-            lastProjectionFindQuery = query;
-            return true;
-        }
-    }
-    lastProjectionFindIndex = -1;
-    lastProjectionFindQuery = "";
-    return false;
-}
-
 function findNext(){
     const q = (projectionFindInput.value||"").trim();
+    if(q && q !== lastProjectionFindQuery) lastProjectionFindIndex=-1; // reset if new query
     const query = q || lastProjectionFindQuery;
     if(!query){ alert("Enter search text"); return; }
+
     const rows = Array.from(projectionTbody.querySelectorAll("tr"));
     if(rows.length===0){ alert("No projection rows"); return; }
+
     let start = (lastProjectionFindIndex + 1) % rows.length;
     for(let i=0;i<rows.length;i++){
         const idx = (start + i) % rows.length;
@@ -303,23 +240,11 @@ function findNext(){
         }
     }
     alert("No matches found");
-    lastProjectionFindIndex = -1;
-    lastProjectionFindQuery = "";
+    lastProjectionFindIndex=-1;
+    lastProjectionFindQuery="";
 }
-
-projectionFindNextBtn.addEventListener("click", ()=>{
-    const q = (projectionFindInput.value||"").trim();
-    if(q && q !== lastProjectionFindQuery){
-        if(!performFind(q)) alert("No matches found");
-        return;
-    }
-    findNext();
-});
-
-projectionFindInput.addEventListener("input", ()=> {
-    lastProjectionFindIndex = -1;
-    // leave lastProjectionFindQuery until Find Next pressed
-});
+projectionFindNextBtn.addEventListener("click", findNext);
+projectionFindInput.addEventListener("input", ()=> { lastProjectionFindIndex=-1; });
 
 // ---------- Projection Totals ----------
 calculateTotalBtn.addEventListener("click", ()=>{
