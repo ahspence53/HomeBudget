@@ -1,32 +1,8 @@
-// ----------------------
-// Normalize stored transactions to ISO dates
-// ----------------------
-function normalizeStoredTransactions() {
-    let changed = false;
-    transactions = transactions.map(t => {
-        const d = new Date(t.date);
-        if (d instanceof Date && !isNaN(d)) {
-            const iso = d.toISOString().split('T')[0];
-            if (iso !== t.date) changed = true;
-            t.date = iso;
-        }
-        // ensure fields exist
-        t.frequency = t.frequency || 'irregular';
-        t.category = t.category || "";
-        t.description = t.description || "";
-        t.type = t.type || 'expense';
-        t.amount = parseFloat(t.amount) || 0;
-        return t;
-    });
-    if (changed) localStorage.setItem('transactions', JSON.stringify(transactions));
-}
-
-// call this at the start
-normalizeStoredTransactions();
-
 // ================================
-// app.js - Home Budget Tracker
-// Recurrence-enabled projection + transaction management
+// app.js - Home Budget Tracker (Option A layout)
+// - Normalizes stored dates on load
+// - Recurrence-enabled projection (monthly, 4-weekly, irregular)
+// - Transaction add/delete, categories, find, goto, highlights
 // ================================
 
 // ---------- Persistence / Data ----------
@@ -61,21 +37,19 @@ const gotoDateInput = document.getElementById("goto-date");
 const gotoDateBtn = document.getElementById("goto-date-btn");
 
 // ---------- Utilities ----------
+
 // Convert Date or string to ISO yyyy-mm-dd
 function toISO(dateLike) {
     if (!dateLike) return "";
-    // If already a Date
+    // If already a Date instance
     if (dateLike instanceof Date && !isNaN(dateLike)) {
         return dateLike.toISOString().split("T")[0];
     }
-    // If string: try to detect formats:
-    // - If looks like yyyy-mm-dd, return as-is (after basic validation)
-    // - If looks like dd/mm/yyyy or d/m/yyyy or d-m-yyyy, parse accordingly
+    // String handling
     const s = String(dateLike).trim();
-    // yyyy-mm-dd
+    // ISO-like yyyy-mm-dd
     const isoMatch = /^(\d{4})-(\d{2})-(\d{2})$/;
     if (isoMatch.test(s)) {
-        // Basic validation by constructing a date
         const d = new Date(s);
         if (!isNaN(d)) return d.toISOString().split("T")[0];
     }
@@ -89,13 +63,13 @@ function toISO(dateLike) {
         const d = new Date(year, month, day);
         if (!isNaN(d)) return d.toISOString().split("T")[0];
     }
-    // fallback: attempt Date constructor
+    // Some browsers accept mm/dd/yyyy — try Date fallback
     const d = new Date(s);
     if (!isNaN(d)) return d.toISOString().split("T")[0];
-    return ""; // could not parse
+    return "";
 }
 
-// simple ISO -> formatted dd-MMM-yyyy (en-GB)
+// Format ISO date to dd-MMM-yyyy (en-GB)
 function formatDate(iso) {
     if (!iso) return "";
     const d = new Date(iso);
@@ -103,32 +77,54 @@ function formatDate(iso) {
     return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-// normalize transactions loaded from storage (ensure date is ISO)
+// Escape text for safe HTML output
+function escapeHtml(str) {
+    if (!str) return "";
+    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// ---------- Normalize stored transactions (run on load) ----------
 function normalizeStoredTransactions() {
     let changed = false;
-    transactions = transactions.map(tx => {
+    transactions = (transactions || []).map(tx => {
         const t = Object.assign({}, tx);
-        // convert any stored date-like to ISO
-        const iso = toISO(t.date);
-        if (iso && iso !== t.date) {
-            t.date = iso;
-            changed = true;
-        }
-        // ensure numeric amount
-        t.amount = parseFloat(t.amount) || 0;
-        // default frequency
-        t.frequency = t.frequency || 'irregular';
-        t.category = t.category || "";
+        // ensure required fields exist
         t.description = t.description || "";
-        t.type = t.type || 'expense';
+        t.frequency = t.frequency || "irregular";
+        t.category = t.category || "";
+        t.type = t.type || "expense";
+        t.amount = parseFloat(t.amount) || 0;
+
+        // normalize date if present
+        if (t.date) {
+            const iso = toISO(t.date);
+            if (iso && iso !== t.date) {
+                t.date = iso;
+                changed = true;
+            } else if (!iso && t.date) {
+                // Try more aggressive parse: try to swap day/month if needed
+                const parts = String(t.date).split(/[\/\-\.]/).map(p => p.trim());
+                if (parts.length === 3) {
+                    // attempt dd/mm/yyyy -> ISO
+                    const day = parseInt(parts[0], 10), mon = parseInt(parts[1], 10)-1, yr = parseInt(parts[2], 10);
+                    const d = new Date(yr, mon, day);
+                    if (!isNaN(d)) {
+                        t.date = d.toISOString().split("T")[0];
+                        changed = true;
+                    }
+                }
+            }
+        }
         return t;
     });
-    if (changed) localStorage.setItem('transactions', JSON.stringify(transactions));
+    if (changed) {
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+    }
 }
 
 // ---------- Category handling ----------
 function updateCategoryDropdown() {
-    // maintain the "Select category" placeholder if empty
+    // keep a placeholder option
     txCategorySelect.innerHTML = '<option value="" disabled>Select category</option>';
     categories.forEach(cat => {
         const opt = document.createElement("option");
@@ -158,21 +154,20 @@ saveConfigButton.addEventListener("click", () => {
     openingBalance = parseFloat(openingBalanceInput.value) || 0;
     localStorage.setItem('startDate', startDate);
     localStorage.setItem('openingBalance', openingBalance);
-    // re-render projection on save
     renderProjectionTable();
 });
 
-// populate config inputs on load
+// populate config inputs
 startDateInput.value = startDate;
 openingBalanceInput.value = isNaN(openingBalance) ? "" : openingBalance;
 
-// ---------- Transactions: add / delete / persistence ----------
+// ---------- Transactions: add / delete / persist ----------
 function saveTransactions() {
     localStorage.setItem('transactions', JSON.stringify(transactions));
 }
 
+// Add transaction object (validates and normalizes)
 function addTransactionObj(obj) {
-    // obj: {date (string), description, type, amount, frequency, category}
     const tx = {
         description: String(obj.description || "").trim(),
         amount: parseFloat(obj.amount) || 0,
@@ -180,17 +175,15 @@ function addTransactionObj(obj) {
         frequency: obj.frequency || 'irregular',
         category: obj.category || ""
     };
-    // Normalize date to ISO for storage (allow blank for irregular? Require for irregular)
-    tx.date = toISO(obj.date) || "";
+    tx.date = toISO(obj.date) || ""; // normalized date or empty string
     // Validate
     if (!tx.description) { alert("Please enter a description."); return; }
-    // For irregular and recurring we expect appropriate dates - recurring without a start date isn't allowed
     if ((tx.frequency === 'monthly' || tx.frequency === '4-weekly') && !tx.date) {
-        alert("Please set a start date for recurring transactions.");
+        alert("Please choose a start date for recurring transactions.");
         return;
     }
-    // push and sort
     transactions.push(tx);
+    // sort by date where possible (empty dates go first)
     transactions.sort((a, b) => {
         const da = a.date ? new Date(a.date) : new Date(0);
         const db = b.date ? new Date(b.date) : new Date(0);
@@ -211,7 +204,7 @@ addTxButton.addEventListener("click", () => {
         category: txCategorySelect.value || ""
     };
     addTransactionObj(tx);
-    // clear form
+    // clear form fields
     txDesc.value = "";
     txAmount.value = "";
     txDate.value = "";
@@ -220,7 +213,7 @@ addTxButton.addEventListener("click", () => {
     txType.value = "expense";
 });
 
-// Delete function by index
+// Delete function by original array index
 function deleteTransaction(index) {
     if (index < 0 || index >= transactions.length) return;
     transactions.splice(index, 1);
@@ -229,24 +222,19 @@ function deleteTransaction(index) {
     renderProjectionTable();
 }
 
-// ---------- Render transaction table ----------
-function escapeHtml(str) {
-    if (!str) return "";
-    return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-}
-
+// ---------- Render transactions table ----------
 function renderTransactionTable() {
     transactionTableBody.innerHTML = "";
-    // compute running balance chronologically using the base openingBalance
+
+    // compute running balance in chronological order
     let runningBalance = openingBalance || 0;
-    // Generate an array of transactions sorted by date (stable)
     const sorted = [...transactions].sort((a,b) => {
         const da = a.date ? new Date(a.date) : new Date(0);
         const db = b.date ? new Date(b.date) : new Date(0);
         return da - db;
     });
 
-    sorted.forEach((tx, idx) => {
+    sorted.forEach((tx, sortedIdx) => {
         runningBalance += tx.type === 'income' ? tx.amount : -tx.amount;
 
         const tr = document.createElement("tr");
@@ -261,18 +249,16 @@ function renderTransactionTable() {
             <td>${tx.amount.toFixed(2)}</td>
             <td>${escapeHtml(tx.category || "")}</td>
             <td>${runningBalance.toFixed(2)}</td>
-            <td><button class="delete-btn" data-index="${idx}">Delete</button></td>
+            <td><button class="delete-btn" data-sorted-index="${sortedIdx}">Delete</button></td>
         `;
         transactionTableBody.appendChild(tr);
 
-        // wire delete (use idx in the sorted array context -> need mapping back to original transactions)
+        // wire delete: map sorted index back to original transactions index
         tr.querySelector(".delete-btn").addEventListener("click", (e) => {
-            const buttonIndex = parseInt(e.target.getAttribute("data-index"), 10);
-            // Find the actual transaction in the original transactions array by matching unique-ish fields:
-            // We'll attempt to match by description + amount + date + type + frequency + category (first matching instance)
-            const txToDelete = sorted[buttonIndex];
-            // find index in original transactions
-            const originalIndex = transactions.findIndex(t =>
+            const sIdx = parseInt(e.target.getAttribute("data-sorted-index"), 10);
+            const txToDelete = sorted[sIdx];
+            // find first matching tx in original transactions list (match multiple fields)
+            const origIdx = transactions.findIndex(t =>
                 t.description === txToDelete.description &&
                 t.amount === txToDelete.amount &&
                 (t.date === txToDelete.date) &&
@@ -280,50 +266,42 @@ function renderTransactionTable() {
                 t.frequency === txToDelete.frequency &&
                 t.category === txToDelete.category
             );
-            if (originalIndex === -1) {
-                // fallback: delete by approximated index (buttonIndex)
+            if (origIdx === -1) {
+                // fallback: remove by approximation (ask for confirm)
                 if (confirm("Delete this transaction?")) {
-                    transactions.splice(buttonIndex, 1);
-                    saveTransactions();
-                    renderTransactionTable();
-                    renderProjectionTable();
+                    // best effort: remove by matching sorted index mapped to original by order
+                    const mappedIdx = transactions.indexOf(txToDelete);
+                    if (mappedIdx >= 0) deleteTransaction(mappedIdx);
                 }
                 return;
             }
-            if (confirm("Delete this transaction?")) {
-                deleteTransaction(originalIndex);
-            }
+            if (confirm("Delete this transaction?")) deleteTransaction(origIdx);
         });
     });
 }
 
 // ---------- Recurrence logic ----------
-// Determine whether a transaction "occurs" on a particular date (ISO strings)
+// Check if transaction occurs on a given ISO date string
 function txOccursOn(tx, dateIso) {
     if (!tx || !dateIso) return false;
-    // If irregular: must match exactly
+    // irregular => exact match only
     if (tx.frequency === 'irregular') {
         return tx.date === dateIso;
     }
-    // For recurring: need a start date
     if (!tx.date) return false;
-    const startIso = tx.date;
-    const start = new Date(startIso);
+    const start = new Date(tx.date);
     const d = new Date(dateIso);
-    // only occurrences on or after start
     if (d < start) return false;
 
     if (tx.frequency === 'monthly') {
-        // match day-of-month, fall back to last day of month
         const startDay = start.getDate();
-        const lastDayOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-        const matchDay = Math.min(startDay, lastDayOfMonth);
+        // day to match for target month (clamp to last day)
+        const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+        const matchDay = Math.min(startDay, lastDay);
         return d.getDate() === matchDay;
     }
 
     if (tx.frequency === '4-weekly') {
-        // every 28 days from start
-        // compute difference in days (floor)
         const diffMs = d - start;
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
         return diffDays >= 0 && diffDays % 28 === 0;
@@ -332,8 +310,9 @@ function txOccursOn(tx, dateIso) {
     return false;
 }
 
-// ---------- Projection rendering (24 months, one row per day) ----------
+// ---------- Projection rendering (24 months, daily rows) ----------
 function renderProjectionTable() {
+    // Clear
     projectionTbody.innerHTML = "";
 
     if (!startDate) {
@@ -343,19 +322,18 @@ function renderProjectionTable() {
         return;
     }
 
-    // compute end date = startDate + 24 months - 1 day
+    // compute end date = start + 24 months - 1 day
     const start = new Date(startDate);
     const end = new Date(start);
     end.setMonth(end.getMonth() + 24);
     end.setDate(end.getDate() - 1);
 
-    // running balance starts at openingBalance
     let runningBalance = openingBalance || 0;
 
     // iterate day by day
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const iso = toISO(d);
-        // find all transactions that occur on this date (including recurrences)
+        const iso = toISO(d); // normalized iso for this day
+        // collect transactions that occur on this date (including recurrences)
         const todays = transactions.filter(t => txOccursOn(t, iso));
 
         let income = 0;
@@ -392,7 +370,7 @@ function renderProjectionTable() {
 let lastFindIndex = -1;
 function findNext() {
     const q = (findInput.value || "").trim().toLowerCase();
-    if (!q) return alert("Enter search text for Find.");
+    if (!q) { alert("Enter search text for Find."); return; }
     const rows = Array.from(transactionTableBody.querySelectorAll("tr"));
     if (rows.length === 0) return alert("No transactions to search.");
     let start = lastFindIndex + 1;
@@ -402,7 +380,6 @@ function findNext() {
         const row = rows[idx];
         const txt = row.textContent.toLowerCase();
         if (txt.includes(q)) {
-            // clear highlights
             rows.forEach(r => r.classList.remove("highlight"));
             row.classList.add("highlight");
             row.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -412,7 +389,6 @@ function findNext() {
     }
     alert("No more matches.");
 }
-
 findNextBtn.addEventListener("click", findNext);
 findInput.addEventListener("input", () => lastFindIndex = -1);
 
@@ -422,33 +398,30 @@ function gotoDate() {
     if (!date) return alert("Choose a date first.");
     const row = projectionTbody.querySelector(`tr[data-date="${date}"]`);
     if (!row) return alert("Date not found in projection (ensure Start Date is set and Save was clicked).");
-    // clear highlights
     Array.from(projectionTbody.querySelectorAll("tr")).forEach(r => r.classList.remove("highlight"));
     row.classList.add("highlight");
     row.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 gotoDateBtn.addEventListener("click", gotoDate);
 
-// also allow clicking date cell in transaction table to go to projection date
+// click on date cell in transaction table to go to that date in projection
 transactionTableBody.addEventListener("click", (e) => {
     const cell = e.target.closest("td");
     if (!cell) return;
     const row = e.target.closest("tr");
     if (!row) return;
-    // if first cell (date) clicked
     const cellIndex = Array.from(row.children).indexOf(cell);
     if (cellIndex === 0) {
-        // read date text and try to find a transaction date by matching the row's delete button mapping
-        const deleteBtn = row.querySelector(".delete-btn");
-        if (!deleteBtn) return;
-        const btnIdx = parseInt(deleteBtn.getAttribute("data-index"), 10);
-        // We need to map button idx back to original transactions; find the corresponding sorted tx as earlier
+        // user clicked date cell — determine corresponding transaction date and go
+        const delBtn = row.querySelector(".delete-btn");
+        if (!delBtn) return;
+        const sIdx = parseInt(delBtn.getAttribute("data-sorted-index"), 10);
         const sorted = [...transactions].sort((a,b) => {
             const da = a.date ? new Date(a.date) : new Date(0);
             const db = b.date ? new Date(b.date) : new Date(0);
             return da - db;
         });
-        const tx = sorted[btnIdx];
+        const tx = sorted[sIdx];
         if (tx && tx.date) {
             gotoDateInput.value = tx.date;
             gotoDate();
@@ -456,7 +429,7 @@ transactionTableBody.addEventListener("click", (e) => {
     }
 });
 
-// ---------- Initialization ----------
+// ---------- Init ----------
 function init() {
     normalizeStoredTransactions();
     updateCategoryDropdown();
