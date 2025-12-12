@@ -1,6 +1,4 @@
-/* ----------------------------------------------------------
-   Basic Page
----------------------------------------------------------- */
+/* ---------------- Basic Page ---------------- */
 body {
     font-family: Arial, sans-serif;
     margin: 18px;
@@ -8,14 +6,9 @@ body {
     color: #222;
 }
 
-h1 {
-    margin: 0 0 10px 0;
-    color: #222;
-}
+h1 { margin: 0 0 10px 0; }
 
-/* ----------------------------------------------------------
-   Sections
----------------------------------------------------------- */
+/* ---------------- Sections ---------------- */
 section {
     background: white;
     padding: 12px;
@@ -24,37 +17,19 @@ section {
     box-shadow: 0 0 6px rgba(0,0,0,0.06);
 }
 
-/* ----------------------------------------------------------
-   Config Layout
----------------------------------------------------------- */
-.config-row {
+/* ---------------- Config / Controls ---------------- */
+.config-row, .controls-row {
     display: flex;
     gap: 12px;
-    align-items: end;
     flex-wrap: wrap;
-}
-.config-item {
-    display: flex;
-    flex-direction: column;
-}
-.config-save {
-    margin-left: auto;
-    align-self: center;
+    align-items: end;
 }
 
-/* ----------------------------------------------------------
-   Inputs & Buttons
----------------------------------------------------------- */
-label {
-    font-weight: bold;
-    margin-bottom: 6px;
-}
-input[type="text"], input[type="date"], input[type="number"], select {
+label { font-weight: bold; margin-bottom: 6px; }
+input, select {
     padding: 8px;
     border: 1px solid #bbb;
     border-radius: 4px;
-    width: 100%;
-    box-sizing: border-box;
 }
 button {
     padding: 8px 10px;
@@ -64,81 +39,28 @@ button {
     color: white;
     cursor: pointer;
 }
-button:hover {
-    background: #1a5cd8;
-}
+button:hover { background: #1a5cd8; }
 
-/* ----------------------------------------------------------
-   Add Transaction Grid
----------------------------------------------------------- */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    align-items: end;
-}
-.cell .add-btn {
-    margin-top: 8px;
-    width: 100%;
-}
-
-/* ----------------------------------------------------------
-   Tables
----------------------------------------------------------- */
+/* ---------------- Tables ---------------- */
 table {
     width: 100%;
     border-collapse: collapse;
     min-width: 700px;
 }
-thead {
-    background: #2a7bff;
-    color: white;
-}
-th, td {
-    padding: 10px;
-    border-bottom: 1px solid #e5e7eb;
-    text-align: left;
-}
-
-/* Sticky headers */
-thead th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-/* Freeze first column */
-.freeze-col {
-    position: sticky;
-    left: 0;
-    background: #2a7bff;
-    color: white;
-    z-index: 11;
-}
-
-/* Alternating rows + hover */
+thead { background: #2a7bff; color: white; }
+th, td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+thead th { position: sticky; top: 0; z-index: 10; }
 tbody tr:nth-child(even) { background: #f1f5ff; }
-tbody tr:nth-child(odd)  { background: #ffffff; }
+tbody tr:nth-child(odd) { background: #ffffff; }
 tbody tr:hover { background: #dfe9ff; }
+td.income { color: #1a8f2e; font-weight: bold; }
+td.expense { color: #cc0000; font-weight: bold; }
+.highlight-row { background: #fff59d !important; }
+.negative { background: #ffe6e6; }
+.irregular { font-weight: 700; }
+.small { font-size: .9rem; color: #444; }
 
-/* Highlighted search result */
-.highlight-row {
-    background: #fff59d !important;
-}
-
-/* Income / Expense colouring */
-td.income {
-    color: #1a8f2e;
-    font-weight: bold;
-}
-td.expense {
-    color: #cc0000;
-    font-weight: bold;
-}
-
-/* ----------------------------------------------------------
-   Floating Back to Top Button (Fix applied)
----------------------------------------------------------- */
+/* ---------------- Floating Back-to-Top Button ---------------- */
 .floating-top {
     position: fixed;
     bottom: 20px;
@@ -146,20 +68,14 @@ td.expense {
     padding: 10px 14px;
     font-size: 14px;
     border-radius: 8px;
-    background: #eee;
+    background: #2a7bff;
+    color: white;
     border: 1px solid #ccc;
     cursor: pointer;
-    z-index: 9999;
+    z-index: 2147483647; /* ensures it's above sticky tables */
 }
 
-/* ----------------------------------------------------------
-   Responsive Adjustments
----------------------------------------------------------- */
+/* ---------------- Responsive ---------------- */
 @media (max-width: 900px) {
-    .grid {
-        grid-template-columns: 1fr;
-    }
-    .config-row {
-        flex-direction: column;
-    }
+    .grid, .config-row, .controls-row { flex-direction: column; }
 }
