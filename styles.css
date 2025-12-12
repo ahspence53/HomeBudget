@@ -1,187 +1,61 @@
-/* ---------------- Basic Page ---------------- */
-body {
-    font-family: Arial, sans-serif;
-    margin: 18px;
-    background: #f4f6f8;
-    color: #222;
-}
-
-/* Top banner */
-.top-banner {
-    background-color: #0b66d1;
-    color: white;
-    padding: 12px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 6px;
-    margin-bottom: 18px;
-}
-.top-banner h1 { margin: 0; font-size: 1.6rem; }
-.version-label { font-size: 0.9rem; opacity: 0.95; }
-
-/* ---------------- Sections ---------------- */
-section {
-    background: white;
-    padding: 16px;
-    margin-bottom: 24px;
-    border-radius: 8px;
-    box-shadow: 0 0 6px rgba(0,0,0,0.06);
-}
-
-/* ---------------- Controls (Add Transaction / Find / Go) ---------------- */
-.controls-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 16px;
-    margin-bottom: 12px;
-}
-
-.control-cell {
-    width: 100%;
-}
-
-.control-cell input,
-.control-cell select {
-    padding: 10px;
-    font-size: 1rem;
-    width: 100%;
-}
-
-.control-cell button {
-    width: 100%;
-    margin-top: 4px;
-}
-
-/* Find controls: keep Find + Find Next grouped and inline and sticky */
-.controls-row.small.find-controls {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-    position: sticky;
-    top: 68px; /* below the top banner */
-    z-index: 1000;
-    background: white;
-    padding: 10px 0;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-}
-.find-inline { display:flex; gap:8px; align-items:center; }
-
-/* ---------------- Labels & Inputs ---------------- */
-label { font-weight: bold; margin-bottom: 6px; }
-input, select {
-    border: 1px solid #bbb;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-/* ---------------- Buttons ---------------- */
-button {
-    padding: 8px 10px;
-    border: none;
-    border-radius: 5px;
-    background: #2a7bff;
-    color: white;
-    cursor: pointer;
-}
-button:hover { background: #1a5cd8; }
-
-/* ---------------- Tables ---------------- */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 700px;
-}
-thead { background: #2a7bff; color: white; }
-th, td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: middle; }
-thead th { position: sticky; top: 120px; z-index: 10; } /* keep header visible — tuned below sticky find */
-tbody tr:nth-child(even) { background: #f1f5ff; }
-tbody tr:nth-child(odd) { background: #ffffff; }
-tbody tr:hover { background: #dfe9ff; }
-
-td.income { color: #1a8f2e; font-weight: bold; }
-td.expense { color: #cc0000; font-weight: bold; }
-
-/* Simple Find highlight (distinct from Advanced) */
-.simple-find-highlight { background: #fff59d !important; }
-
-/* Advanced Search highlight */
-.adv-highlight { background: #fff3b0 !important; }
-
-/* Projection negative styling */
-.proj-negative { background: #fff0f0 !important; }
-.proj-negative td.daily-balance { color: #cc0000; font-weight: 700; }
-
-/* daily-balance color by data-negative attr (fallback) */
-[data-negative="1"] td.daily-balance { color: #cc0000; font-weight: 700; }
-
-.irregular { font-weight: 700; }
-.small { font-size: .9rem; color: #444; }
-
-/* ---------------- Modal (Advanced Search) ---------------- */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2147483646;
-}
-
-.modal {
-    background: white;
-    max-width: 780px;
-    width: 96%;
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
-}
-
-.modal-header {
-    display:flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-.modal-header h3 { margin: 0; }
-.modal-close {
-    background: transparent;
-    color: #444;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-}
-
-.modal-body .modal-row { display:flex; gap:10px; margin:8px 0; align-items:center; flex-wrap:wrap; }
-.modal-body label { font-weight: 600; }
-.modal-actions { justify-content: flex-start; gap: 8px; }
-.modal-feedback { margin-top: 8px; color: #333; }
-
-/* small results table from advanced search (if needed inside modal) */
-.small-results { margin-top: 8px; border: 1px solid #e6e6e6; border-radius: 6px; overflow: hidden; }
-.small-results thead { background: #f0f4ff; color: #111; }
-.small-results th, .small-results td { padding: 8px; border-bottom: 1px solid #eee; }
-
-/* ---------------- Floating Back-to-Top Button ---------------- */
-.floating-top {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 10px 14px;
-    font-size: 14px;
-    border-radius: 8px;
-    background: #2a7bff;
-    color: white;
+/* ---------------- Floating Left Find Panel ---------------- */
+#projection-find-panel {
+    position: absolute; /* relative to #projection-section */
+    left: 0;
+    top: 60px; /* below h2 and controls */
+    width: 180px;
+    background: #f9f9f9;
     border: 1px solid #ccc;
-    cursor: pointer;
-    z-index: 2147483647;
+    padding: 10px;
+    border-radius: 6px;
+    z-index: 10;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
 }
 
-/* ---------------- Responsive ---------------- */
-@media (max-width: 800px) {
-    .controls-row { grid-template-columns: 1fr; }
-    thead th { position: sticky; top: 160px; }
-    .modal { width: 96%; }
+#projection-find-panel label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 4px;
+}
+
+#projection-find-panel input {
+    width: 100%;
+    margin-bottom: 6px;
+    padding: 6px;
+    font-size: 0.9rem;
+}
+
+#projection-find-panel button {
+    width: 48%;
+    margin-right: 4%;
+    margin-bottom: 4px;
+    padding: 6px;
+    font-size: 0.85rem;
+}
+#projection-find-panel button:last-child {
+    margin-right: 0;
+}
+
+/* Highlight for matched row */
+.projection-match-highlight {
+    background-color: #fff59d !important; /* bright yellow */
+    transition: background 0.5s ease-in-out;
+    border-left: 4px solid #f1c40f;
+}
+
+/* Adjust table padding to accommodate floating panel */
+#projection-section {
+    position: relative;
+    padding-left: 200px; /* leave space for panel */
+}
+
+/* Responsive: collapse floating panel on small screens */
+@media (max-width: 700px) {
+    #projection-find-panel {
+        width: 120px;
+        font-size: 0.85rem;
+    }
+    #projection-section {
+        padding-left: 130px;
+    }
 }
