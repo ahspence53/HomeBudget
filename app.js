@@ -24,6 +24,7 @@ const projectionTbody = document.querySelector("#projection-table tbody");
 const projectionFindInput = document.getElementById("projection-find-input");
 const projectionFindNextBtn = document.getElementById("projection-find-next");
 let lastProjectionFindIndex = -1;
+let lastQuery = "";
 
 // Projection Totals
 const totalFromInput = document.getElementById("total-from-date");
@@ -167,14 +168,18 @@ function renderProjectionTable(){
         const iso=toISO(d);
         let todays = transactions.filter(t=>txOccursOn(t,iso));
 
-        // Deduplicate per day (date + description + type)
-        const uniqueDaily = new Map();
-        todays = todays.filter(t=>{
-            const key = `${t.date}|${t.description}|${t.type}`;
-            if(uniqueDaily.has(key)) return false;
-            uniqueDaily.set(key, true);
-            return true;
+        // Combine same description+type+category per day to remove duplicates
+        const combined = [];
+        const map = new Map();
+        todays.forEach(t=>{
+            const key = `${t.description}|${t.type}|${t.category||""}`;
+            if(map.has(key)){
+                const existing = map.get(key);
+                existing.amount += t.amount;
+            } else map.set(key, {...t});
         });
+        combined.push(...map.values());
+        todays = combined;
 
         let income=0, expense=0, descs=[];
         todays.forEach(t=>{
@@ -194,71 +199,4 @@ function renderProjectionTable(){
 
         const dateCell = `<td>${formatDate(iso)}</td>`;
         const descCell = `<td>${descs.join("<br>")}</td>`;
-        const incomeCell = `<td>${income>0?income.toFixed(2):""}</td>`;
-        const expenseCell = `<td>${expense>0?expense.toFixed(2):""}</td>`;
-        const balClass = runningBalance<0 ? ' class="neg-cell"' : "";
-        const balCell = `<td${balClass}>${runningBalance.toFixed(2)}</td>`;
-
-        tr.innerHTML = dateCell + descCell + incomeCell + expenseCell + balCell;
-        projectionTbody.appendChild(tr);
-    }
-}
-
-// ---------- Projection Find ----------
-function rowMatchesQuery(row, query){
-    const q = query.toLowerCase().trim();
-    const dateText = row.cells[0]?.textContent.toLowerCase();
-    if(dateText && dateText.includes(q)) return true;
-    if(row.textContent.toLowerCase().includes(q)) return true;
-    return false;
-}
-
-function findNext(){
-    const query = projectionFindInput.value.trim();
-    if(!query){ alert("Enter search text"); return; }
-
-    const rows = Array.from(projectionTbody.querySelectorAll("tr"));
-    if(rows.length===0){ alert("No projection rows"); return; }
-
-    let start = (lastProjectionFindIndex + 1) % rows.length;
-    for(let i=0;i<rows.length;i++){
-        const idx = (start + i) % rows.length;
-        if(rowMatchesQuery(rows[idx], query)){
-            rows.forEach(r=>r.classList.remove("projection-match-highlight"));
-            rows[idx].classList.add("projection-match-highlight");
-            rows[idx].scrollIntoView({behavior:"smooth", block:"center"});
-            lastProjectionFindIndex = idx;
-            return;
-        }
-    }
-    alert("No more matches");
-    lastProjectionFindIndex = -1;
-}
-
-projectionFindNextBtn.addEventListener("click", findNext);
-projectionFindInput.addEventListener("input", ()=> lastProjectionFindIndex = -1);
-
-// ---------- Projection Totals ----------
-calculateTotalBtn.addEventListener("click", ()=>{
-    const from=toISO(totalFromInput.value); const to=toISO(totalToInput.value);
-    const descFilter=(totalDescInput.value||"").toLowerCase(); const catFilter=(totalCatInput.value||"").toLowerCase();
-    if(!from||!to){alert("Select From and To dates"); return;}
-    if(new Date(from)>new Date(to)){alert("From must be before To"); return;}
-    let totalIncome=0, totalExpense=0;
-    for(let d=new Date(from); d<=new Date(to); d.setDate(d.getDate()+1)){
-        const iso=toISO(d); const todays=transactions.filter(t=>txOccursOn(t,iso));
-        todays.forEach(t=>{
-            if(descFilter && !t.description.toLowerCase().includes(descFilter)) return;
-            if(catFilter && !t.category.toLowerCase().includes(catFilter)) return;
-            if(t.type==='income') totalIncome+=t.amount; else totalExpense+=t.amount;
-        });
-    }
-    alert(`Total Income: £${totalIncome.toFixed(2)}\nTotal Expense: £${totalExpense.toFixed(2)}`);
-});
-
-// ---------- Back-to-top ----------
-document.getElementById("back-to-top").addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
-
-// ---------- Init ----------
-function init(){updateCategoryDropdown(); renderTransactionTable(); renderProjectionTable();}
-init();
+        const income
