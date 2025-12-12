@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Home Budget Tracker</title>
-     
-    <link rel="stylesheet" href="styles.css">
-    
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
- <header style="background-color: lightblue;">
-    <h1>Home Budget Tracker</h1>h1>
+<header class="top-banner">
+    <h1>Home Budget Tracker</h1>
+    <span class="version-label">Version 1. December 2025</span>
 </header>
 
 <section id="config">
@@ -55,9 +54,11 @@
     </div>
 
     <!-- Row 4: Find / Go to date -->
-    <div class="controls-row small">
-        <div class="control-cell"><label>Find: <input type="text" id="find-input" placeholder="Search description, category or date"></label></div>
-        <div class="control-cell"><button id="find-next">Find Next</button></div>
+    <div class="controls-row small find-controls">
+        <div class="control-cell find-inline">
+            <label>Find: <input type="text" id="find-input" placeholder="Search description, category or date"></label>
+            <button id="find-next">Find Next</button>
+        </div>
         <div class="control-cell"><label>Go to date: <input type="date" id="goto-date"></label></div>
         <div class="control-cell"><button id="goto-date-btn">Go</button></div>
     </div>
@@ -65,6 +66,26 @@
 
 <section id="transactions">
     <h2>Transactions</h2>
+
+    <!-- Range search for transactions (new) -->
+    <div id="rangeSearch" class="search-range">
+        <label>From: <input type="date" id="rangeFrom"></label>
+        <label>To: <input type="date" id="rangeTo"></label>
+        <label>Description: <input type="text" id="rangeDesc" placeholder="e.g. O'Neil Gas"></label>
+        <label>Category: <input type="text" id="rangeCat" placeholder="e.g. Household"></label>
+        <label>
+            Type:
+            <select id="rangeType">
+                <option value="both">Both</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+        </label>
+        <button id="rangeSearchBtn">Search</button>
+    </div>
+
+    <div id="rangeSearchResults"></div>
+
     <table id="transaction-table">
         <thead>
             <tr>
@@ -73,7 +94,6 @@
                 <th>Type</th>
                 <th>Amount</th>
                 <th>Category</th>
-                <th>Balance</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -84,6 +104,12 @@
 <section id="projection-section">
     <h2>24-Month Projection</h2>
     <p class="small">Shows every day for 24 months from the configured Start Date. Recurring transactions: monthly / 4-weekly (28 days) / irregular.</p>
+
+    <div class="projection-controls">
+        <label><input type="checkbox" id="showOnlyNegative"> Show only days with negative balance</label>
+        <label><input type="checkbox" id="highlightNegatives"> Highlight negative daily balance rows</label>
+    </div>
+
     <table id="projection-table">
         <thead>
             <tr>
