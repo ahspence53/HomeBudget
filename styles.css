@@ -6,13 +6,25 @@ body {
     color: #222;
 }
 
-h1 { margin: 0 0 10px 0; }
+/* Top banner */
+.top-banner {
+    background-color: #0b66d1; /* strong blue */
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 6px;
+    margin-bottom: 18px;
+}
+.top-banner h1 { margin: 0; font-size: 1.6rem; }
+.version-label { font-size: 0.9rem; opacity: 0.95; }
 
 /* ---------------- Sections ---------------- */
 section {
     background: white;
-    padding: 16px;        /* increased padding for breathing room */
-    margin-bottom: 24px;  /* more space between sections */
+    padding: 16px;
+    margin-bottom: 24px;
     border-radius: 8px;
     box-shadow: 0 0 6px rgba(0,0,0,0.06);
 }
@@ -21,29 +33,34 @@ section {
 .controls-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 16px;           /* increased gap for spacing */
-    margin-bottom: 12px; /* increased vertical spacing between rows */
+    gap: 16px;
+    margin-bottom: 12px;
 }
 
 .control-cell {
-    width: 100%; /* input/button fills cell */
+    width: 100%;
 }
 
 .control-cell input,
 .control-cell select {
-    padding: 10px;   /* slightly larger padding */
-    font-size: 1rem; /* improved readability */
+    padding: 10px;
+    font-size: 1rem;
+    width: 100%;
 }
 
 .control-cell button {
-    width: 100%;     /* full-width buttons */
-    margin-top: 4px; /* small gap above buttons */
+    width: 100%;
+    margin-top: 4px;
 }
 
-/* Small controls row (Find / Go) */
-.controls-row.small .control-cell {
-    min-width: 120px;
+/* Find controls: keep Find + Find Next grouped and inline */
+.controls-row.small.find-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
 }
+.find-inline { display:flex; gap:8px; align-items:center; }
 
 /* ---------------- Labels & Inputs ---------------- */
 label { font-weight: bold; margin-bottom: 6px; }
@@ -76,12 +93,30 @@ thead th { position: sticky; top: 0; z-index: 10; }
 tbody tr:nth-child(even) { background: #f1f5ff; }
 tbody tr:nth-child(odd) { background: #ffffff; }
 tbody tr:hover { background: #dfe9ff; }
+
 td.income { color: #1a8f2e; font-weight: bold; }
 td.expense { color: #cc0000; font-weight: bold; }
-.highlight-row { background: #fff59d !important; }
-.negative { background: #ffe6e6; }
+
+/* highlight used by Find/Go */
+.highlight { background: #fff59d !important; }
+
+/* Projection negative styling:
+   - negative rows have slightly red background
+   - the daily balance cell for negatives is displayed in red and bold */
+.proj-negative { background: #fff0f0 !important; }
+.proj-negative td.daily-balance { color: #cc0000; font-weight: 700; }
+
+/* Backwards compatibility class when a row has data-negative attribute */
+[data-negative="1"] td.daily-balance { color: #cc0000; font-weight: 700; }
+
+/* Irregular marker */
 .irregular { font-weight: 700; }
 .small { font-size: .9rem; color: #444; }
+
+/* small results table from range search */
+.small-results { margin-top: 8px; border: 1px solid #e6e6e6; border-radius: 6px; overflow: hidden; }
+.small-results thead { background: #f0f4ff; color: #111; }
+.small-results th, .small-results td { padding: 8px; border-bottom: 1px solid #eee; }
 
 /* ---------------- Floating Back-to-Top Button ---------------- */
 .floating-top {
@@ -101,6 +136,7 @@ td.expense { color: #cc0000; font-weight: bold; }
 /* ---------------- Responsive ---------------- */
 @media (max-width: 600px) {
     .controls-row {
-        grid-template-columns: 1fr; /* stack all controls vertically */
+        grid-template-columns: 1fr;
     }
+    table { min-width: 0; font-size: 0.95rem; }
 }
