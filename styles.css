@@ -88,22 +88,36 @@ tbody tr:nth-child(even) { background: #f1f5ff; }
 tbody tr:nth-child(odd) { background: #ffffff; }
 tbody tr:hover { background: #dfe9ff; }
 
-.irregular { font-weight: bold; }
+/* ---------------- Irregular Transactions (soft blue) ---------------- */
+.irregular {
+    background-color: rgba(0, 120, 255, 0.12);
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
 
+/* ---------------- Negative Cell Highlight ---------------- */
+.neg-cell {
+    background-color: rgba(255, 180, 0, 0.25) !important;
+    font-weight: bold;
+}
+
+/* ---------------- Negative Row Highlight ---------------- */
+.neg-row {
+    background-color: rgba(255, 150, 0, 0.35) !important;
+}
+
+/* ---------------- Projection Match Highlight ---------------- */
+.projection-match-highlight {
+    background: #fff59d !important;
+}
+
+/* Buttons in transaction table */
 button.edit-btn,
 button.delete-btn {
     margin: 0 2px;
     padding: 4px 8px;
     font-size: 0.85rem;
-}
-
-/* ---------------- Highlights ---------------- */
-.projection-match-highlight {
-    background: #fff59d !important;
-}
-
-.negative {
-    background: #ffe6e6;
 }
 
 /* ---------------- Floating Back-to-Top Button ---------------- */
