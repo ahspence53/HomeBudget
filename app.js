@@ -187,7 +187,7 @@ function renderProjectionTable(){
     });
 }
 
-// ---------- Projection Find ----------
+// ---------- Projection Find - Highlight All Matches ----------
 projectionFindNextBtn.addEventListener("click", ()=>{
     let query = projectionFindInput.value.trim().toLowerCase();
     if(!query){ alert("Enter search text"); return; }
@@ -206,24 +206,33 @@ projectionFindNextBtn.addEventListener("click", ()=>{
 
     if(projectionRows.length === 0){ alert("No projection rows"); return; }
 
-    for(let i=1;i<=projectionRows.length;i++){
-        const idx = (lastFindIndex+i) % projectionRows.length;
-        const row = projectionRows[idx];
+    // Remove previous highlights
+    projectionRows.forEach(r=>r.classList.remove("projection-match-highlight", "projection-current-highlight"));
+
+    let matchIndexes = [];
+    projectionRows.forEach((row, idx)=>{
         const dateText = row.cells[0].textContent.toLowerCase();
         const descText = row.cells[1].textContent.toLowerCase();
-
         if(descText.includes(query) || dateText.includes(query) || (isoQuery && row.getAttribute('data-date')===isoQuery)){
-            projectionRows.forEach(r=>r.classList.remove("projection-match-highlight"));
+            matchIndexes.push(idx);
             row.classList.add("projection-match-highlight");
-            row.scrollIntoView({behavior:"smooth", block:"center"});
-            lastFindIndex = idx;
-            return;
         }
+    });
+
+    if(matchIndexes.length === 0){
+        alert("No matches found");
+        lastFindIndex = -1;
+        return;
     }
-    alert("No more matches");
-    lastFindIndex = -1;
+
+    // Move to next match
+    lastFindIndex++;
+    if(lastFindIndex >= matchIndexes.length) lastFindIndex = 0;
+    const currentRow = projectionRows[matchIndexes[lastFindIndex]];
+    currentRow.classList.add("projection-current-highlight");
+    currentRow.scrollIntoView({behavior:"smooth", block:"center"});
 });
-projectionFindInput.addEventListener("input", ()=>{ lastFindIndex=-1; });
+projectionFindInput.addEventListener("input", ()=>{ lastFindIndex=-1; projectionRows.forEach(r=>r.classList.remove("projection-match-highlight", "projection-current-highlight")); });
 
 // ---------- Projection Totals ----------
 const totalFromInput = document.getElementById("total-from-date");
