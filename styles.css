@@ -23,3 +23,14 @@ tbody tr:hover{ background:#dfe9ff; }
 .floating-top { position:fixed; bottom:20px; right:20px; padding:10px 14px; font-size:14px; border-radius:8px; background:#2a7bff; color:white; border:1px solid #ccc; cursor:pointer; z-index:2147483647; }
 
 @media(max-width:600px){ .controls-row{ grid-template-columns:1fr; } }
+
+/* Make projection controls sticky */
+.projection-controls,
+.controls-row.small {
+    position: sticky;
+    top: 0;                 /* stick to top of viewport */
+    background: white;      /* match section background */
+    padding: 8px 0;         /* some breathing room */
+    z-index: 20;            /* above table rows */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* subtle shadow for separation */
+}
