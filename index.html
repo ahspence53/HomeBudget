@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Home Budget Tracker</title>
     <link rel="stylesheet" href="styles.css" />
@@ -10,7 +10,7 @@
 
 <header class="top-banner">
     <h1>Home Budget Tracker</h1>
-    <span class="version-label">Version 1. December 2025</span>
+    <span class="version-label">Version 1 — December 2025</span>
 </header>
 
 <section id="config">
@@ -42,7 +42,7 @@
         </select></div>
         <div class="control-cell"><input type="date" id="tx-date" /></div>
         <div class="control-cell"><select id="tx-category">
-            <option value="" disabled selected>Select category</option>
+            <option value="" disabled>Select category</option>
         </select></div>
     </div>
 
@@ -53,12 +53,13 @@
         <div class="control-cell"><button id="add-transaction">Add Transaction</button></div>
     </div>
 
-    <!-- Row 4: Find / Go to date -->
+    <!-- Row 4: Find (simple) / Advanced Search trigger / Go to date -->
     <div class="controls-row small find-controls">
         <div class="control-cell find-inline">
-            <label>Find: <input type="text" id="find-input" placeholder="Search description, category or date"></label>
+            <label>Find (projection descriptions): <input type="text" id="find-input" placeholder="e.g. Aviva Life"></label>
             <button id="find-next">Find Next</button>
         </div>
+        <div class="control-cell"><button id="open-advanced-search">Advanced Search</button></div>
         <div class="control-cell"><label>Go to date: <input type="date" id="goto-date"></label></div>
         <div class="control-cell"><button id="goto-date-btn">Go</button></div>
     </div>
@@ -67,22 +68,7 @@
 <section id="transactions">
     <h2>Transactions</h2>
 
-    <!-- Range search for transactions (new) -->
-    <div id="rangeSearch" class="search-range">
-        <label>From: <input type="date" id="rangeFrom"></label>
-        <label>To: <input type="date" id="rangeTo"></label>
-        <label>Description: <input type="text" id="rangeDesc" placeholder="e.g. O'Neil Gas"></label>
-        <label>Category: <input type="text" id="rangeCat" placeholder="e.g. Household"></label>
-        <label>
-            Type:
-            <select id="rangeType">
-                <option value="both">Both</option>
-                <option value="income">Income</option>
-                <option value="expense">Expense</option>
-            </select>
-        </label>
-        <button id="rangeSearchBtn">Search</button>
-    </div>
+    <!-- Range search UI removed (we now use modal advanced search) -->
 
     <div id="rangeSearchResults"></div>
 
@@ -114,10 +100,10 @@
         <thead>
             <tr>
                 <th>Date</th>
-                <th>Description(s)</th>
+                <th>Descriptions</th>
                 <th>Income</th>
                 <th>Expense</th>
-                <th>Daily Balance</th>
+                <th class="daily-balance-col">Daily Balance</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -126,6 +112,63 @@
 
 <!-- Floating back-to-top button -->
 <button id="back-to-top" class="floating-top">⬆ Top</button>
+
+<!-- Advanced Search Modal (hidden by default) -->
+<div id="adv-overlay" class="modal-overlay" aria-hidden="true">
+    <div class="modal">
+        <header class="modal-header">
+            <h3>Advanced Search (projection)</h3>
+            <button id="close-advanced-search" class="modal-close">✕</button>
+        </header>
+
+        <div class="modal-body">
+            <div class="modal-row">
+                <label>Description contains: <input type="text" id="adv-desc" placeholder="part of description"></label>
+            </div>
+
+            <div class="modal-row">
+                <label>Category equals: 
+                    <select id="adv-category">
+                        <option value="">(any)</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="modal-row">
+                <label>From date: <input type="date" id="adv-from"></label>
+                <label>To date: <input type="date" id="adv-to"></label>
+            </div>
+
+            <div class="modal-row">
+                <label>Amount field:
+                    <select id="adv-amount-field">
+                        <option value="none">(ignore)</option>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                        <option value="daily">Daily Balance</option>
+                    </select>
+                </label>
+
+                <label>Comparator:
+                    <select id="adv-amount-compare">
+                        <option value="=">=</option>
+                        <option value=">">&gt;</option>
+                        <option value="<">&lt;</option>
+                    </select>
+                </label>
+
+                <label>Amount: <input type="number" id="adv-amount" step="0.01" /></label>
+            </div>
+
+            <div class="modal-row modal-actions">
+                <button id="adv-search-btn">Search & Highlight</button>
+                <button id="adv-clear-btn">Clear Highlights</button>
+            </div>
+
+            <div id="adv-feedback" class="modal-feedback"></div>
+        </div>
+    </div>
+</div>
 
 <script src="app.js"></script>
 </body>
