@@ -7,7 +7,7 @@
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
 
-/* ---------- DOM Elements ---------- *
+/* ---------- DOM Elements ---------- */
 const txDesc = document.getElementById("tx-desc");
 const txAmount = document.getElementById("tx-amount");
 const txType = document.getElementById("tx-type");
@@ -104,12 +104,8 @@ function renderTransactionTable() {
             tr.style.fontWeight = "bold";
         }
 
-
-        
-
-
         tr.innerHTML = `
-            <td>${tx.date ? formatDate(tx.date) : ""}</td>
+            <td>${tx.date || "-"}</td>
             <td>${tx.description}</td>
             <td>${tx.category}</td>
             <td>${tx.type === "income" ? tx.amount.toFixed(2) : ""}</td>
