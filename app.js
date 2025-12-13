@@ -105,7 +105,7 @@ function renderTransactionTable() {
         }
 
         tr.innerHTML = `
-            <td>${tx.date || "-"}</td>
+            <td>${tx.date ? formatDate(tx.date) : ""}</td>
             <td>${tx.description}</td>
             <td>${tx.category}</td>
             <td>${tx.type === "income" ? tx.amount.toFixed(2) : ""}</td>
