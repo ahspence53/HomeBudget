@@ -1,206 +1,270 @@
-/****************************************************
- * Home Budget Tracker – Unified app.js
- * Clean, single-source logic
- ****************************************************/
-
-/* ---------- Storage  Alex's version---------- */
-let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+// ---------- Data ----------
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
+let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+let startDate = localStorage.getItem("startDate") || "";
+let openingBalance = parseFloat(localStorage.getItem("openingBalance")) || 0;
 
-/* ---------- DOM Elements ---------- */
+// ---------- DOM ----------
+const txCategorySelect = document.getElementById("tx-category");
+const newCategoryInput = document.getElementById("new-category");
+const addCategoryButton = document.getElementById("add-category");
 const txDesc = document.getElementById("tx-desc");
 const txAmount = document.getElementById("tx-amount");
 const txType = document.getElementById("tx-type");
 const txFrequency = document.getElementById("tx-frequency");
 const txDate = document.getElementById("tx-date");
-const txCategory = document.getElementById("tx-category");
 const addTxButton = document.getElementById("add-transaction");
 
-const newCategoryInput = document.getElementById("new-category");
-const addCategoryButton = document.getElementById("add-category");
+const startDateInput = document.getElementById("start-date");
+const openingBalanceInput = document.getElementById("opening-balance");
+const saveConfigButton = document.getElementById("save-config");
 
 const transactionTableBody = document.querySelector("#transaction-table tbody");
-const projectionTableBody = document.querySelector("#projection-table tbody");
+const projectionTbody = document.querySelector("#projection-table tbody");
 
-/* ---------- Categories ---------- */
+// Find
+const projectionFindInput = document.getElementById("projection-find-input");
+const projectionFindNextBtn = document.getElementById("projection-find-next");
+let lastFindIndex = -1;
+
+// ---------- Utils ----------
+function toISO(d) {
+    if (!d) return "";
+    const date = new Date(d);
+    return isNaN(date) ? "" : date.toISOString().split("T")[0];
+}
+
+function formatDate(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return isNaN(d)
+        ? iso
+        : d.toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+          });
+}
+
+function escapeHtml(str) {
+    return str
+        ? String(str)
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+        : "";
+}
+
+// ---------- Categories ----------
 function updateCategoryDropdown() {
-    txCategory.innerHTML = '<option value="" disabled selected>Select category</option>';
-    categories.forEach(cat => {
+    txCategorySelect.innerHTML =
+        '<option value="" disabled selected>Select category</option>';
+    categories.forEach((c) => {
         const opt = document.createElement("option");
-        opt.value = cat;
-        opt.textContent = cat;
-        txCategory.appendChild(opt);
+        opt.value = c;
+        opt.textContent = c;
+        txCategorySelect.appendChild(opt);
     });
 }
 
 addCategoryButton.addEventListener("click", () => {
-    const cat = (newCategoryInput.value || "").trim();
-    if (!cat) return;
-
-    if (!categories.includes(cat)) {
-        categories.push(cat);
+    const c = newCategoryInput.value.trim();
+    if (!c) return;
+    if (!categories.includes(c)) {
+        categories.push(c);
         localStorage.setItem("categories", JSON.stringify(categories));
     }
-
-    updateCategoryDropdown();
-    txCategory.value = cat;
     newCategoryInput.value = "";
+    updateCategoryDropdown();
+    txCategorySelect.value = c;
 });
 
-/* ---------- Add Transaction ---------- */
-addTxButton.addEventListener("click", () => {
-    const desc = (txDesc.value || "").trim();
-    const amount = parseFloat(txAmount.value);
-    const type = txType.value;
-    const frequency = txFrequency.value;
-    const date = txDate.value;
-    const category = txCategory.value;
+// ---------- Config ----------
+saveConfigButton.addEventListener("click", () => {
+    startDate = toISO(startDateInput.value);
+    openingBalance = parseFloat(openingBalanceInput.value) || 0;
+    localStorage.setItem("startDate", startDate);
+    localStorage.setItem("openingBalance", openingBalance);
+    renderProjectionTable();
+});
 
-    if (!desc || isNaN(amount)) {
-        alert("Please enter description and amount");
-        return;
-    }
+startDateInput.value = startDate;
+openingBalanceInput.value = openingBalance || "";
 
-    if (!category) {
-        alert("Please select category");
-        return;
-    }
-
-    if ((frequency === "monthly" || frequency === "4-weekly") && !date) {
-        alert("Please select a start date");
-        return;
-    }
-
-    transactions.push({
-        description: desc,
-        amount: amount,
-        type: type,
-        frequency: frequency,
-        date: date || "",
-        category: category
-    });
-
+// ---------- Transactions ----------
+function saveTransactions() {
     localStorage.setItem("transactions", JSON.stringify(transactions));
+}
+
+addTxButton.addEventListener("click", () => {
+    const tx = {
+        description: txDesc.value.trim(),
+        amount: parseFloat(txAmount.value) || 0,
+        type: txType.value,
+        frequency: txFrequency.value,
+        date: toISO(txDate.value),
+        category: txCategorySelect.value || "",
+    };
+
+    if (!tx.description) return alert("Enter description");
+    if (
+        (tx.frequency === "monthly" || tx.frequency === "4-weekly") &&
+        !tx.date
+    )
+        return alert("Choose a start date");
+
+    transactions.push(tx);
+    transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+    saveTransactions();
+    renderTransactionTable();
+    renderProjectionTable();
 
     txDesc.value = "";
     txAmount.value = "";
     txDate.value = "";
-    txCategory.value = "";
+    txCategorySelect.value = "";
     txFrequency.value = "irregular";
     txType.value = "expense";
-
-    renderTransactionTable();
-    renderProjectionTable();
 });
 
-/* ---------- Transaction Table ---------- */
+// ---------- Transaction Table ----------
 function renderTransactionTable() {
     transactionTableBody.innerHTML = "";
-
-    transactions.forEach(tx => {
+    transactions.forEach((tx, idx) => {
         const tr = document.createElement("tr");
-
-        if (tx.frequency === "irregular") {
-            tr.style.fontWeight = "bold";
-        }
-
         tr.innerHTML = `
-            <td>${tx.date || "-"}</td>
-            <td>${tx.description}</td>
-            <td>${tx.category}</td>
-            <td>${tx.type === "income" ? tx.amount.toFixed(2) : ""}</td>
-            <td>${tx.type === "expense" ? tx.amount.toFixed(2) : ""}</td>
+            <td>${formatDate(tx.date)}</td>
+            <td>${escapeHtml(tx.description)}</td>
+            <td>${tx.type}</td>
+            <td>${tx.amount.toFixed(2)}</td>
+            <td>${escapeHtml(tx.category)}</td>
+            <td><button data-i="${idx}">Delete</button></td>
         `;
-
+        tr.querySelector("button").onclick = () => {
+            if (confirm("Delete this transaction?")) {
+                transactions.splice(idx, 1);
+                saveTransactions();
+                renderTransactionTable();
+                renderProjectionTable();
+            }
+        };
         transactionTableBody.appendChild(tr);
     });
 }
 
-/* ---------- Projection ---------- */
+// ---------- Recurrence Logic (FIXED) ----------
+function occursOn(tx, iso) {
+    if (!tx.date || !iso) return false;
+
+    const start = new Date(tx.date);
+    const current = new Date(iso);
+
+    if (current < start) return false;
+
+    if (tx.frequency === "irregular") {
+        return tx.date === iso;
+    }
+
+    if (tx.frequency === "monthly") {
+        const day = start.getDate();
+        const lastDay = new Date(
+            current.getFullYear(),
+            current.getMonth() + 1,
+            0
+        ).getDate();
+        return current.getDate() === Math.min(day, lastDay);
+    }
+
+    if (tx.frequency === "4-weekly") {
+        const diffDays = Math.floor(
+            (current - start) / (1000 * 60 * 60 * 24)
+        );
+        return diffDays >= 0 && diffDays % 28 === 0;
+    }
+
+    return false;
+}
+
+// ---------- Projection (FIXED) ----------
 function renderProjectionTable() {
-    projectionTableBody.innerHTML = "";
+    projectionTbody.innerHTML = "";
+    if (!startDate) return;
 
-    const start = new Date();
-    start.setHours(0,0,0,0);
+    let balance = openingBalance || 0;
+    const start = new Date(startDate);
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + 24);
 
-    let balance = 0;
-    const days = 730;
+    for (
+        let d = new Date(start);
+        d <= end;
+        d.setDate(d.getDate() + 1)
+    ) {
+        const iso = toISO(d);
+        let income = 0;
+        let expense = 0;
+        let descs = [];
 
-    for (let i = 0; i < days; i++) {
-        const d = new Date(start);
-        d.setDate(d.getDate() + i);
-        const key = d.toISOString().split("T")[0];
+        transactions.forEach((tx) => {
+            if (occursOn(tx, iso)) {
+                if (tx.type === "income") income += tx.amount;
+                else expense += tx.amount;
 
-        transactions.forEach(tx => {
-            if (tx.frequency === "irregular" && tx.date === key) {
-                balance += tx.type === "income" ? tx.amount : -tx.amount;
-            }
-            if (tx.frequency === "monthly" && tx.date) {
-                const txDate = new Date(tx.date);
-                if (txDate.getDate() === d.getDate()) {
-                    balance += tx.type === "income" ? tx.amount : -tx.amount;
-                }
+                const label =
+                    tx.frequency === "irregular"
+                        ? `<span class="irregular">${escapeHtml(
+                              tx.description
+                          )}</span>`
+                        : escapeHtml(tx.description);
+
+                descs.push(
+                    tx.category
+                        ? `${label} (${escapeHtml(tx.category)})`
+                        : label
+                );
             }
         });
+
+        balance += income - expense;
 
         const tr = document.createElement("tr");
         if (balance < 0) tr.classList.add("negative");
 
         tr.innerHTML = `
-            <td>${d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" })}</td>
+            <td>${formatDate(iso)}</td>
+            <td>${descs.join("<br>")}</td>
+            <td>${income ? income.toFixed(2) : ""}</td>
+            <td>${expense ? expense.toFixed(2) : ""}</td>
             <td>${balance.toFixed(2)}</td>
         `;
 
-        projectionTableBody.appendChild(tr);
+        projectionTbody.appendChild(tr);
     }
 }
 
-/* ---------- Sticky Find ---------- */
-const findInput = document.getElementById("find-input");
-const findNextBtn = document.getElementById("find-next");
-const findPrevBtn = document.getElementById("find-prev");
-const findTopBtn = document.getElementById("find-top");
+// ---------- Sticky Find ----------
+projectionFindNextBtn.addEventListener("click", () => {
+    const q = projectionFindInput.value.toLowerCase().trim();
+    if (!q) return;
 
-let matches = [];
-let currentMatch = -1;
-
-function performFind() {
-    matches = [];
-    currentMatch = -1;
-
-    const term = (findInput.value || "").toLowerCase();
-    if (!term) return;
-
-    document.querySelectorAll("tr").forEach(row => {
-        row.classList.remove("find-match", "find-current");
-        if (row.innerText.toLowerCase().includes(term)) {
-            matches.push(row);
-            row.classList.add("find-match");
+    const rows = [...projectionTbody.querySelectorAll("tr")];
+    for (let i = 1; i <= rows.length; i++) {
+        const idx = (lastFindIndex + i) % rows.length;
+        if (rows[idx].textContent.toLowerCase().includes(q)) {
+            rows.forEach((r) =>
+                r.classList.remove("projection-match-highlight")
+            );
+            rows[idx].classList.add("projection-match-highlight");
+            rows[idx].scrollIntoView({ behavior: "smooth", block: "center" });
+            lastFindIndex = idx;
+            return;
         }
-    });
-
-    gotoMatch(1);
-}
-
-function gotoMatch(dir) {
-    if (!matches.length) return;
-    currentMatch = (currentMatch + dir + matches.length) % matches.length;
-
-    matches.forEach(r => r.classList.remove("find-current"));
-    const row = matches[currentMatch];
-    row.classList.add("find-current");
-    row.scrollIntoView({ behavior: "smooth", block: "center" });
-}
-
-findNextBtn.addEventListener("click", () => gotoMatch(1));
-findPrevBtn.addEventListener("click", () => gotoMatch(-1));
-findInput.addEventListener("input", performFind);
-
-findTopBtn.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 });
 
-/* ---------- Init ---------- */
+projectionFindInput.addEventListener("input", () => (lastFindIndex = -1));
+
+// ---------- Init ----------
 updateCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
