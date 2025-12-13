@@ -3,7 +3,7 @@
  * Clean, single-source logic
  ****************************************************/
 
-/* ---------- Storage ---------- */
+/* ---------- Storage  Alex's version---------- */
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
 
