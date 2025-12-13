@@ -26,7 +26,7 @@ let settings = loadData("settings", {
 // --------------------------
 // Elements
 // --------------------------
-const addBtn = document.getElementById("addTransaction");
+
 const transactionTable = document.getElementById("transactionTable");
 const projectionTable = document.getElementById("projectionTable");
 const startDateInput = document.getElementById("startDate");
@@ -194,6 +194,61 @@ function addCategory() {
 }
 
 addCategoryButton.addEventListener("click", addCategory);
+
+// ---------- Add Transaction (RESTORED & FIXED) ----------
+const addTxButton = document.getElementById("add-transaction");
+const txDesc = document.getElementById("tx-desc");
+const txAmount = document.getElementById("tx-amount");
+const txType = document.getElementById("tx-type");
+const txFrequency = document.getElementById("tx-frequency");
+const txDate = document.getElementById("tx-date");
+const txCategory = document.getElementById("tx-category");
+
+addTxButton.addEventListener("click", () => {
+    const desc = (txDesc.value || "").trim();
+    const amount = parseFloat(txAmount.value);
+    const type = txType.value;
+    const frequency = txFrequency.value;
+    const date = txDate.value;
+    const category = txCategory.value;
+
+    if (!desc || isNaN(amount)) {
+        alert("Please enter description and amount");
+        return;
+    }
+
+    if (!category) {
+        alert("Please select a category");
+        return;
+    }
+
+    if ((frequency === "monthly" || frequency === "4-weekly") && !date) {
+        alert("Please select a start date");
+        return;
+    }
+
+    transactions.push({
+        description: desc,
+        amount: amount,
+        type: type,
+        frequency: frequency,
+        date: date || "",
+        category: category
+    });
+
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+
+    txDesc.value = "";
+    txAmount.value = "";
+    txDate.value = "";
+    txCategory.value = "";
+    txFrequency.value = "irregular";
+    txType.value = "expense";
+
+    renderTransactionTable();
+    renderProjectionTable();
+});
+
 
 // Populate categories on load
 updateCategoryDropdown();
