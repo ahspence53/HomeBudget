@@ -71,4 +71,26 @@ tbody tr:hover{background:#f1f6ff}
   .floating-find{top:auto;bottom:90px;right:12px;flex-direction:row}
   table{min-width:640px}
   .controls-row{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+  /* ---------- UI Polish ---------- */
+
+/* Softer negative balance */
+tbody tr.negative {
+    background-color: #fdeaea;
+}
+
+/* Irregular transactions stand out but not loud */
+.irregular {
+    color: #7a1f1f;
+    font-weight: 600;
+}
+
+/* Table readability */
+td {
+    vertical-align: top;
+}
+
+/* Slightly tighter rows */
+th, td {
+    padding: 8px 10px;
+}
 }
