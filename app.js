@@ -44,6 +44,8 @@ const findCount = document.getElementById("findCount");
 const toggleNegRows = document.getElementById("toggleNegRows");
 const toggleShowOnlyNeg = document.getElementById("toggleShowOnlyNeg");
 
+let categories = JSON.parse(localStorage.getItem('categories')) || [];
+
 // --------------------------
 // Utility
 // --------------------------
@@ -162,6 +164,41 @@ function buildProjection() {
         projectionTable.appendChild(row);
     });
 }
+// ---------- Categories ----------
+const txCategorySelect = document.getElementById("tx-category");
+const newCategoryInput = document.getElementById("new-category");
+const addCategoryButton = document.getElementById("add-category");
+
+function updateCategoryDropdown() {
+    txCategorySelect.innerHTML = '<option value="" disabled selected>Select category</option>';
+    categories.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        txCategorySelect.appendChild(opt);
+    });
+}
+
+function addCategory() {
+    const newCat = (newCategoryInput.value || "").trim();
+    if (!newCat) return;
+
+    if (!categories.includes(newCat)) {
+        categories.push(newCat);
+        localStorage.setItem("categories", JSON.stringify(categories));
+    }
+
+    updateCategoryDropdown();
+    txCategorySelect.value = newCat;
+    newCategoryInput.value = "";
+}
+
+addCategoryButton.addEventListener("click", addCategory);
+
+// Populate categories on load
+updateCategoryDropdown();
+
+
 
 // --------------------------
 // Add Transaction
