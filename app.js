@@ -7,7 +7,7 @@
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
 
-/* ---------- DOM Elements ---------- */
+/* ---------- DOM Elements ---------- *
 const txDesc = document.getElementById("tx-desc");
 const txAmount = document.getElementById("tx-amount");
 const txType = document.getElementById("tx-type");
@@ -103,6 +103,10 @@ function renderTransactionTable() {
         if (tx.frequency === "irregular") {
             tr.style.fontWeight = "bold";
         }
+
+
+        
+
 
         tr.innerHTML = `
             <td>${tx.date ? formatDate(tx.date) : ""}</td>
