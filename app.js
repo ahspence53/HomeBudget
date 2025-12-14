@@ -238,8 +238,10 @@ function renderProjectionTable() {
             <td>${expense ? expense.toFixed(2) : ""}</td>
             <td>${balance.toFixed(2)}</td>
         `;
-
+// ---added scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         projectionTbody.appendChild(tr);
+        
     }
 }
 
