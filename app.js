@@ -108,7 +108,8 @@ addTxButton.addEventListener("click", () => {
 
     if (!tx.description) return alert("Enter description");
     if (
-        (tx.frequency === "monthly" || tx.frequency === "4-weekly") &&
+        // ------- (tx.frequency === "monthly" || tx.frequency === "4-weekly") &&
+         (tx.frequency === "monthly" || tx.frequency === "4-weekly" || tx.frequency === "irregular") &&
         !tx.date
     )
         return alert("Choose a start date");
