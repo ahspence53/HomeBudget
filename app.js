@@ -239,7 +239,7 @@ function renderProjectionTable() {
             <td>${balance.toFixed(2)}</td>
         `;
 // ---added scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    
         projectionTbody.appendChild(tr);
         
     }
@@ -268,7 +268,7 @@ projectionFindNextBtn.addEventListener("click", () => {
 projectionFindInput.addEventListener("input", () => (lastFindIndex = -1));
 
 // ---------- Init ----------
-window.scrollTo({ top: 0, behavior: 'smooth' });
+
 updateCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
