@@ -267,6 +267,24 @@ projectionFindNextBtn.addEventListener("click", () => {
 
 projectionFindInput.addEventListener("input", () => (lastFindIndex = -1));
 
+// Sample transactions for testing
+const sampleTransactions = [
+    { date: '2025-12-15', description: 'Salary', type: 'income', amount: 2500, frequency: 'monthly', category: 'Income' },
+    { date: '2025-12-16', description: 'O\'Neil Gas', type: 'expense', amount: 120, frequency: 'monthly', category: 'Household' },
+    { date: '2025-12-20', description: 'Aviva Life', type: 'expense', amount: 50, frequency: 'monthly', category: 'Insurance' },
+    { date: '2025-12-25', description: 'Christmas Gifts', type: 'expense', amount: 200, frequency: 'irregular', category: 'Gifts' },
+    { date: '2026-01-01', description: 'TV License', type: 'expense', amount: 15, frequency: 'monthly', category: 'Bills' },
+    { date: '2026-01-05', description: 'Freelance Work', type: 'income', amount: 500, frequency: 'irregular', category: 'Income' },
+];
+
+// Add sample transactions
+sampleTransactions.forEach(tx => {
+    addTransactionObj(tx);
+});
+
+console.log('Sample transactions added. Check your table!');
+
+
 // ---------- Init ----------
 
 updateCategoryDropdown();
