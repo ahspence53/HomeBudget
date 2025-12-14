@@ -268,6 +268,7 @@ projectionFindNextBtn.addEventListener("click", () => {
 projectionFindInput.addEventListener("input", () => (lastFindIndex = -1));
 
 // ---------- Init ----------
+window.scrollTo({ top: 0, behavior: 'smooth' });
 updateCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
