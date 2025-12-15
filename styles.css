@@ -93,4 +93,17 @@ td {
 th, td {
     padding: 8px 10px;
 }
+/* Alex Spence: Mon 15 Dec 2025 */
+  /* Negative balance row */
+.negative-row {
+    background-color: rgba(255, 0, 0, 0.08);
+}
+
+/* Irregular transaction styling */
+.irregular {
+    background-color: rgba(255, 165, 0, 0.15);
+    font-weight: bold;
+}
+
+  
 }
