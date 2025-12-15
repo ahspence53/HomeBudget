@@ -264,7 +264,17 @@ projectionFindNextBtn.addEventListener("click", () => {
 
 projectionFindInput.addEventListener("input", () => (lastFindIndex = -1));
 
-// ---------- Init ----------
-updateCategoryDropdown();
-renderTransactionTable();
-renderProjectionTable();
+document.addEventListener("DOMContentLoaded", () => {
+
+    // Top button (FIXED)
+    const backToTopBtn = document.getElementById("back-to-top");
+    if (backToTopBtn) {
+        backToTopBtn.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    }
+
+    updateCategoryDropdown();
+    renderTransactionTable();
+    renderProjectionTable();
+});
