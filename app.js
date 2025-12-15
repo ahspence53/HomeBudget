@@ -274,3 +274,11 @@ projectionFindInput.addEventListener("input", () => (lastFindIndex = -1));
 updateCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
+
+// ---------- Back to Top ----------
+const backToTopBtn = document.getElementById("back-to-top");
+if (backToTopBtn) {
+    backToTopBtn.addEventListener("click", () => {
+        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    });
+}
