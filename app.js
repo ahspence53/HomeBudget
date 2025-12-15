@@ -195,11 +195,10 @@ function renderProjectionTable() {
     const end = new Date(start);
     end.setMonth(end.getMonth() + 24);
 
-    for (
-        let d = new Date(start);
-        d <= end;
-        d.setDate(d.getDate() + 1)
-    ) {
+    let d = new Date(start);
+d.setHours(12, 0, 0, 0); // DST-safe
+
+for (; d <= end; d.setDate(d.getDate() + 1)) {
         const iso = toISO(d);
         let income = 0;
         let expense = 0;
