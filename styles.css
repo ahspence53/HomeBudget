@@ -1,107 +1,41 @@
-:root{
-  --blue:#2a7bff;
-  --blue-dark:#1a5cd8;
-  --bg:#f4f6f8;
-  --panel:#fff;
-  --muted:#888;
-  --match:#fff59d;
-  --current:#ffd700;
-  --neg:#ffe6e6;
-  --irreg:#fff4e6;
-  --shadow: 0 6px 18px rgba(17,24,39,0.08);
+body {
+  font-family: system-ui, sans-serif;
+  padding: 1rem;
 }
 
-*{box-sizing:border-box}
-body{
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  margin:18px;
-  background:var(--bg);
-  color:#222;
-  line-height:1.35;
-}
-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-header h1{margin:0;font-size:1.25rem}
-header .version{color:var(--muted);font-size:0.9rem}
-
-.panel{background:var(--panel);padding:14px;border-radius:10px;margin-bottom:18px;box-shadow:var(--shadow)}
-.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.controls-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:center}
-
-input[type="text"], input[type="number"], input[type="date"], select{
-  padding:8px;border:1px solid #cfcfcf;border-radius:6px;background:white;
-}
-button{padding:8px 10px;border-radius:6px;border:0;background:var(--blue);color:white;cursor:pointer}
-button.primary{background:var(--blue)}
-button:hover{opacity:0.95}
-#export-csv{background:#4b5563}
-
-table{width:100%;border-collapse:collapse;margin-top:10px;min-width:720px}
-thead{background:var(--blue);color:white;position:sticky;top:0;z-index:3}
-th,td{padding:10px;border-bottom:1px solid #eef2f7;text-align:left}
-tbody tr:nth-child(even){background:#fbfdff}
-tbody tr:hover{background:#f1f6ff}
-
-/* Irregular highlight */
-.irregular{font-weight:700;background-color:var(--irreg);padding:2px 4px;border-radius:3px;}
-
-/* Negative balances */
-.neg-row{background:var(--neg) !important}
-.neg-cell{color:#b91c1c;font-weight:700}
-
-/* Find highlights */
-.projection-match-highlight{background:var(--match) !important}
-.projection-current-highlight{background:var(--current) !important;box-shadow:inset 0 -3px rgba(0,0,0,0.06)}
-
-/* Floating back to top */
-.floating-top{position:fixed;bottom:16px;right:16px;background:var(--blue);color:white;padding:10px;border-radius:10px;border:0;z-index:9999;box-shadow:var(--shadow)}
-
-/* Floating Find toolbar */
-.floating-find{
-  position:fixed;top:96px;right:20px;background:var(--blue);color:white;padding:8px 10px;border-radius:10px;display:flex;align-items:center;gap:6px;z-index:99999;box-shadow:var(--shadow);
-}
-.floating-find input{min-width:220px;padding:6px;border-radius:6px;border:0}
-.floating-find button{background:transparent;color:white;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.12)}
-#find-counter{font-weight:700;color:white}
-
-/* Chart wrapper */
-.chart-wrapper{background:linear-gradient(180deg,rgba(255,255,255,0.6),transparent);padding:10px;border-radius:8px;margin-bottom:8px}
-
-/* Responsive */
-@media (max-width:800px){
-  .floating-find{top:auto;bottom:90px;right:12px;flex-direction:row}
-  table{min-width:640px}
-  .controls-row{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
-  /* ---------- UI Polish ---------- */
-
-/* Softer negative balance */
-tbody tr.negative {
-    background-color: #fdeaea;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
 }
 
-/* Irregular transactions stand out but not loud */
-.irregular {
-    color: #7a1f1f;
-    font-weight: 600;
-}
-
-/* Table readability */
-td {
-    vertical-align: top;
-}
-
-/* Slightly tighter rows */
 th, td {
-    padding: 8px 10px;
-
-  /* Negative balance row */
-.negative-row {
-    background-color: rgba(255, 0, 0, 0.08);
+  border: 1px solid #ccc;
+  padding: 0.4rem;
 }
 
-/* Irregular transaction styling */
+.negative {
+  background: #ffe6e6;
+}
+
 .irregular {
-    background-color: rgba(255, 165, 0, 0.15);
-    font-weight: bold;
+  font-weight: bold;
 }
+
+.projection-match-highlight {
+  background: yellow;
 }
+
+.floating-find {
+  position: sticky;
+  top: 0;
+  background: #f8f8f8;
+  padding: 0.5rem;
+  z-index: 10;
+}
+
+.floating-top {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
 }
