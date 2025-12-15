@@ -194,7 +194,10 @@ function occursOn(tx, iso) {
     // Anything else: never occurs
     return false;
 }
-
+function normaliseFrequency(freq) {
+    if (!freq) return "";
+    return freq.toString().trim().toLowerCase();
+}
 // ---------- Projection (FIXED) ----------
 function renderProjectionTable() {
     projectionTbody.innerHTML = "";
@@ -216,9 +219,7 @@ function renderProjectionTable() {
         let descs = [];
 
         transactions.forEach((tx) => {
-            if (occursOn(tx, iso)) {
-                if (tx.type === "income") income += tx.amount;
-                else expense += tx.amount;
+    tx.frequency = normaliseFrequency(tx.frequency);
 
                 const label =
                     tx.frequency === "irregular"
