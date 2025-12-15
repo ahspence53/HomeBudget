@@ -110,39 +110,7 @@ function renderTransactionTable() {
       <td>${tx.type}</td>
       <td>${tx.amount.toFixed(2)}</td>
       <td>${tx.category}</td>
-      <td>
-  <button class="edit-btn" data-i="${idx}">Edit</button>
-  <button class="delete-btn" data-i="${idx}">Delete</button>
-</td>
-
-// Edit
-tr.querySelector(".edit-btn").onclick = () => {
-    const tx = transactions[idx];
-
-    txDesc.value = tx.description;
-    txAmount.value = tx.amount;
-    txType.value = tx.type;
-    txFrequency.value = tx.frequency;
-    txDate.value = tx.date;
-    txCategorySelect.value = tx.category || "";
-
-    // remove original transaction
-    transactions.splice(idx, 1);
-    saveTransactions();
-
-    renderTransactionTable();
-    renderProjectionTable();
-};
-
-// Delete
-tr.querySelector(".delete-btn").onclick = () => {
-    if (confirm("Delete this transaction?")) {
-        transactions.splice(idx, 1);
-        saveTransactions();
-        renderTransactionTable();
-        renderProjectionTable();
-    }
-};
+      <td><button>Delete</button></td>`;
     tr.querySelector("button").onclick = () => {
       transactions.splice(i, 1);
       saveTransactions();
