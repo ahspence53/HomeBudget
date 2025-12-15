@@ -195,10 +195,11 @@ function renderProjectionTable() {
     const end = new Date(start);
     end.setMonth(end.getMonth() + 24);
 
-    let d = new Date(start);
-d.setHours(12, 0, 0, 0); // DST-safe
-
-for (; d <= end; d.setDate(d.getDate() + 1)) {{
+    for (
+        let d = new Date(start);
+        d <= end;
+        d.setDate(d.getDate() + 1)
+    ) {
         const iso = toISO(d);
         let income = 0;
         let expense = 0;
@@ -264,42 +265,6 @@ projectionFindNextBtn.addEventListener("click", () => {
 projectionFindInput.addEventListener("input", () => (lastFindIndex = -1));
 
 // ---------- Init ----------
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    // One-time normalisation of legacy transaction frequency values
-    let normalised = false;
-    transactions.forEach(tx => {
-        if (tx.frequency) {
-            const clean = tx.frequency.toString().trim().toLowerCase();
-            if (clean !== tx.frequency) {
-                tx.frequency = clean;
-                normalised = true;
-            }
-        }
-    });
-
-    if (normalised) {
-        localStorage.setItem("transactions", JSON.stringify(transactions));
-    }
-
-    // Top button (FIXED)
-    const topBtn = document.getElementById("topBtn");
-    if (topBtn) {
-        topBtn.addEventListener("click", () => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-    }
-
-    updateCategoryDropdown();
-    renderTransactionTable();
-    renderProjectionTable();
-
-    // Back-to-top button (FIXED)
-const backToTopBtn = document.getElementById("back-to-top");
-if (backToTopBtn) {
-    backToTopBtn.addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-}
-});
+updateCategoryDropdown();
+renderTransactionTable();
+renderProjectionTable();
