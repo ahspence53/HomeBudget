@@ -295,4 +295,12 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCategoryDropdown();
     renderTransactionTable();
     renderProjectionTable();
+
+    // Back-to-top button (FIXED)
+const backToTopBtn = document.getElementById("back-to-top");
+if (backToTopBtn) {
+    backToTopBtn.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+}
 });
