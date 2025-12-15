@@ -266,30 +266,33 @@ projectionFindInput.addEventListener("input", () => (lastFindIndex = -1));
 
 // ---------- Init ----------
 
-// One-time normalisation of legacy transaction frequency values
-let normalised = false;
-transactions.forEach(tx => {
-    if (tx.frequency) {
-        const clean = tx.frequency.toString().trim().toLowerCase();
-        if (clean !== tx.frequency) {
-            tx.frequency = clean;
-            normalised = true;
+document.addEventListener("DOMContentLoaded", () => {
+
+    // One-time normalisation of legacy transaction frequency values
+    let normalised = false;
+    transactions.forEach(tx => {
+        if (tx.frequency) {
+            const clean = tx.frequency.toString().trim().toLowerCase();
+            if (clean !== tx.frequency) {
+                tx.frequency = clean;
+                normalised = true;
+            }
         }
-    }
-});
-
-if (normalised) {
-    localStorage.setItem("transactions", JSON.stringify(transactions));
-}
-
-// Top button
-const topBtn = document.getElementById("topBtn");
-if (topBtn) {
-    topBtn.addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
     });
-}
 
-updateCategoryDropdown();
-renderTransactionTable();
-renderProjectionTable();
+    if (normalised) {
+        localStorage.setItem("transactions", JSON.stringify(transactions));
+    }
+
+    // Top button (FIXED)
+    const topBtn = document.getElementById("topBtn");
+    if (topBtn) {
+        topBtn.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    }
+
+    updateCategoryDropdown();
+    renderTransactionTable();
+    renderProjectionTable();
+});
