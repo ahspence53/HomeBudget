@@ -57,6 +57,20 @@ function escapeHtml(str) {
         : "";
 }
 
+function normalizeDateString(str) {
+    return str
+        .toLowerCase()
+        .replace(/\s+/g, "")
+        .replace(/[-\/]/g, "");
+}
+
+function normalizeSearch(str) {
+    return str
+        .toLowerCase()
+        .replace(/\s+/g, "")
+        .replace(/[-\/]/g, "");
+}
+
 // ---------- Categories ----------
 function updateCategoryDropdown() {
     txCategorySelect.innerHTML =
@@ -244,26 +258,62 @@ for (; d <= end; d.setDate(d.getDate() + 1)) {
 }
 
 // ---------- Sticky Find ----------
-projectionFindNextBtn.addEventListener("click", () => {
-    const q = projectionFindInput.value.toLowerCase().trim();
-    if (!q) return;
+// ---------- Projection Find (ENHANCED) ----------
+let projectionMatches = [];
+let projectionMatchPos = -1;
 
-    const rows = [...projectionTbody.querySelectorAll("tr")];
-    for (let i = 1; i <= rows.length; i++) {
-        const idx = (lastFindIndex + i) % rows.length;
-        if (rows[idx].textContent.toLowerCase().includes(q)) {
-            rows.forEach((r) =>
-                r.classList.remove("projection-match-highlight")
-            );
-            rows[idx].classList.add("projection-match-highlight");
-            rows[idx].scrollIntoView({ behavior: "smooth", block: "center" });
-            lastFindIndex = idx;
+function runProjectionSearch() {
+    const raw = projectionFindInput.value.trim();
+    if (!raw) return;
+
+    const q = normalizeSearch(raw);
+    const rows = Array.from(projectionTbody.querySelectorAll("tr"));
+
+    projectionMatches = rows.filter(row => {
+        const text = normalizeSearch(row.textContent);
+        return text.includes(q);
+    });
+
+    projectionMatchPos = -1;
+    updateFindCounter();
+}
+
+function updateFindCounter() {
+    const counter = document.getElementById("projection-find-counter");
+    if (!counter) return;
+    if (projectionMatches.length === 0) {
+        counter.textContent = "0 / 0";
+    } else {
+        counter.textContent = `${projectionMatchPos + 1} / ${projectionMatches.length}`;
+    }
+}
+
+projectionFindNextBtn.addEventListener("click", () => {
+    if (!projectionMatches.length) {
+        runProjectionSearch();
+        if (!projectionMatches.length) {
+            alert("No matches found");
             return;
         }
     }
+
+    projectionMatchPos++;
+    if (projectionMatchPos >= projectionMatches.length) {
+        projectionMatchPos = 0;
+    }
+
+    projectionMatches.forEach(r => r.classList.remove("projection-match-highlight"));
+
+    const row = projectionMatches[projectionMatchPos];
+    row.classList.add("projection-match-highlight");
+    row.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    updateFindCounter();
 });
 
-projectionFindInput.addEventListener("input", () => (lastFindIndex = -1));
+projectionFindInput.addEventListener("input", () => {
+    runProjectionSearch();
+});
 
 document.addEventListener("DOMContentLoaded", () => {
 
