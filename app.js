@@ -266,14 +266,22 @@ projectionFindInput.addEventListener("input", () => (lastFindIndex = -1));
 
 // ---------- Init ----------
 
+// One-time normalisation of legacy transaction frequency values
+let normalised = false;
+transactions.forEach(tx => {
+    if (tx.frequency) {
+        const clean = tx.frequency.toString().trim().toLowerCase();
+        if (clean !== tx.frequency) {
+            tx.frequency = clean;
+            normalised = true;
+        }
+    }
+});
+
+if (normalised) {
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+}
+
 updateCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
-
-// ---------- Back to Top ----------
-const backToTopBtn = document.getElementById("back-to-top");
-if (backToTopBtn) {
-    backToTopBtn.addEventListener("click", () => {
-        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-    });
-}
