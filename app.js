@@ -154,46 +154,32 @@ function renderTransactionTable() {
 
 // ---------- Recurrence Logic (FIXED) ----------
 function occursOn(tx, iso) {
- // ---------- Recurrence Logic (STRICT) ----------
-function occursOn(tx, iso) {
-    if (!tx || !iso || !tx.frequency) return false;
+    if (!tx.date || !iso) return false;
 
+    const start = new Date(tx.date);
     const current = new Date(iso);
-    if (isNaN(current)) return false;
 
-    // Irregular: exact date match only
+    if (current < start) return false;
+
     if (tx.frequency === "irregular") {
         return tx.date === iso;
     }
 
-    // Recurring transactions must have a valid start date
-    if (!tx.date) return false;
-
-    const start = new Date(tx.date);
-    if (isNaN(start) || current < start) return false;
-
-    // Monthly: same day-of-month, with end-of-month fallback
     if (tx.frequency === "monthly") {
-        const targetDay = start.getDate();
-        const lastDayOfMonth = new Date(
+        const day = start.getDate();
+        const lastDay = new Date(
             current.getFullYear(),
             current.getMonth() + 1,
             0
         ).getDate();
-        return current.getDate() === Math.min(targetDay, lastDayOfMonth);
+        return current.getDate() === Math.min(day, lastDay);
     }
 
-    // 4-weekly: every 28 days from start
     if (tx.frequency === "4-weekly") {
         const diffDays = Math.floor(
             (current - start) / (1000 * 60 * 60 * 24)
         );
         return diffDays >= 0 && diffDays % 28 === 0;
-    }
-
-    // Anything else: never occurs
-    return false;
-}
     }
 
     return false;
