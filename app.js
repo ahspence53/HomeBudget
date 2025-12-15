@@ -108,8 +108,7 @@ addTxButton.addEventListener("click", () => {
 
     if (!tx.description) return alert("Enter description");
     if (
-        // ------- (tx.frequency === "monthly" || tx.frequency === "4-weekly") &&
-         (tx.frequency === "monthly" || tx.frequency === "4-weekly" || tx.frequency === "irregular") &&
+        (tx.frequency === "monthly" || tx.frequency === "4-weekly") &&
         !tx.date
     )
         return alert("Choose a start date");
@@ -154,36 +153,28 @@ function renderTransactionTable() {
 }
 
 // ---------- Recurrence Logic (FIXED) ----------
-// ---------- Recurrence Logic (STRICT) ----------
 function occursOn(tx, iso) {
-    if (!tx || !iso || !tx.frequency) return false;
+    if (!tx.date || !iso) return false;
 
+    const start = new Date(tx.date);
     const current = new Date(iso);
-    if (isNaN(current)) return false;
 
-    // Irregular: exact date match only
+    if (current < start) return false;
+
     if (tx.frequency === "irregular") {
         return tx.date === iso;
     }
 
-    // Recurring transactions must have a valid start date
-    if (!tx.date) return false;
-
-    const start = new Date(tx.date);
-    if (isNaN(start) || current < start) return false;
-
-    // Monthly: same day-of-month, with end-of-month fallback
     if (tx.frequency === "monthly") {
-        const targetDay = start.getDate();
-        const lastDayOfMonth = new Date(
+        const day = start.getDate();
+        const lastDay = new Date(
             current.getFullYear(),
             current.getMonth() + 1,
             0
         ).getDate();
-        return current.getDate() === Math.min(targetDay, lastDayOfMonth);
+        return current.getDate() === Math.min(day, lastDay);
     }
 
-    // 4-weekly: every 28 days from start
     if (tx.frequency === "4-weekly") {
         const diffDays = Math.floor(
             (current - start) / (1000 * 60 * 60 * 24)
@@ -191,13 +182,9 @@ function occursOn(tx, iso) {
         return diffDays >= 0 && diffDays % 28 === 0;
     }
 
-    // Anything else: never occurs
     return false;
 }
-function normaliseFrequency(freq) {
-    if (!freq) return "";
-    return freq.toString().trim().toLowerCase();
-}
+
 // ---------- Projection (FIXED) ----------
 function renderProjectionTable() {
     projectionTbody.innerHTML = "";
@@ -219,7 +206,9 @@ function renderProjectionTable() {
         let descs = [];
 
         transactions.forEach((tx) => {
-    tx.frequency = normaliseFrequency(tx.frequency);
+            if (occursOn(tx, iso)) {
+                if (tx.type === "income") income += tx.amount;
+                else expense += tx.amount;
 
                 const label =
                     tx.frequency === "irregular"
@@ -248,10 +237,8 @@ function renderProjectionTable() {
             <td>${expense ? expense.toFixed(2) : ""}</td>
             <td>${balance.toFixed(2)}</td>
         `;
-// ---added scroll to top
-    
+
         projectionTbody.appendChild(tr);
-        
     }
 }
 
@@ -277,18 +264,7 @@ projectionFindNextBtn.addEventListener("click", () => {
 
 projectionFindInput.addEventListener("input", () => (lastFindIndex = -1));
 
-
-
 // ---------- Init ----------
-
 updateCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
-
-// ---------- Back to Top ----------
-const backToTopBtn = document.getElementById("back-to-top");
-if (backToTopBtn) {
-    backToTopBtn.addEventListener("click", () => {
-        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-    });
-}
