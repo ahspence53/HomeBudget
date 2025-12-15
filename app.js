@@ -282,6 +282,14 @@ if (normalised) {
     localStorage.setItem("transactions", JSON.stringify(transactions));
 }
 
+// Top button
+const topBtn = document.getElementById("topBtn");
+if (topBtn) {
+    topBtn.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+}
+
 updateCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
