@@ -202,7 +202,83 @@ function occursOn(tx, iso) {
 }
 
 // ---------- Projection (FIXED) ----------
-function renderProjectionTable() {
+// ---------- Projection Find (STICKY + DATES + COUNTER) ----------
+const findInput = document.getElementById("projection-find-input");
+const findNextBtn = document.getElementById("projection-find-next");
+const findPrevBtn = document.getElementById("projection-find-prev");
+const findCounter = document.getElementById("find-counter");
+
+let findMatches = [];
+let findIndex = -1;
+
+function collectFindMatches() {
+    const queryRaw = findInput.value.trim();
+    const query = normalizeSearch(queryRaw);
+
+    findMatches = [];
+    findIndex = -1;
+
+    if (!query) {
+        updateFindCounter();
+        return;
+    }
+
+    const rows = Array.from(projectionTbody.querySelectorAll("tr"));
+
+    rows.forEach(row => {
+        const text = normalizeSearch(row.textContent);
+        if (text.includes(query)) {
+            findMatches.push(row);
+        }
+    });
+
+    updateFindCounter();
+}
+
+function highlightCurrentMatch() {
+    findMatches.forEach(r => r.classList.remove("projection-match-highlight"));
+
+    if (findIndex < 0 || findIndex >= findMatches.length) return;
+
+    const row = findMatches[findIndex];
+    row.classList.add("projection-match-highlight");
+    row.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function updateFindCounter() {
+    if (!findCounter) return;
+    if (findMatches.length === 0) {
+        findCounter.textContent = "0/0";
+    } else {
+        findCounter.textContent = `${findIndex + 1}/${findMatches.length}`;
+    }
+}
+
+findInput.addEventListener("input", () => {
+    collectFindMatches();
+});
+
+findNextBtn.addEventListener("click", () => {
+    if (!findMatches.length) collectFindMatches();
+    if (!findMatches.length) return;
+
+    findIndex++;
+    if (findIndex >= findMatches.length) findIndex = 0;
+
+    highlightCurrentMatch();
+    updateFindCounter();
+});
+
+findPrevBtn.addEventListener("click", () => {
+    if (!findMatches.length) collectFindMatches();
+    if (!findMatches.length) return;
+
+    findIndex--;
+    if (findIndex < 0) findIndex = findMatches.length - 1;
+
+    highlightCurrentMatch();
+    updateFindCounter();
+}); renderProjectionTable() {
     projectionTbody.innerHTML = "";
     if (!startDate) return;
 
@@ -257,74 +333,77 @@ for (; d <= end; d.setDate(d.getDate() + 1)) {
     }
 }
 
-// ---------- Sticky Find ----------
-// ---------- Projection Find (ENHANCED) ----------
-let projectionMatches = [];
-let projectionMatchPos = -1;
+// ---------- Sticky Projection Find (FINAL) ----------
+const findInput = document.getElementById("projection-find-input");
+const findNextBtn = document.getElementById("projection-find-next");
+const findPrevBtn = document.getElementById("projection-find-prev");
+const findCounter = document.getElementById("find-counter");
 
-function runProjectionSearch() {
-    const raw = projectionFindInput.value.trim();
-    if (!raw) return;
+let findMatches = [];
+let findIndex = -1;
 
-    const q = normalizeSearch(raw);
+function normalizeSearch(str) {
+    return str
+        .toLowerCase()
+        .replace(/\s+/g, "")
+        .replace(/[-\/]/g, "");
+}
+
+function collectFindMatches() {
+    const query = normalizeSearch(findInput.value.trim());
+    findMatches = [];
+    findIndex = -1;
+
+    if (!query) {
+        updateFindCounter();
+        return;
+    }
+
     const rows = Array.from(projectionTbody.querySelectorAll("tr"));
-
-    projectionMatches = rows.filter(row => {
-        const text = normalizeSearch(row.textContent);
-        return text.includes(q);
+    rows.forEach(row => {
+        if (normalizeSearch(row.textContent).includes(query)) {
+            findMatches.push(row);
+        }
     });
 
-    projectionMatchPos = -1;
     updateFindCounter();
+}
+
+function highlightMatch() {
+    findMatches.forEach(r => r.classList.remove("projection-match-highlight"));
+    if (findIndex < 0 || findIndex >= findMatches.length) return;
+
+    const row = findMatches[findIndex];
+    row.classList.add("projection-match-highlight");
+    row.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 function updateFindCounter() {
-    const counter = document.getElementById("projection-find-counter");
-    if (!counter) return;
-    if (projectionMatches.length === 0) {
-        counter.textContent = "0 / 0";
-    } else {
-        counter.textContent = `${projectionMatchPos + 1} / ${projectionMatches.length}`;
-    }
+    if (!findCounter) return;
+    findCounter.textContent = findMatches.length
+        ? `${findIndex + 1}/${findMatches.length}`
+        : "0/0";
 }
 
-projectionFindNextBtn.addEventListener("click", () => {
-    if (!projectionMatches.length) {
-        runProjectionSearch();
-        if (!projectionMatches.length) {
-            alert("No matches found");
-            return;
-        }
-    }
+findInput.addEventListener("input", collectFindMatches);
 
-    projectionMatchPos++;
-    if (projectionMatchPos >= projectionMatches.length) {
-        projectionMatchPos = 0;
-    }
+findNextBtn.addEventListener("click", () => {
+    if (!findMatches.length) collectFindMatches();
+    if (!findMatches.length) return;
 
-    projectionMatches.forEach(r => r.classList.remove("projection-match-highlight"));
-
-    const row = projectionMatches[projectionMatchPos];
-    row.classList.add("projection-match-highlight");
-    row.scrollIntoView({ behavior: "smooth", block: "center" });
-
+    findIndex = (findIndex + 1) % findMatches.length;
+    highlightMatch();
     updateFindCounter();
 });
 
-projectionFindInput.addEventListener("input", () => {
-    runProjectionSearch();
+findPrevBtn.addEventListener("click", () => {
+    if (!findMatches.length) collectFindMatches();
+    if (!findMatches.length) return;
+
+    findIndex = (findIndex - 1 + findMatches.length) % findMatches.length;
+    highlightMatch();
+    updateFindCounter();
 });
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    // Top button (FIXED)
-    const backToTopBtn = document.getElementById("back-to-top");
-    if (backToTopBtn) {
-        backToTopBtn.addEventListener("click", () => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-    }
-
     updateCategoryDropdown();
     renderTransactionTable();
     renderProjectionTable();
