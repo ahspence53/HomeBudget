@@ -90,6 +90,7 @@ addTxButton.onclick = () => {
   };
 
   if (!tx.description) return alert("Description required");
+if (!tx.category) return alert("Please select a category");
 
   transactions.push(tx);
   saveTransactions();
