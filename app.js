@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", () => {
 // ---------- Storage ----------
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
@@ -258,3 +259,4 @@ document.getElementById("back-to-top").onclick = () =>
 updateCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
+  });
