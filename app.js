@@ -133,16 +133,17 @@ function renderTransactionTable() {
   transactionTableBody.innerHTML = "";
   sorted.forEach((tx, idx) => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `
+    <tr.innerHTML = `
   <td>${formatDate(tx.date)}</td>
   <td>${tx.description}</td>
   <td>${tx.type}</td>
   <td>${tx.amount.toFixed(2)}</td>
   <td>${tx.category}</td>
   <td>
-    <button class="edit-btn">Edit</button>
-    <button class="delete-btn">Delete</button>
-  </td>`;
+    <button class="edit-btn" data-i="${idx}">Edit</button>
+    <button class="delete-btn" data-i="${idx}">Delete</button>
+  </td>
+`;
     tr.querySelector(".edit-btn").onclick = () => {
   txDesc.value = tx.description;
   txAmount.value = tx.amount;
