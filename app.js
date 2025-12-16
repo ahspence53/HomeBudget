@@ -1,4 +1,4 @@
-
+document.addEventListener("DOMContentLoaded", () => {
 
 /* ================= STORAGE ================= */
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
@@ -120,10 +120,10 @@ function renderTransactionTable() {
   transactionTableBody.innerHTML = "";
 
   const sorted = [...transactions].sort(
-    (a, b) => new Date(a.date) - new Date(b.date)
+    (a,b) => new Date(a.date) - new Date(b.date)
   );
 
-  sorted.forEach((tx) => {
+  sorted.forEach(tx => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
@@ -138,17 +138,6 @@ function renderTransactionTable() {
       </td>
     `;
 
-    tr.querySelector(".delete-btn").onclick = () => {
-      if (!confirm("Delete this transaction?")) return;
-      const i = transactions.indexOf(tx);
-      if (i > -1) {
-        transactions.splice(i, 1);
-        saveTransactions();
-        renderTransactionTable();
-        renderProjectionTable();
-      }
-    };
-
     tr.querySelector(".edit-btn").onclick = () => {
       txDesc.value = tx.description;
       txAmount.value = tx.amount;
@@ -159,7 +148,15 @@ function renderTransactionTable() {
 
       editingIndex = transactions.indexOf(tx);
       addTxButton.textContent = "Save Changes";
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({top:0,behavior:"smooth"});
+    };
+
+    tr.querySelector(".delete-btn").onclick = () => {
+      if (!confirm("Delete this transaction?")) return;
+      transactions.splice(transactions.indexOf(tx),1);
+      saveTransactions();
+      renderTransactionTable();
+      renderProjectionTable();
     };
 
     transactionTableBody.appendChild(tr);
@@ -273,4 +270,4 @@ updateCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
 
-
+});
