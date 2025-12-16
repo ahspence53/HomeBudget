@@ -72,6 +72,7 @@ saveConfigButton.onclick = () => {
   openingBalance = parseFloat(openingBalanceInput.value) || 0;
   localStorage.setItem("startDate", startDate);
   localStorage.setItem("openingBalance", openingBalance);
+  alert("Saving config");
   renderProjectionTable();
 };
 
