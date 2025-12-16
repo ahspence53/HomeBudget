@@ -143,6 +143,27 @@ function renderTransactionTable() {
     <button class="edit-btn">Edit</button>
     <button class="delete-btn">Delete</button>
   </td>`;
+    tr.querySelector(".edit-btn").onclick = () => {
+  txDesc.value = tx.description;
+  txAmount.value = tx.amount;
+  txType.value = tx.type;
+  txFrequency.value = tx.frequency;
+  txDate.value = tx.date;
+  txCategorySelect.value = tx.category;
+
+  editingIndex = transactions.indexOf(tx);
+  addTxButton.textContent = "Save Changes";
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+tr.querySelector(".delete-btn").onclick = () => {
+  if (!confirm("Delete this transaction?")) return;
+  transactions.splice(transactions.indexOf(tx), 1);
+  saveTransactions();
+  renderTransactionTable();
+  renderProjectionTable();
+};
    tr.querySelector("button").onclick = () => {
   if (!confirm("Delete this transaction?")) return;
 
