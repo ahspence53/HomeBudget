@@ -98,7 +98,15 @@ addTxButton.onclick = () => {
 
   txDesc.value = txAmount.value = txDate.value = "";
 };
-
+//-added fix code--//
+transactions = transactions.filter(tx =>
+    tx &&
+    typeof tx.amount === "number" &&
+    !isNaN(tx.amount) &&
+    typeof tx.date === "string" &&
+    tx.date.length === 10 &&
+    (tx.type === "income" || tx.type === "expense")
+);
 
 // ---------- Tables ----------
 function renderTransactionTable() {
@@ -234,7 +242,7 @@ document.getElementById("back-to-top").onclick = () =>
   window.scrollTo({top:0,behavior:"smooth"});
 
 // ---------- Init ----------
-
+localStorage.setItem("transactions", JSON.stringify(transactions));
 updateCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
