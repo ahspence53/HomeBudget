@@ -119,12 +119,25 @@ function renderTransactionTable() {
       <td>${tx.amount.toFixed(2)}</td>
       <td>${tx.category}</td>
       <td><button>Delete</button></td>`;
-    tr.querySelector("button").onclick = () => {
-      transactions.splice(i, 1);
-      saveTransactions();
-      renderTransactionTable();
-      renderProjectionTable();
-    };
+   tr.querySelector("button").onclick = () => {
+  if (!confirm("Delete this transaction?")) return;
+
+  const originalIndex = transactions.findIndex(t =>
+    t.date === tx.date &&
+    t.description === tx.description &&
+    t.amount === tx.amount &&
+    t.type === tx.type &&
+    t.frequency === tx.frequency &&
+    t.category === tx.category
+  );
+
+  if (originalIndex > -1) {
+    transactions.splice(originalIndex, 1);
+    saveTransactions();
+    renderTransactionTable();
+    renderProjectionTable();
+  }
+};
     transactionTableBody.appendChild(tr);
   });
 }
