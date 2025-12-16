@@ -53,3 +53,8 @@ input, select, button {
 #add-transaction-section select {
   min-height: 44px;
 }
+
+
+.expense-row td {
+  color: #b00020;
+}
