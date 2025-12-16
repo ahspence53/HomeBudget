@@ -109,7 +109,7 @@ function renderTransactionTable() {
         (a, b) => new Date(a.date) - new Date(b.date)
     );
   transactionTableBody.innerHTML = "";
-  transactions.forEach((tx, i) => {
+  sorted.forEach((tx, idx) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${formatDate(tx.date)}</td>
