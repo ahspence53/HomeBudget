@@ -101,7 +101,7 @@ addTxButton.onclick = () => {
   } else {
     // ADD new
     transactions.push(tx);
-  }
+  };
 
   saveTransactions();
   renderTransactionTable();
