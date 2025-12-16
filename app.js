@@ -233,6 +233,7 @@ document.getElementById("back-to-top").onclick = () =>
   window.scrollTo({top:0,behavior:"smooth"});
 
 // ---------- Init ----------
+transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 updateCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
