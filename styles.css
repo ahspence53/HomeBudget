@@ -39,3 +39,17 @@ th, td {
   bottom: 1rem;
   right: 1rem;
 }
+/* Larger, more readable inputs */
+input, select, button {
+  font-size: 1.05rem;
+  padding: 10px 12px;
+}
+
+#config input {
+  max-width: 220px;
+}
+
+#add-transaction-section input,
+#add-transaction-section select {
+  min-height: 44px;
+}
