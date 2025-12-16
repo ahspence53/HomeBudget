@@ -123,19 +123,39 @@ function renderTransactionTable() {
 
 // ---------- Recurrence ----------
 function occursOn(tx, iso) {
-  const start = new Date(tx.date);
-  const cur = new Date(iso);
-  start.setHours(12,0,0,0);
-  cur.setHours(12,0,0,0);
+    if (!tx.date || !iso) return false;
 
-  if (cur < start) return false;
+    const start = new Date(tx.date);
+    const cur = new Date(iso);
 
-  if (tx.frequency === "irregular") return tx.date === iso;
-  if (tx.frequency === "monthly") return cur.getDate() === start.getDate();
-  if (tx.frequency === "4-weekly")
-    return ((cur - start) / 86400000) % 28 === 0;
+    // DST-safe normalisation
+    start.setHours(12, 0, 0, 0);
+    cur.setHours(12, 0, 0, 0);
 
-  return false;
+    if (cur < start) return false;
+
+    if (tx.frequency === "irregular") {
+        return tx.date === iso;
+    }
+
+    if (tx.frequency === "monthly") {
+        const day = start.getDate();
+        const lastDay = new Date(
+            cur.getFullYear(),
+            cur.getMonth() + 1,
+            0
+        ).getDate();
+        return cur.getDate() === Math.min(day, lastDay);
+    }
+
+    if (tx.frequency === "4-weekly") {
+        const diffDays = Math.round(
+            (cur - start) / 86400000
+        );
+        return diffDays % 28 === 0;
+    }
+
+    return false;
 }
 
 // ---------- Projection ----------
