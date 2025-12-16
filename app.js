@@ -1,9 +1,4 @@
-alert("app.js is running");
-console.log("LS keys:", Object.keys(localStorage));
-console.log("transactions:", localStorage.getItem("transactions"));
-console.log("startDate:", localStorage.getItem("startDate"));
-console.log("openingBalance:", localStorage.getItem("openingBalance"));
-document.addEventListener("DOMContentLoaded", () => {
+
 
 /* ================= STORAGE ================= */
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
@@ -278,4 +273,4 @@ updateCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
 
-});
+
