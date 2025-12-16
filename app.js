@@ -98,16 +98,7 @@ addTxButton.onclick = () => {
 
   txDesc.value = txAmount.value = txDate.value = "";
 };
-// ----fix code added ---//
-transactions = transactions.filter(tx =>
-    tx &&
-    typeof tx.amount === "number" &&
-    !isNaN(tx.amount) &&
-    typeof tx.date === "string" &&
-    tx.date.length === 10 &&
-    (tx.type === "income" || tx.type === "expense")
-);
-localStorage.setItem("transactions", JSON.stringify(transactions));
+
 
 // ---------- Tables ----------
 function renderTransactionTable() {
