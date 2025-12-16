@@ -23,7 +23,7 @@ const saveConfigButton = document.getElementById("save-config");
 
 const transactionTableBody = document.querySelector("#transaction-table tbody");
 const projectionTbody = document.querySelector("#projection-table tbody");
-
+let editingIndex = null;
 // ---------- Utils ----------
 function toISO(d) {
   if (!d) return "";
@@ -89,6 +89,26 @@ addTxButton.onclick = () => {
     date: txDate.value,
     category: txCategorySelect.value
   };
+
+  if (!tx.description) return alert("Description required");
+  if (!tx.category) return alert("Category required");
+
+  if (editingIndex !== null) {
+    // UPDATE existing
+    transactions[editingIndex] = tx;
+    editingIndex = null;
+    addTxButton.textContent = "Add Transaction";
+  } else {
+    // ADD new
+    transactions.push(tx);
+  }
+
+  saveTransactions();
+  renderTransactionTable();
+  renderProjectionTable();
+
+  txDesc.value = txAmount.value = txDate.value = "";
+};
 
   if (!tx.description) return alert("Description required");
 if (!tx.category) return alert("Please select a category");
