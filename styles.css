@@ -53,3 +53,12 @@ input, select, button {
 #add-transaction-section select {
   min-height: 44px;
 }
+.edit-btn {
+  margin-right: 6px;
+  background: #f59e0b;
+  color: #000;
+}
+
+.edit-btn:hover {
+  background: #d97706;
+}
