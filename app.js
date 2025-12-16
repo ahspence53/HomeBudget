@@ -118,7 +118,10 @@ function renderTransactionTable() {
       <td>${tx.type}</td>
       <td>${tx.amount.toFixed(2)}</td>
       <td>${tx.category}</td>
-      <td><button>Delete</button></td>`;
+    <td>
+  <button class="edit-btn">Edit</button>
+  <button class="delete-btn">Delete</button>
+</td>
    tr.querySelector("button").onclick = () => {
   if (!confirm("Delete this transaction?")) return;
 
