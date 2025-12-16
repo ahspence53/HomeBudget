@@ -1,3 +1,4 @@
+alert("app.js is running");
 console.log("LS keys:", Object.keys(localStorage));
 console.log("transactions:", localStorage.getItem("transactions"));
 console.log("startDate:", localStorage.getItem("startDate"));
