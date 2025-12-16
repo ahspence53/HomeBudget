@@ -134,12 +134,15 @@ function renderTransactionTable() {
   sorted.forEach((tx, idx) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${formatDate(tx.date)}</td>
-      <td>${tx.description}</td>
-      <td>${tx.type}</td>
-      <td>${tx.amount.toFixed(2)}</td>
-      <td>${tx.category}</td>
-      <td><button>Delete</button></td>`;
+  <td>${formatDate(tx.date)}</td>
+  <td>${tx.description}</td>
+  <td>${tx.type}</td>
+  <td>${tx.amount.toFixed(2)}</td>
+  <td>${tx.category}</td>
+  <td>
+    <button class="edit-btn">Edit</button>
+    <button class="delete-btn">Delete</button>
+  </td>`;
    tr.querySelector("button").onclick = () => {
   if (!confirm("Delete this transaction?")) return;
 
