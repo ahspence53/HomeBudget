@@ -122,7 +122,39 @@ function renderTransactionTable() {
   <button class="edit-btn">Edit</button>
   <button class="delete-btn">Delete</button>
 </td>
-   tr.querySelector("button").onclick = () => {
+   // EDIT
+tr.querySelector(".edit-btn").onclick = () => {
+  // Populate inputs
+  txDesc.value = tx.description;
+  txAmount.value = tx.amount;
+  txType.value = tx.type;
+  txFrequency.value = tx.frequency;
+  txDate.value = tx.date;
+  txCategorySelect.value = tx.category;
+
+  // Remove original transaction
+  const originalIndex = transactions.findIndex(t =>
+    t.date === tx.date &&
+    t.description === tx.description &&
+    t.amount === tx.amount &&
+    t.type === tx.type &&
+    t.frequency === tx.frequency &&
+    t.category === tx.category
+  );
+
+  if (originalIndex > -1) {
+    transactions.splice(originalIndex, 1);
+    saveTransactions();
+    renderTransactionTable();
+    renderProjectionTable();
+  }
+
+  // Optional: scroll to form
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+// DELETE
+tr.querySelector(".delete-btn").onclick = () => {
   if (!confirm("Delete this transaction?")) return;
 
   const originalIndex = transactions.findIndex(t =>
