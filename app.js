@@ -143,7 +143,7 @@ function renderTransactionTable() {
     <button class="edit-btn" data-i="${idx}">Edit</button>
     <button class="delete-btn" data-i="${idx}">Delete</button>
   </td>
-`;
+  };
     tr.querySelector(".edit-btn").onclick = () => {
   txDesc.value = tx.description;
   txAmount.value = tx.amount;
