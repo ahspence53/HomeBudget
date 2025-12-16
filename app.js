@@ -110,6 +110,10 @@ addTxButton.onclick = () => {
   txDesc.value = txAmount.value = txDate.value = "";
 };
 
+// *** REMOVED DUPLICATE/MALFORMED LOGIC HERE ***
+// The following lines were deleted because they were outside the correct
+// addTxButton.onclick block and contained an unmatched closing brace:
+/*
   if (!tx.description) return alert("Description required");
 if (!tx.category) return alert("Please select a category");
 
@@ -120,6 +124,7 @@ if (!tx.category) return alert("Please select a category");
 
   txDesc.value = txAmount.value = txDate.value = "";
 };
+*/
 
 
 // ---------- Tables ----------
@@ -133,7 +138,7 @@ function renderTransactionTable() {
   transactionTableBody.innerHTML = "";
   sorted.forEach((tx, idx) => {
     const tr = document.createElement("tr");
-    <tr.innerHTML = `
+    tr.innerHTML = ` // *** FIXED SYNTAX ERROR HERE (removed '<' from <tr.innerHTML) ***
   <td>${formatDate(tx.date)}</td>
   <td>${tx.description}</td>
   <td>${tx.type}</td>
@@ -152,6 +157,8 @@ function renderTransactionTable() {
   txDate.value = tx.date;
   txCategorySelect.value = tx.category;
 
+  // Find the index of the transaction object itself,
+  // not the index in the 'sorted' array.
   editingIndex = transactions.indexOf(tx);
   addTxButton.textContent = "Save Changes";
 
@@ -160,11 +167,16 @@ function renderTransactionTable() {
 
 tr.querySelector(".delete-btn").onclick = () => {
   if (!confirm("Delete this transaction?")) return;
+  // Use transactions.indexOf(tx) to find the index in the original array
   transactions.splice(transactions.indexOf(tx), 1);
   saveTransactions();
   renderTransactionTable();
   renderProjectionTable();
 };
+
+// *** REMOVED DUPLICATE/MALFORMED LOGIC HERE ***
+// The following block was redundant and potentially harmful:
+/*
    tr.querySelector("button").onclick = () => {
   if (!confirm("Delete this transaction?")) return;
 
@@ -184,6 +196,7 @@ tr.querySelector(".delete-btn").onclick = () => {
     renderProjectionTable();
   }
 };
+*/
     transactionTableBody.appendChild(tr);
   });
 }
