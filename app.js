@@ -122,7 +122,9 @@ function renderTransactionTable() {
   const sorted = [...transactions].sort(
     (a,b) => new Date(a.date) - new Date(b.date)
   );
-
+   /* added by Alex */
+  if (tx.type === "expense") tr.classList.add("expense-row");
+  
   sorted.forEach(tx => {
     const tr = document.createElement("tr");
 
