@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-<script src="script.js?v=1.0.2"></script>
+<script src="script.js?v=1.2.0"></script>
 /* ================= STORAGE ================= */
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
