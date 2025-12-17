@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-<script src="script.js?v=1.2.0"></script>
+
 /* ================= STORAGE ================= */
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
@@ -137,8 +137,7 @@ function renderTransactionTable() {
         <button class="delete-btn">Delete</button>
       </td>
     `;
-if (tx.type === "expense") tr.classList.add("expense-row");
-    
+
     tr.querySelector(".edit-btn").onclick = () => {
       txDesc.value = tx.description;
       txAmount.value = tx.amount;
