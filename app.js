@@ -136,7 +136,7 @@ function renderTransactionTable() {
         <button class="delete-btn">Delete</button>
       </td>
     `;
-
+if (tx.type === "expense") tr.classList.add("expense-row");
     tr.querySelector(".edit-btn").onclick = () => {
       txDesc.value = tx.description;
       txAmount.value = tx.amount;
