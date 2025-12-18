@@ -213,6 +213,14 @@ function renderProjectionTable() {
 
     balance += inc-exp;
 
+/* added by alex */
+    tr.onclick = () => {
+  document
+    .querySelectorAll(".projection-selected")
+    .forEach(r => r.classList.remove("projection-selected"));
+  tr.classList.add("projection-selected");
+};
+    
     const tr=document.createElement("tr");
     if (balance<0) tr.classList.add("negative");
     tr.innerHTML = `
