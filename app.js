@@ -223,6 +223,12 @@ function renderProjectionTable() {
       <td>${exp?exp.toFixed(2):""}</td>
       <td>${balance.toFixed(2)}</td>
     `;
+
+    // Highlight today's row
+const todayIso = toISO(new Date());
+if (iso === todayIso) {
+  tr.classList.add("projection-today");
+}
     tr.onclick = () => {
   document
     .querySelectorAll(".projection-selected")
