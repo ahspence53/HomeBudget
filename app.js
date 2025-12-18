@@ -282,6 +282,30 @@ findPrev.onclick=()=>{if(matches.length){findIdx=(findIdx-1+matches.length)%matc
 document.getElementById("back-to-top").onclick = () =>
   window.scrollTo({top:0,behavior:"smooth"});
 
+  const floatingFind = document.getElementById("floating-find");
+
+function lockFindBar() {
+  if (!floatingFind) return;
+
+  const y =
+    window.visualViewport
+      ? window.visualViewport.pageTop
+      : window.scrollY;
+
+  floatingFind.style.top = y + "px";
+}
+
+// iOS-safe listeners
+window.addEventListener("scroll", lockFindBar, { passive: true });
+window.addEventListener("resize", lockFindBar);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("scroll", lockFindBar);
+  window.visualViewport.addEventListener("resize", lockFindBar);
+}
+
+// initial position
+lockFindBar();
+
 /* ================= INIT ================= */
 updateCategoryDropdown();
 renderTransactionTable();
