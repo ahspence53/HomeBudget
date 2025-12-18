@@ -192,15 +192,6 @@ function occursOn(tx, iso) {
 
 /* ================= PROJECTION ================= */
 function renderProjectionTable() {
- /* added by alex*/
-  tr.onclick = () => {
-  document
-    .querySelectorAll(".projection-selected")
-    .forEach(r => r.classList.remove("projection-selected"));
-  tr.classList.add("projection-selected");
-};
-  
-  
   projectionTbody.innerHTML = "";
   if (!startDate) return;
 
