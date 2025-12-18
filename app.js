@@ -72,6 +72,7 @@ saveConfigButton.onclick = () => {
   openingBalance = parseFloat(openingBalanceInput.value) || 0;
   localStorage.setItem("startDate", startDate);
   localStorage.setItem("openingBalance", openingBalance);
+  alert("Saving config");
   renderProjectionTable();
 };
 
@@ -136,7 +137,7 @@ function renderTransactionTable() {
         <button class="delete-btn">Delete</button>
       </td>
     `;
-if (tx.type === "expense") tr.classList.add("expense-row");
+
     tr.querySelector(".edit-btn").onclick = () => {
       txDesc.value = tx.description;
       txAmount.value = tx.amount;
@@ -213,8 +214,6 @@ function renderProjectionTable() {
 
     balance += inc-exp;
 
-
-    
     const tr=document.createElement("tr");
     if (balance<0) tr.classList.add("negative");
     tr.innerHTML = `
