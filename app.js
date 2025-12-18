@@ -223,6 +223,12 @@ function renderProjectionTable() {
       <td>${exp?exp.toFixed(2):""}</td>
       <td>${balance.toFixed(2)}</td>
     `;
+    tr.onclick = () => {
+  document
+    .querySelectorAll(".projection-selected")
+    .forEach(r => r.classList.remove("projection-selected"));
+  tr.classList.add("projection-selected");
+};
     projectionTbody.appendChild(tr);
   }
 }
