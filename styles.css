@@ -51,8 +51,10 @@ th, td {
 }
 
 .floating-find {
-  position: sticky;
+  position: fixed;
   top: env(safe-area-inset-top, 0);
+  left: 0;
+  right: 0;
   z-index: 1000;
 
   background: white;
@@ -84,5 +86,8 @@ input, select, button {
   background-color: #e8f0ff;
 }
 
+#projection-table {
+  margin-top: 48px;
+}
 
 
