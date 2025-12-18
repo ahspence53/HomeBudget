@@ -57,3 +57,7 @@ input, select, button {
 .expense-row td {
   color: #b00020;
 }
+
+.projection-selected {
+  background-color: #e8f0ff;
+}
