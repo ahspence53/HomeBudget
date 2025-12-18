@@ -208,7 +208,12 @@ function renderProjectionTable() {
     transactions.forEach(tx => {
       if (occursOn(tx, iso)) {
         tx.type==="income" ? inc+=tx.amount : exp+=tx.amount;
-        desc.push(tx.description);
+        desc.push(
+  `<div class="projection-item">
+     <span class="desc">${tx.description}</span>
+     <span class="cat">${tx.category || ""}</span>
+   </div>`
+);
       }
     });
 
