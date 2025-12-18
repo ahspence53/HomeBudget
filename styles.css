@@ -81,3 +81,11 @@ input, select, button {
 .projection-selected {
   background-color: #e8f0ff;
 }
+
+.floating-find {
+  position: fixed;
+  top: env(safe-area-inset-top, 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
