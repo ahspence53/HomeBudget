@@ -31,6 +31,24 @@ th, td {
   background-color: #fff7d6;
 }
 
+/* Projection description + category layout */
+.projection-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.projection-item .desc {
+  text-align: left;
+  flex: 1;
+}
+
+.projection-item .cat {
+  text-align: right;
+  color: #666;
+  white-space: nowrap;
+  font-size: 0.9em;
+}
 
 .floating-find {
   position: sticky;
