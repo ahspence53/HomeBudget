@@ -224,16 +224,6 @@ function renderProjectionTable() {
       <td>${balance.toFixed(2)}</td>
     `;
     projectionTbody.appendChild(tr);
-
-    /* added code alex */
-    tr.onclick = () => {
-  document
-    .querySelectorAll(".projection-selected")
-    .forEach(r => r.classList.remove("projection-selected"));
-  tr.classList.add("projection-selected");
-};
-
-    /* end of codd add
   }
 }
 
