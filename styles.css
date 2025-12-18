@@ -50,15 +50,14 @@ th, td {
   font-size: 0.9em;
 }
 .floating-find {
-  position: fixed;
-  top: 0;
+  position: absolute;   /* NOT fixed */
   left: 0;
   right: 0;
+  top: 0;
 
   z-index: 9999;
   background: white;
   padding: 8px;
-
   border-bottom: 1px solid #ccc;
 }
 
