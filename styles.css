@@ -24,7 +24,13 @@ th, td {
 
 .projection-match-highlight {
   background: yellow;
+  
 }
+/* Highlight today's date in projection */
+.projection-today {
+  background-color: #fff7d6;
+}
+
 
 .floating-find {
   position: sticky;
