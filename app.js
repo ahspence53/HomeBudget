@@ -352,7 +352,7 @@ if (window.visualViewport) {
 // initial position
 lockFindBar();
 /*CSV import*/
-  /* ================= CSV IMPORT ================= */
+/* ================= CSV IMPORT ================= */
 
 const csvInput = document.getElementById("csv-import");
 const importBtn = document.getElementById("import-btn");
@@ -375,21 +375,22 @@ importBtn.onclick = () => {
       const rows = reader.result.trim().split(/\r?\n/);
       const header = rows.shift();
 
-      if (header !== "Date,Description,Type,Amount,Category") {
+      if (header !== "Date,Amount,Income/Expense,Category") {
         throw new Error("Invalid CSV header");
       }
 
       const imported = [];
 
       rows.forEach((line, i) => {
-        const [date, desc, type, amount, category] = line.split(",");
+        const [date, amount, typeRaw, category] = line.split(",");
 
-        if (!date || !desc || !type || !amount || !category) {
+        if (!date || !amount || !typeRaw || !category) {
           throw new Error(`Missing data on row ${i + 2}`);
         }
 
+        const type = typeRaw.toLowerCase();
         if (!["income", "expense"].includes(type)) {
-          throw new Error(`Invalid type on row ${i + 2}`);
+          throw new Error(`Income/Expense must be 'Income' or 'Expense' (row ${i + 2})`);
         }
 
         if (!categories.includes(category)) {
@@ -398,15 +399,16 @@ importBtn.onclick = () => {
           );
         }
 
-        if (isNaN(parseFloat(amount))) {
+        const amt = parseFloat(amount);
+        if (isNaN(amt)) {
           throw new Error(`Invalid amount on row ${i + 2}`);
         }
 
         imported.push({
           date,
-          description: desc,
+          description: category,   // auto-description
           type,
-          amount: parseFloat(amount),
+          amount: amt,
           category,
           frequency: "irregular"
         });
