@@ -128,7 +128,7 @@ openingBalanceInput.value = openingBalance || "";
   // Locate the help button by its ID
 const helpButton = document.getElementById('help');
 
-// Add the HELP button functionality
+/* ==============HELP============ */
 if (helpButton) {
     helpButton.addEventListener('click', () => {
         // 1. Determine the desired size (80% of the screen width/height)
@@ -141,7 +141,7 @@ if (helpButton) {
         
         // 3. Open the window with these dynamic values
         window.open(
-            'help.txt', 
+            'help.html', 
             'HelpWindow', 
             `width=${w},height=${h},top=${top},left=${left},resizable=yes,scrollbars=yes,menubar=no,toolbar=no`
         );
