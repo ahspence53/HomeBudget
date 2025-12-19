@@ -77,6 +77,25 @@
     <button id="import-btn">Import (Replace existing)</button>
   </div>
 
+    /*minus one day */
+    <button id="salary-popup-btn">Salary -1 day balances</button>
+
+<div id="salary-popup" class="modal hidden">
+  <div class="modal-content">
+    <h3>Balances the day before salary</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Balance</th>
+        </tr>
+      </thead>
+      <tbody id="salary-popup-body"></tbody>
+    </table>
+    <button id="salary-popup-close">Close</button>
+  </div>
+</div>
+
   <div class="export-box">
   <button id="export-projection-btn">
     Export 24-month projection (CSV)
