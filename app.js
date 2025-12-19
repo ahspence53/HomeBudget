@@ -204,7 +204,8 @@ function renderTransactionTable() {
       renderTransactionTable();
       renderProjectionTable();
     };
-
+    /* added to make expense red*/
+    if (tx.type === "expense") tr.classList.add("expense-row");
     transactionTableBody.appendChild(tr);
   });
 }
