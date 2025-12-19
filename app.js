@@ -354,6 +354,8 @@ lockFindBar();
 
 /* ================= CSV IMPORT ================= */
 
+/* ================= CSV IMPORT ================= */
+
 const csvInput = document.getElementById("csv-import");
 const importBtn = document.getElementById("import-btn");
 
@@ -375,8 +377,7 @@ importBtn.onclick = () => {
       const rows = reader.result.trim().split(/\r?\n/);
       const header = rows.shift();
 
-      /*if (header !== "Date,Amount,Income/Expense,Category") */
-      if (header !== "Date,Amount,Income/Expense,Category,Description,Frequency") {
+      if (header !== "Date,Amount,Income/Expense,Category") {
         throw new Error("Invalid CSV header");
       }
 
@@ -389,15 +390,10 @@ importBtn.onclick = () => {
           throw new Error(`Missing data on row ${i + 2}`);
         }
 
-        const rawType = row[2].trim().toLowerCase();
-
-if (rawType !== "income" && rawType !== "expense") {
-  throw new Error(
-    `Income/Expense must be 'Income' or 'Expense' (row ${rowNum})`
-  );
-}
-
-const type = rawType === "income" ? "income" : "expense";
+        const type = typeRaw.toLowerCase();
+        if (!["income", "expense"].includes(type)) {
+          throw new Error(`Income/Expense must be 'Income' or 'Expense' (row ${i + 2})`);
+        }
 
         if (!categories.includes(category)) {
           throw new Error(
