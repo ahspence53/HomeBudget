@@ -145,3 +145,7 @@ input, select, button {
   overflow-y: auto;
   border-radius: 6px;
 }
+
+body {
+  padding: 1rem;
+}
