@@ -59,6 +59,18 @@ function updateCategoryDropdown() {
   });
 }
 
+function updateEditCategoryDropdown() {
+  if (!editCategorySelect) return;
+
+  editCategorySelect.innerHTML = '<option value="">Select category</option>';
+  categories.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    editCategorySelect.appendChild(opt);
+  });
+}
+
 addCategoryButton.onclick = () => {
   const c = newCategoryInput.value.trim();
   if (!c) return;
