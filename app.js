@@ -546,15 +546,23 @@ exportProjectionBtn.onclick = () => {
 
     balance += income - expense;
 
-    rows.push([
-      iso,
-      descs.join(" | ").replace(/,/g, " "),
-      income ? income.toFixed(2) : "",
+  //  rows.push([
+     // iso,
+   //   descs.join(" | ").replace(/,/g, " "),
+   //   income ? income.toFixed(2) : "",
       expense ? expense.toFixed(2) : "",
-      balance.toFixed(2)
-    ].join(","));
-  }
-
+  //    balance.toFixed(2)
+ //   ].join(","));
+//  }
+rows.push([
+  iso,
+  descs.map(d => d.desc).join(" | ").replace(/,/g, " "),
+  descs.map(d => d.cat).join(" | ").replace(/,/g, " "),
+  income ? income.toFixed(2) : "",
+  expense ? expense.toFixed(2) : "",
+  balance.toFixed(2)
+].join(","));
+    
   const blob = new Blob([rows.join("\n")], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
 
