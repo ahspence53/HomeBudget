@@ -377,7 +377,7 @@ importBtn.onclick = () => {
       const rows = reader.result.trim().split(/\r?\n/);
       const header = rows.shift();
 
-      if (header !== "Date,Amount,Income/Expense,Category") {
+      if (header !== "Date,Amount,Income/Expense,Category, Description, Frequency") {
         throw new Error("Invalid CSV header");
       }
 
