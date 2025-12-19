@@ -29,7 +29,37 @@ const projectionTbody = document.querySelector("#projection-table tbody");
 const editCategorySelect = document.getElementById("edit-category-select");
 const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
+/* added edit category code*/
+  renameCategoryButton.onclick = () => {
+  const oldName = editCategorySelect.value;
+  const newName = editCategoryInput.value.trim();
 
+  if (!oldName) return alert("Select a category to rename");
+  if (!newName) return alert("Enter a new category name");
+  if (categories.includes(newName)) return alert("Category already exists");
+
+  // Update category list
+  categories = categories.map(c => c === oldName ? newName : c);
+  localStorage.setItem("categories", JSON.stringify(categories));
+
+  // Update all transactions using that category
+  transactions.forEach(tx => {
+    if (tx.category === oldName) {
+      tx.category = newName;
+    }
+  });
+  localStorage.setItem("transactions", JSON.stringify(transactions));
+
+  editCategoryInput.value = "";
+
+  updateCategoryDropdown();
+  updateEditCategoryDropdown();
+  renderTransactionTable();
+  renderProjectionTable();
+
+  alert(`Category "${oldName}" renamed to "${newName}"`);
+};
+  
 /* ================= UTILS ================= */
 function toISO(d) {
   if (!d) return "";
