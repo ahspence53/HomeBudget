@@ -5,7 +5,7 @@
 	<TITLE></TITLE>
 	<META NAME="GENERATOR" CONTENT="AO Office 5.5.9  (Unix)">
 	<META NAME="CREATED" CONTENT="0;0">
-	<META NAME="CHANGED" CONTENT="20251219;19290900">
+	<META NAME="CHANGED" CONTENT="20251219;22274100">
 	<STYLE TYPE="text/css">
 	<!--
 		@page { margin: 2cm }
@@ -13,12 +13,34 @@
 		P.western { so-language: en-GB }
 		PRE.western { so-language: en-GB }
 		PRE.cjk { font-family: "Arimo", monospace }
+		A:link { so-language: zxx }
 	-->
 	</STYLE>
 </HEAD>
 <BODY LANG="en-GB" DIR="LTR">
-<PRE CLASS="western"><FONT FACE="Arimo, sans-serif"><FONT SIZE=4><B>Help file for Home Budget Tracker</B></FONT></FONT>
+<PRE CLASS="western"><B>Help file for Home Budget Tracker.</B>
 
-<FONT SIZE=3>This is going to be the help text for Home Budget Tracker app, to instruct users on How to Use the app, describing the functionality.</FONT></PRE>
+The app is made to track expense and income for home use.
+It allows for <B>monthly</B> and <B>4-weekly</B> <B>expense</B> and <B>income</B> as well as <B>irregular</B> <B>expense</B> and <B>income</B> (occasional one off payments)
+
+First, you should enter a <B>start date</B> and an <B>opening balance.</B>
+It assumes you will add in these <B>transactions</B> with the following details;
+Date, Description, Amount, Type (expense or income), Category.
+eg.
+1-Jan-2026, Payment from employer, 1200.75, Income, Salary
+
+You can enter as many <B>transactions</B> as you require, normally they would cover a monthly cycle, starting from the <B>start</B> <B>date</B>, continuing till the day before the next <B>start</B> <B>date</B>.
+
+The app projects your monthly <B>transactions</B> forward 24 months from the start date, this will be shown, one line per date in the table named <B>24-Month</B> <B>Projection</B>, detailed below the <B>transaction table</B>.
+This table can be scrolled to view, or searched using the Find box at the top of the screen.
+As you move forward in time, you should move the start date forward each time you view the data, or you can keep the start date static, doesn't matter if the date is in the past, the app will calculate the data for <B>24-Month projection</B> <B>table</B> according to that date.
+
+<B>Transactions</B> can also be loaded via a CSV file. The specification of the CSV file must be strictly adhered to for the data to successfully load. It is;
+Date,Amount,Income/Expense,Category,Description,Frequency
+eg;
+2026-01-01,Income,Household,TV License,Monthly
+There is an Import <B>transaction</B> section above the <B>24-Month Projection table</B> allowing you to select the CSV file, then Import (this overwrites ANY existing transactions)
+
+</PRE>
 </BODY>
 </HTML>
