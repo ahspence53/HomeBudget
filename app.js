@@ -26,6 +26,10 @@ const saveConfigButton = document.getElementById("save-config");
 const transactionTableBody = document.querySelector("#transaction-table tbody");
 const projectionTbody = document.querySelector("#projection-table tbody");
 
+const editCategorySelect = document.getElementById("edit-category-select");
+const editCategoryInput = document.getElementById("edit-category-name");
+const renameCategoryButton = document.getElementById("rename-category");
+
 /* ================= UTILS ================= */
 function toISO(d) {
   if (!d) return "";
