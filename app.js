@@ -124,6 +124,17 @@ saveConfigButton.onclick = () => {
 
 startDateInput.value = startDate;
 openingBalanceInput.value = openingBalance || "";
+  /* HELP */
+  // Locate the help button by its ID
+const helpButton = document.getElementById('help');
+
+// Add the click functionality
+if (helpButton) {
+    helpButton.addEventListener('click', () => {
+        // This opens help.txt from your root folder in a new tab
+        window.open('help.txt', '_blank');
+    });
+}
 
 /* ================= TRANSACTIONS ================= */
 function saveTransactions() {
