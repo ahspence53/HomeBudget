@@ -575,7 +575,7 @@ rows.push([
 
   URL.revokeObjectURL(url);
 };
-
+console.log("about to init");
   
 /* ================= INIT ================= */
 updateCategoryDropdown();
