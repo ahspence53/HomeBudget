@@ -324,6 +324,7 @@ lockFindBar();
 
 /* ================= INIT ================= */
 updateCategoryDropdown();
+updateEditCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
 
