@@ -143,8 +143,7 @@ if (helpButton) {
         window.open(
             'help.html', 
             'HelpWindow', 
-            `width=${w},height=${h},top=${top},left=${left},resizable=yes,scrollbars=yes,menubar=no,toolbar=no`
-        );
+            'width=400,height=600,scrollbars=yes,resizable=yes');
     });
 }
 
