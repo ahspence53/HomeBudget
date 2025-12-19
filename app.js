@@ -351,6 +351,83 @@ if (window.visualViewport) {
 
 // initial position
 lockFindBar();
+/*CSV import*/
+  /* ================= CSV IMPORT ================= */
+
+const csvInput = document.getElementById("csv-import");
+const importBtn = document.getElementById("import-btn");
+
+importBtn.onclick = () => {
+  if (!csvInput.files.length) {
+    alert("Please choose a CSV file");
+    return;
+  }
+
+  if (!confirm(
+    "This will DELETE all existing transactions and replace them from the CSV.\n\nContinue?"
+  )) return;
+
+  const file = csvInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    try {
+      const rows = reader.result.trim().split(/\r?\n/);
+      const header = rows.shift();
+
+      if (header !== "Date,Description,Type,Amount,Category") {
+        throw new Error("Invalid CSV header");
+      }
+
+      const imported = [];
+
+      rows.forEach((line, i) => {
+        const [date, desc, type, amount, category] = line.split(",");
+
+        if (!date || !desc || !type || !amount || !category) {
+          throw new Error(`Missing data on row ${i + 2}`);
+        }
+
+        if (!["income", "expense"].includes(type)) {
+          throw new Error(`Invalid type on row ${i + 2}`);
+        }
+
+        if (!categories.includes(category)) {
+          throw new Error(
+            `Category "${category}" does not exist (row ${i + 2})`
+          );
+        }
+
+        if (isNaN(parseFloat(amount))) {
+          throw new Error(`Invalid amount on row ${i + 2}`);
+        }
+
+        imported.push({
+          date,
+          description: desc,
+          type,
+          amount: parseFloat(amount),
+          category,
+          frequency: "irregular"
+        });
+      });
+
+      transactions = imported;
+      localStorage.setItem("transactions", JSON.stringify(transactions));
+
+      renderTransactionTable();
+      renderProjectionTable();
+
+      alert(`Imported ${transactions.length} transactions successfully`);
+      csvInput.value = "";
+
+    } catch (err) {
+      alert("Import failed:\n" + err.message);
+    }
+  };
+
+  reader.readAsText(file);
+};
 
 /* ================= INIT ================= */
 updateCategoryDropdown();
