@@ -389,10 +389,15 @@ importBtn.onclick = () => {
           throw new Error(`Missing data on row ${i + 2}`);
         }
 
-        const type = typeRaw.toLowerCase();
-        if (!["income", "expense"].includes(type)) {
-          throw new Error(`Income/Expense must be 'Income' or 'Expense' (row ${i + 2})`);
-        }
+        const rawType = row[2].trim().toLowerCase();
+
+if (rawType !== "income" && rawType !== "expense") {
+  throw new Error(
+    `Income/Expense must be 'Income' or 'Expense' (row ${rowNum})`
+  );
+}
+
+const type = rawType === "income" ? "income" : "expense";
 
         if (!categories.includes(category)) {
           throw new Error(
