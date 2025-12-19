@@ -131,10 +131,19 @@ const helpButton = document.getElementById('help');
 // Add the HELP button functionality
 if (helpButton) {
     helpButton.addEventListener('click', () => {
-        // This opens help.txt from your root folder in a new tab
-        window.open('help.html', '_blank');
+        const w = 500;
+        const h = 600;
+        const left = (window.screen.width / 2) - (w / 2);
+        const top = (window.screen.height / 2) - (h / 2);
+        
+        window.open(
+            'help.txt', 
+            'HelpWindow', 
+            `width=${w},height=${h},top=${top},left=${left},resizable=yes,scrollbars=yes`
+        );
     });
 }
+
 
 /* ================= TRANSACTIONS ================= */
 function saveTransactions() {
