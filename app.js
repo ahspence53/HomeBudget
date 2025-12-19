@@ -457,6 +457,64 @@ importBtn.onclick = () => {
   reader.readAsText(file);
 };
 
+  /* ================= EXPORT 24-MONTH PROJECTION ================= */
+
+document.getElementById("export-projection-btn").onclick = () => {
+  if (!startDate) {
+    alert("Start date not set");
+    return;
+  }
+
+  let csv = "Date,Description,Category,Income,Expense,Balance\n";
+
+  let balance = openingBalance;
+  const start = new Date(startDate);
+  start.setHours(12, 0, 0, 0);
+
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + 24);
+
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const iso = toISO(d);
+
+    let inc = 0;
+    let exp = 0;
+    const descs = [];
+    const cats = [];
+
+    transactions.forEach(tx => {
+      if (occursOn(tx, iso)) {
+        if (tx.type === "income") inc += tx.amount;
+        else exp += tx.amount;
+
+        descs.push(tx.description);
+        cats.push(tx.category);
+      }
+    });
+
+    balance += inc - exp;
+
+    csv += [
+      iso,
+      `"${descs.join(" | ")}"`,
+      `"${cats.join(" | ")}"`,
+      inc ? inc.toFixed(2) : "",
+      exp ? exp.toFixed(2) : "",
+      balance.toFixed(2)
+    ].join(",") + "\n";
+  }
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "24-month-projection.csv";
+  a.click();
+
+  URL.revokeObjectURL(url);
+};
+
 /* ================= INIT ================= */
 updateCategoryDropdown();
 updateEditCategoryDropdown();
