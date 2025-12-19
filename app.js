@@ -515,6 +515,79 @@ document.getElementById("export-projection-btn").onclick = () => {
   URL.revokeObjectURL(url);
 };
 
+  /* salary minus one day*/
+  /* ================= SALARY -1 DAY POPUP ================= */
+
+const salaryBtn = document.getElementById("salary-popup-btn");
+const salaryPopup = document.getElementById("salary-popup");
+const salaryPopupBody = document.getElementById("salary-popup-body");
+const salaryClose = document.getElementById("salary-popup-close");
+
+salaryBtn.onclick = () => {
+  salaryPopupBody.innerHTML = "";
+
+  if (!startDate) {
+    alert("Start date not set");
+    return;
+  }
+
+  // Collect salary dates
+  const salaryDates = new Set();
+
+  transactions.forEach(tx => {
+    if (tx.type === "income") {
+      const start = new Date(tx.date);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 24);
+
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const iso = toISO(d);
+        if (occursOn(tx, iso)) {
+          const prev = new Date(d);
+          prev.setDate(prev.getDate() - 1);
+          salaryDates.add(toISO(prev));
+        }
+      }
+    }
+  });
+
+  // Calculate balances day by day
+  let balance = openingBalance;
+  const start = new Date(startDate);
+  start.setHours(12,0,0,0);
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + 24);
+
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const iso = toISO(d);
+
+    let inc = 0, exp = 0;
+    transactions.forEach(tx => {
+      if (occursOn(tx, iso)) {
+        tx.type === "income" ? inc += tx.amount : exp += tx.amount;
+      }
+    });
+
+    balance += inc - exp;
+
+    if (salaryDates.has(iso)) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${formatDate(iso)}</td>
+        <td>${balance.toFixed(2)}</td>
+      `;
+      salaryPopupBody.appendChild(tr);
+    }
+  }
+
+  salaryPopup.classList.remove("hidden");
+};
+
+salaryClose.onclick = () => {
+  salaryPopup.classList.add("hidden");
+};
+  
+
 /* ================= INIT ================= */
 updateCategoryDropdown();
 updateEditCategoryDropdown();
