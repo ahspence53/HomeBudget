@@ -131,18 +131,23 @@ const helpButton = document.getElementById('help');
 // Add the HELP button functionality
 if (helpButton) {
     helpButton.addEventListener('click', () => {
-        const w = 500;
-        const h = 600;
+        // 1. Determine the desired size (80% of the screen width/height)
+        const w = window.screen.width * 0.8;
+        const h = window.screen.height * 0.8;
+
+        // 2. Calculate the position to perfectly center it
         const left = (window.screen.width / 2) - (w / 2);
         const top = (window.screen.height / 2) - (h / 2);
         
+        // 3. Open the window with these dynamic values
         window.open(
-            'alex.html', 
+            'help.txt', 
             'HelpWindow', 
-            `width=${w},height=${h},top=${top},left=${left},resizable=yes,scrollbars=yes`
+            `width=${w},height=${h},top=${top},left=${left},resizable=yes,scrollbars=yes,menubar=no,toolbar=no`
         );
     });
 }
+
 
 
 /* ================= TRANSACTIONS ================= */
