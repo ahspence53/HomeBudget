@@ -103,3 +103,18 @@ input, select, button {
   min-width: 200px;
 }
 
+#import-export {
+  margin-top: 2rem;
+  padding: 1rem;
+  border-top: 2px solid #ddd;
+}
+
+.import-box,
+.export-box {
+  margin-top: 0.75rem;
+}
+
+#import-export button {
+  margin-left: 0.5rem;
+}
+
