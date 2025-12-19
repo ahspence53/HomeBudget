@@ -137,7 +137,7 @@ if (helpButton) {
         const top = (window.screen.height / 2) - (h / 2);
         
         window.open(
-            'help.html', 
+            'alex.html', 
             'HelpWindow', 
             `width=${w},height=${h},top=${top},left=${left},resizable=yes,scrollbars=yes`
         );
