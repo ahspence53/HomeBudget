@@ -377,7 +377,7 @@ importBtn.onclick = () => {
 
       /*if (header !== "Date,Amount,Income/Expense,Category") */
       if (header !== "Date,Amount,Income/Expense,Category,Description,Frequency") {
-        throw new Error("You have an Invalid CSV header");
+        throw new Error("Invalid CSV header");
       }
 
       const imported = [];
