@@ -532,11 +532,15 @@ exportProjectionBtn.onclick = () => {
         else expense += tx.amount;
 
         // Match what you show in the UI
-        const label = tx.category
-          ? `${tx.description} (${tx.category})`
-          : tx.description;
+        //const label = tx.category
+        //  ? `${tx.description} (${tx.category})`
+        //  : tx.description;
 
-        descs.push(label);
+      //  descs.push(label);
+        descs.push({
+  desc: tx.description,
+  cat: tx.category || ""
+});
       }
     });
 
