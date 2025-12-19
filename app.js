@@ -456,6 +456,51 @@ importBtn.onclick = () => {
   reader.readAsText(file);
 };
 
+  /* ================= CSV EXPORT (Transactions) ================= */
+
+const exportBtn = document.getElementById("export-transactions");
+
+exportBtn.onclick = () => {
+  if (!transactions.length) {
+    alert("No transactions to export");
+    return;
+  }
+
+  const header = [
+    "Date",
+    "Amount",
+    "Income/Expense",
+    "Category",
+    "Description",
+    "Frequency"
+  ];
+
+  const lines = [header.join(",")];
+
+  transactions.forEach(tx => {
+    lines.push([
+      tx.date,
+      tx.amount.toFixed(2),
+      tx.type === "income" ? "Income" : "Expense",
+      tx.category,
+      tx.description.replace(/,/g, " "), // CSV safety
+      tx.frequency
+    ].join(","));
+  });
+
+  const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "homebudget-transactions.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  URL.revokeObjectURL(url);
+};
+
 /* ================= INIT ================= */
 updateCategoryDropdown();
 updateEditCategoryDropdown();
