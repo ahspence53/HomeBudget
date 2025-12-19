@@ -511,7 +511,8 @@ exportProjectionBtn.onclick = () => {
   }
 
   const rows = [];
-  rows.push("Date,Description,Income,Expense,Balance");
+ /* rows.push("Date,Description,Income,Expense,Balance");*/
+  rows.push("Date,Description,Category,Income,Expense,Balance");
 
   let balance = openingBalance;
   const start = new Date(startDate);
