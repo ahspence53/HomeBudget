@@ -118,3 +118,6 @@ input, select, button {
   margin-left: 0.5rem;
 }
 
+.expense-row td {
+  color: #b00020;
+}
