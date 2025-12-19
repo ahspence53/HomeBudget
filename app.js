@@ -500,7 +500,70 @@ exportBtn.onclick = () => {
 
   URL.revokeObjectURL(url);
 };
+/* ================= CSV EXPORT (24-Month Projection) ================= */
 
+const exportProjectionBtn = document.getElementById("export-projection");
+
+exportProjectionBtn.onclick = () => {
+  if (!startDate) {
+    alert("Please set a Start Date first");
+    return;
+  }
+
+  const rows = [];
+  rows.push("Date,Description,Income,Expense,Balance");
+
+  let balance = openingBalance;
+  const start = new Date(startDate);
+  start.setHours(12, 0, 0, 0);
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + 24);
+
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const iso = toISO(d);
+    let income = 0;
+    let expense = 0;
+    let descs = [];
+
+    transactions.forEach(tx => {
+      if (occursOn(tx, iso)) {
+        if (tx.type === "income") income += tx.amount;
+        else expense += tx.amount;
+
+        // Match what you show in the UI
+        const label = tx.category
+          ? `${tx.description} (${tx.category})`
+          : tx.description;
+
+        descs.push(label);
+      }
+    });
+
+    balance += income - expense;
+
+    rows.push([
+      iso,
+      descs.join(" | ").replace(/,/g, " "),
+      income ? income.toFixed(2) : "",
+      expense ? expense.toFixed(2) : "",
+      balance.toFixed(2)
+    ].join(","));
+  }
+
+  const blob = new Blob([rows.join("\n")], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "homebudget-24-month-projection.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  URL.revokeObjectURL(url);
+};
+
+  
 /* ================= INIT ================= */
 updateCategoryDropdown();
 updateEditCategoryDropdown();
