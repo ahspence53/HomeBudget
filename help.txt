@@ -1,1 +1,24 @@
-﻿Help file for Home Budget Tracker
+﻿Help file for Home Budget Tracker.
+
+The app is made to track expense and income for home use.
+It allows for monthly and 4-weekly expense and income as well as irregular expense and income (occasional one off payments)
+
+First, you should enter a start date and an opening balance.
+It assumes you will add in these transactions with the following details;
+Date, Description, Amount, Type (expense or income), Category.
+eg.
+1-Jan-2026, Payment from employer, 1200.75, Income, Salary
+
+You can enter as many transactions as you require, normally they would cover a monthly cycle, starting from the start date, continuing till the day before the next start date.
+
+The app projects your monthly transactions forward 24 months from the start date, this will be shown, one line per date in the table named 24-Month Projection, detailed below the transaction table.
+This table can be scrolled to view, or searched using the Find box at the top of the screen.
+As you move forward in time, you should move the start date forward each time you view the data, or you can keep the start date static, doesn't matter if the date is in the past, the app will calculate the data for 24-Month projection table according to that date.
+
+Transactions can also be loaded via a CSV file. The specification of the CSV file must be strictly adhered to for the data to successfully load. It is;
+Date,Amount,Income/Expense,Category,Description,Frequency
+eg;
+2026-01-01,Income,Household,TV License,Monthly
+There is an Import transaction section above the 24-Month Projection table allowing you to select the CSV file, then Import (this overwrites ANY existing transactions)
+
+
