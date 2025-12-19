@@ -128,11 +128,11 @@ openingBalanceInput.value = openingBalance || "";
   // Locate the help button by its ID
 const helpButton = document.getElementById('help');
 
-// Add the click functionality
+// Add the HELP button functionality
 if (helpButton) {
     helpButton.addEventListener('click', () => {
         // This opens help.txt from your root folder in a new tab
-        window.open('help.txt', '_blank');
+        window.open('help.html', '_blank');
     });
 }
 
