@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+idocument.addEventListener("DOMContentLoaded", () => {
 
 /* ================= STORAGE ================= */
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
@@ -501,7 +501,7 @@ exportBtn.onclick = () => {
   URL.revokeObjectURL(url);
 };
 /* ================= CSV EXPORT (24-Month Projection) ================= */
-
+/*
 const exportProjectionBtn = document.getElementById("export-projection");
 
 exportProjectionBtn.onclick = () => {
@@ -574,7 +574,7 @@ rows.push([
   document.body.removeChild(a);
 
   URL.revokeObjectURL(url);
-};
+};*/
 console.log("about to init");
   
 /* ================= INIT ================= */
