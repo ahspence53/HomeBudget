@@ -351,7 +351,7 @@ if (window.visualViewport) {
 
 // initial position
 lockFindBar();
-/*CSV import*/
+
 /* ================= CSV IMPORT ================= */
 
 const csvInput = document.getElementById("csv-import");
