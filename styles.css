@@ -91,4 +91,15 @@ input, select, button {
   margin-top: 48px;
 }
 
+#edit-category-section {
+  margin-top: 1rem;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#edit-category-section input,
+#edit-category-section select {
+  min-width: 200px;
+}
 
