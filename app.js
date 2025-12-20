@@ -29,7 +29,7 @@ const projectionTbody = document.querySelector("#projection-table tbody");
 const editCategorySelect = document.getElementById("edit-category-select");
 const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
-
+let dateOverrides = {};
 /* ======== nudge =======*/
   // ---------- TEMPORARY MANUAL OVERRIDES (TEST ONLY) ----------
 const dateOverrides = [
@@ -282,7 +282,7 @@ function occursOn(tx, iso) {
 
   // --- override logic (per occurrence) ---
   const overrideKey = `${iso}|${tx.description}`;
-  if (dateOverrides[overrideKey]) {
+  if (window.dateOverrides && dateOverrides[overrideKey]) {
     return dateOverrides[overrideKey] === iso;
   }
 
