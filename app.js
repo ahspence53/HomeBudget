@@ -74,6 +74,12 @@ const dateOverrides = [
 
   alert(`Category "${oldName}" renamed to "${newName}"`);
 };
+/* ====== nudge ======*/
+
+  let dateOverrides = {
+  // TEST OVERRIDE
+  "2025-12-21|TV License": "2025-12-22"
+};
   
 /* ================= UTILS ================= */
 function toISO(d) {
@@ -235,9 +241,16 @@ function renderTransactionTable() {
 
 /* ================= RECURRENCE ================= */
 function occursOn(tx, iso) {
-  if (!tx.date) return false;
+  let effectiveDate = tx.date;
 
-  const start = new Date(tx.date);
+  const overrideKey = `${tx.date}|${tx.description}`;
+  if (dateOverrides[overrideKey]) {
+    effectiveDate = dateOverrides[overrideKey];
+  }
+
+  if (!effectiveDate || !iso) return false;
+
+  const start = new Date(effectiveDate);
   const cur = new Date(iso);
   start.setHours(12,0,0,0);
   cur.setHours(12,0,0,0);
