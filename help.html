@@ -5,14 +5,12 @@
 	<TITLE></TITLE>
 	<META NAME="GENERATOR" CONTENT="AO Office 5.5.9  (Unix)">
 	<META NAME="CREATED" CONTENT="0;0">
-	<META NAME="CHANGED" CONTENT="20251220;7190000">
+	<META NAME="CHANGED" CONTENT="20251220;8210900">
 	<STYLE TYPE="text/css">
 	<!--
 		@page { margin: 2cm }
 		P { margin-bottom: 0.21cm }
 		PRE.cjk { font-family: "Arimo", monospace }
-		PRE.preformatted-texthowo-western { font-weight: bold }
-		PRE.preformatted-texthowo-cjk { font-family: "Arimo", monospace }
 		A:link { so-language: zxx }
 	-->
 	</STYLE>
@@ -20,30 +18,38 @@
 <BODY LANG="en-GB" DIR="LTR">
 <PRE CLASS="western"><B>Help file for Home Budget Tracker.</B>
 
-<A HREF="#Here">How to use.</A>
+<A HREF="#Overview">Overview</A>
+How to set up manually.
+How to Edit transactions.
+How to delete transactions.
+How to add categories.
+How to rename categories.
+How to add transactions.
+How to delete transactions.
+How to set up using a CSV loader
+How to Find future transactions.
+How to view balances <I>the</I> <I>day</I> <I>before</I> your salary.
+How to import transactions via CSV.
+How to export 24-month projection.
+How to return to top of app.
 
 
 
 
-The app is made to track expense and income for home use.
-It allows for <B>monthly</B> and <B>4-weekly</B> <B>expense</B> and <B>income</B> as well as <B>irregular</B> <B>expense</B> and <B>income</B> (occasional one off payments)
 
-First, you should enter a <B>start date</B> and an <B>opening balance.</B>
-It assumes you will add in these <B>transactions</B> with the following details;
-Date, Description, Amount, Type (expense or income), Category.
-eg.
-1-Jan-2026, Payment from employer, 1200.75, Income, Salary
 
-You can enter as many <B>transactions</B> as you require, normally they would cover a monthly cycle, starting from the <B>start</B> <B>date</B>, continuing till the day before the next <B>start</B> <B>date</B>.
 
-The app projects your monthly <B>transactions</B> forward 24 months from the start date, this will be shown, one line per date in the table named <B>24-Month</B> <B>Projection</B>, detailed below the <B>transaction table</B>.
-This table can be scrolled to view, or searched using the Find box at the top of the screen.
-As you move forward in time, you should move the start date forward each time you view the data, or you can keep the start date static, doesn't matter if the date is in the past, the app will calculate the data for <B>24-Month projection</B> <B>table</B> according to that date.
 
-<A NAME="Here"></A><B>Transactions</B> can also be loaded via a CSV file. The specification of the CSV file must be strictly adhered to for the data to successfully load. It is;
-Date,Amount,Income/Expense,Category,Description,Frequency
-eg;
-2026-01-01,Income,Household,TV License,Monthly
-There is an Import <B>transaction</B> section above the <B>24-Month Projection table</B> allowing you to select the CSV file, then Import (this overwrites ANY existing transactions)</PRE>
+
+<A NAME="Overview"></A><B>Overview</B>.
+This app is designed to help you manage your home budget, on the assumption that all income (salary, pension etc) and expense (all outgoings) are transactions that are within one bank,account.
+
+The app allows for <B>monthly</B> and <B>4</B>-<B>weekly</B> intervals for <B>income</B> and <B>expense</B>. You can also add <B>irregular</B> income and expense items (one off items that will always come up)
+
+The top part of the screen has <B>opening</B> <B>balance</B> (the balance of your account when you begin using the app) and the <B>start</B> <B>date</B> (the start date when you begin using the app)
+Next are listed all your <B>income</B> and <B>expense</B> transactions, this is where you define whether they are <B>monthly</B> or <B>4-weekly</B>.
+
+The next part is <SPAN STYLE="font-style: normal"><B>24-month projection</B></SPAN>. When you add a transaction, the system uses the <B>start</B> <B>date</B> and <B>opening</B> <B>balance</B> and immediately populates the 24-month projection table with the transactions for 24 months from the currently defined <B>start</B> <B>date.</B> 
+Going forward, you can leave the <B>start</B> <B>date</B> as it is when you initially set the system up, but more likely you will amend the <B>start</B> <B>date</B> and <B>opening</B> <B>balance</B>, perhaps on a weekly basis, because once you are satisfied the transaction has come off your bank account, you have a record of that in your bank account. This app is about managing your finances going forward, and the 24-month projection table will show quite clearly what your finances will,be at any point in the next 24 months.</PRE>
 </BODY>
 </HTML>
