@@ -260,37 +260,50 @@ function renderTransactionTable() {
 };
   
 /* ================= RECURRENCE ================= */
+/* ================= RECURRENCE (WITH OVERRIDES) ================= */
 function occursOn(tx, iso) {
-  let effectiveDate = tx.date;
+  if (!tx.date || !iso) return false;
 
-  const overrideKey = `${tx.date}|${tx.description}`;
-  if (dateOverrides[overrideKey]) {
-    effectiveDate = dateOverrides[overrideKey];
-  }
-
-  if (!effectiveDate || !iso) return false;
-
-  const start = new Date(effectiveDate);
+  // DST-safe normalisation
   const cur = new Date(iso);
-  start.setHours(12,0,0,0);
   cur.setHours(12,0,0,0);
+
+  const start = new Date(tx.date);
+  start.setHours(12,0,0,0);
 
   if (cur < start) return false;
 
-  if (tx.frequency === "irregular") return tx.date === iso;
+  let occurs = false;
+
+  // --- normal recurrence rules ---
+  if (tx.frequency === "irregular") {
+    occurs = (tx.date === iso);
+  }
 
   if (tx.frequency === "monthly") {
     const day = start.getDate();
-    const last = new Date(cur.getFullYear(),cur.getMonth()+1,0).getDate();
-    return cur.getDate() === Math.min(day,last);
+    const lastDay = new Date(
+      cur.getFullYear(),
+      cur.getMonth() + 1,
+      0
+    ).getDate();
+    occurs = cur.getDate() === Math.min(day, lastDay);
   }
 
   if (tx.frequency === "4-weekly") {
-    const diff = Math.round((cur-start)/86400000);
-    return diff % 28 === 0;
+    const diffDays = Math.round((cur - start) / 86400000);
+    occurs = diffDays % 28 === 0;
   }
 
-  return false;
+  if (!occurs) return false;
+
+  // --- override logic (per occurrence) ---
+  const overrideKey = `${iso}|${tx.description}`;
+  if (dateOverrides[overrideKey]) {
+    return dateOverrides[overrideKey] === iso;
+  }
+
+  return true;
 }
 
 /* ================= PROJECTION ================= */
