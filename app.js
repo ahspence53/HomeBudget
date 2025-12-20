@@ -29,6 +29,18 @@ const projectionTbody = document.querySelector("#projection-table tbody");
 const editCategorySelect = document.getElementById("edit-category-select");
 const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
+
+/*========nudge==========*/
+  // ---------- TEMPORARY MANUAL OVERRIDES (TEST ONLY) ----------
+const dateOverrides = [
+  {
+    description: "TV License",
+    frequency: "monthly",
+    originalDate: "2025-12-21",
+    newDate: "2025-12-22"
+  }
+];
+  
 /* added edit category code*/
   renameCategoryButton.onclick = () => {
   const oldName = editCategorySelect.value;
@@ -77,7 +89,15 @@ function formatDate(iso) {
 function normalizeSearch(str) {
   return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
 }
-
+/*========nudge=======*/
+  function getOverride(tx, isoDate) {
+  return dateOverrides.find(o =>
+    o.description === tx.description &&
+    o.frequency === tx.frequency &&
+    o.originalDate === isoDate
+  );
+}
+  
 /* ================= CATEGORIES ================= */
 function updateCategoryDropdown() {
   txCategorySelect.innerHTML = '<option value="">Select category</option>';
@@ -277,7 +297,16 @@ function renderProjectionTable() {
     let inc=0, exp=0, desc=[];
 
     transactions.forEach(tx => {
-      if (occursOn(tx, iso)) {
+      let effectiveDate = iso;
+
+// Check for manual override
+const override = getOverride(tx, iso);
+if (override) {
+  effectiveDate = override.newDate;
+}
+
+// Apply transaction only on its effective date
+if (occursOn(tx, effectiveDate) && effectiveDate === iso) {
         tx.type==="income" ? inc+=tx.amount : exp+=tx.amount;
         desc.push(
   `<div class="projection-item">
