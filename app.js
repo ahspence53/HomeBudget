@@ -29,24 +29,6 @@ const projectionTbody = document.querySelector("#projection-table tbody");
 const editCategorySelect = document.getElementById("edit-category-select");
 const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
-let dateOverrides = {};
-/* ======== nudge =======*/
-  // ---------- TEMPORARY MANUAL OVERRIDES (TEST ONLY) ----------
-const dateOverrides = [
-  {
-    description: "TV License",
-    frequency: "monthly",
-    originalDate: "2025-12-21",
-    newDate: "2025-12-22"
-  }
-];
-/* ====== end nudge ======*/
-  
-let dateOverrides = {
-  "2025-12-20|Virgin Media": "2025-12-22",
-  "2025-12-21|Google storage": "2025-12-22"
-};
-
 /* added edit category code*/
   renameCategoryButton.onclick = () => {
   const oldName = editCategorySelect.value;
@@ -77,12 +59,6 @@ let dateOverrides = {
 
   alert(`Category "${oldName}" renamed to "${newName}"`);
 };
-/* ====== nudge ======*/
-
-  let dateOverrides = {
-  // TEST OVERRIDE
-  "2025-12-21|TV License": "2025-12-22"
-};
   
 /* ================= UTILS ================= */
 function toISO(d) {
@@ -97,15 +73,7 @@ function formatDate(iso) {
     day:"2-digit", month:"short", year:"numeric"
   });
 }
-/* ====== nudge =====-*/
-function getOverride(tx, isoDate) {
-  return dateOverrides.find(o =>
-    o.description === tx.description &&
-    o.frequency === tx.frequency &&
-    o.originalDate === isoDate
-  );
-}
-/* ====== end nudge ====== */
+
 function normalizeSearch(str) {
   return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
 }
@@ -243,50 +211,30 @@ function renderTransactionTable() {
 }
 
 /* ================= RECURRENCE ================= */
-/* ================= RECURRENCE (WITH OVERRIDES) ================= */
 function occursOn(tx, iso) {
-  if (!tx.date || !iso) return false;
-
-  // DST-safe normalisation
-  const cur = new Date(iso);
-  cur.setHours(12,0,0,0);
+  if (!tx.date) return false;
 
   const start = new Date(tx.date);
+  const cur = new Date(iso);
   start.setHours(12,0,0,0);
+  cur.setHours(12,0,0,0);
 
   if (cur < start) return false;
 
-  let occurs = false;
-
-  // --- normal recurrence rules ---
-  if (tx.frequency === "irregular") {
-    occurs = (tx.date === iso);
-  }
+  if (tx.frequency === "irregular") return tx.date === iso;
 
   if (tx.frequency === "monthly") {
     const day = start.getDate();
-    const lastDay = new Date(
-      cur.getFullYear(),
-      cur.getMonth() + 1,
-      0
-    ).getDate();
-    occurs = cur.getDate() === Math.min(day, lastDay);
+    const last = new Date(cur.getFullYear(),cur.getMonth()+1,0).getDate();
+    return cur.getDate() === Math.min(day,last);
   }
 
   if (tx.frequency === "4-weekly") {
-    const diffDays = Math.round((cur - start) / 86400000);
-    occurs = diffDays % 28 === 0;
+    const diff = Math.round((cur-start)/86400000);
+    return diff % 28 === 0;
   }
 
-  if (!occurs) return false;
-
-  // --- override logic (per occurrence) ---
-  const overrideKey = `${iso}|${tx.description}`;
-  if (window.dateOverrides && dateOverrides[overrideKey]) {
-    return dateOverrides[overrideKey] === iso;
-  }
-
-  return true;
+  return false;
 }
 
 /* ================= PROJECTION ================= */
@@ -305,16 +253,7 @@ function renderProjectionTable() {
     let inc=0, exp=0, desc=[];
 
     transactions.forEach(tx => {
-      let effectiveDate = iso;
-
-// Check for manual override
-const override = getOverride(tx, iso);
-if (override) {
-  effectiveDate = override.newDate;
-}
-
-// Apply transaction only on its effective date
-if (occursOn(tx, effectiveDate) && effectiveDate === iso) {
+      if (occursOn(tx, iso)) {
         tx.type==="income" ? inc+=tx.amount : exp+=tx.amount;
         desc.push(
   `<div class="projection-item">
