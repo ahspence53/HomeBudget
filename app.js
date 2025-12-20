@@ -141,7 +141,7 @@ if (helpButton) {
         
         // 3. Open the window with these dynamic values
         window.open(
-            'help documwnt.odt', 
+            'help document.odt', 
             'HelpWindow', 
             'width=400,height=600,scrollbars=yes,resizable=yes');
     });
