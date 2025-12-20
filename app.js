@@ -459,7 +459,7 @@ importBtn.onclick = () => {
 
   /* ================= EXPORT 24-MONTH PROJECTION ================= */
 
-document.getElementById("export-projection-btn").onclick = () => {
+document.getElementById("export-projection").onclick = () => {
   if (!startDate) {
     alert("Start date not set");
     return;
