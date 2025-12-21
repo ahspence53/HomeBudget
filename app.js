@@ -361,9 +361,9 @@ findPrev.onclick=()=>{if(matches.length){findIdx=(findIdx-1+matches.length)%matc
 document.getElementById("back-to-top").onclick = () =>
   window.scrollTo({top:0,behavior:"smooth"});
 
-  const floatingFind = document.getElementById("floating-find");
+  /*const floatingFind = document.getElementById("floating-find");*/
 
-function lockFindBar() {
+/*function lockFindBar() {
   if (!floatingFind) return;
 
   let y = 0;
@@ -387,9 +387,10 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener("scroll", lockFindBar);
   window.visualViewport.addEventListener("resize", lockFindBar);
 }
-
+*/
+  
 // initial position
-lockFindBar();
+/*lockFindBar();*/
 
 /* ================= CSV IMPORT ================= */
 
