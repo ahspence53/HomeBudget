@@ -124,11 +124,13 @@ saveConfigButton.onclick = () => {
 
 startDateInput.value = startDate;
 openingBalanceInput.value = openingBalance || "";
+
+  /* ==============HELP============ */
   /* HELP */
   // Locate the help button by its ID
 const helpButton = document.getElementById('help');
 
-/* ==============HELP============ */
+
 if (helpButton) {
     helpButton.addEventListener('click', () => {
         // 1. Determine the desired size (80% of the screen width/height)
