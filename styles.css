@@ -70,8 +70,8 @@ th, td {
 }
 .floating-find {
   position: sticky;
-  top: 56px;          /* sits BELOW the blue header */
-  z-index: 1000;
+  top: 56px;              /* height of header */
+  z-index: 9999;
 
   background: white;
   padding: 6px 8px;
