@@ -379,106 +379,52 @@ lockFindBar();
 
 /* ================= CSV IMPORT ================= */
 
-/* ================= CSV IMPORT ================= */
-
+/* ================= CSV IMPORT (AUTO CATEGORY) ================= */
 const csvInput = document.getElementById("csv-import");
-const importBtn = document.getElementById("import-btn");
+document.getElementById("import-btn").onclick = () => {
+  if (!csvInput.files.length) return alert("Choose CSV");
 
-importBtn.onclick = () => {
-  if (!csvInput.files.length) {
-    alert("Please choose a CSV file");
-    return;
-  }
-
-  if (
-    !confirm(
-      "This will DELETE all existing transactions and replace them from the CSV.\n\nContinue?"
-    )
-  )
-    return;
-
-  const file = csvInput.files[0];
+  const rows = csvInput.files[0];
   const reader = new FileReader();
 
   reader.onload = () => {
-    try {
-      const rows = reader.result.trim().split(/\r?\n/);
-      const header = rows.shift().trim();
-
-      if (header !== "Date,Amount,Income/Expense,Category,Description,Frequency") {
-        throw new Error(
-          "Invalid CSV header.\nExpected:\nDate,Amount,Income/Expense,Category,Description,Frequency"
-        );
-      }
-
-      const imported = [];
-
-      rows.forEach((line, i) => {
-        const rowNum = i + 2; // header is row 1
-
-        const [
-          date,
-          amount,
-          typeRaw,
-          category,
-          description,
-          frequency
-        ] = line.split(",");
-
-        if (
-          !date ||
-          !amount ||
-          !typeRaw ||
-          !category ||
-          !description ||
-          !frequency
-        ) {
-          throw new Error(`Missing data on row ${rowNum}`);
-        }
-
-        const rawType = typeRaw.trim().toLowerCase();
-        if (rawType !== "income" && rawType !== "expense") {
-          throw new Error(
-            `Income/Expense must be 'Income' or 'Expense' (row ${rowNum})`
-          );
-        }
-
-        if (!categories.includes(category.trim())) {
-          throw new Error(
-            `Category "${category}" does not exist (row ${rowNum})`
-          );
-        }
-
-        const amt = parseFloat(amount);
-        if (isNaN(amt)) {
-          throw new Error(`Invalid amount on row ${rowNum}`);
-        }
-
-        imported.push({
-          date: date.trim(),
-          description: description.trim(),
-          type: rawType,
-          amount: amt,
-          category: category.trim(),
-          frequency: frequency.trim().toLowerCase()
-        });
-      });
-
-      transactions = imported;
-      localStorage.setItem("transactions", JSON.stringify(transactions));
-
-      renderTransactionTable();
-      renderProjectionTable();
-
-      alert(`Imported ${transactions.length} transactions successfully`);
-      csvInput.value = "";
-
-    } catch (err) {
-      alert("Import failed:\n" + err.message);
+    const lines = reader.result.trim().split(/\r?\n/);
+    if (lines.shift().trim() !== "Date,Amount,Income/Expense,Category,Description,Frequency") {
+      return alert("Invalid CSV header");
     }
+
+    categories = [...new Set(categories)];
+    transactions = [];
+
+    lines.forEach(line=>{
+      const [date,amount,typeRaw,cat,desc,freq] = line.split(",");
+      if (!categories.includes(cat)) categories.push(cat);
+      const normalizedType = typeRaw.trim().toLowerCase();
+
+if (normalizedType !== "income" && normalizedType !== "expense") {
+  throw new Error(`Invalid Income/Expense value: "${typeRaw}"`);
+}
+
+transactions.push({
+  date: date.trim(),
+  description: desc.trim(),
+  category: cat.trim(),
+  amount: parseFloat(amount),
+  type: normalizedType,
+  frequency: freq.trim().toLowerCase()
+});
+    });
+
+    localStorage.setItem("categories", JSON.stringify(categories));
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+    updateCategoryDropdown();
+    updateEditCategoryDropdown();
+    renderTransactionTable();
+    renderProjectionTable();
+    alert("CSV import successful");
   };
 
-  reader.readAsText(file);
+  reader.readAsText(rows);
 };
 
   /* ================= EXPORT 24-MONTH PROJECTION ================= */
