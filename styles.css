@@ -1,21 +1,17 @@
+/* ================= BASE ================= */
+
 body {
   font-family: system-ui, sans-serif;
+  margin: 0;
   padding: 1rem;
 }
-body {
-  padding-top: 42px; /* was 52px */
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
+
 /* ================= APP HEADER ================= */
 
 .app-header {
   background: #2c6bed;
   color: white;
-  padding: 8px 16px;     /* reduced height */
+  padding: 8px 16px;
   margin: 0 -1rem 1rem -1rem;
 }
 
@@ -24,46 +20,9 @@ table {
   font-size: 1.4rem;
   font-weight: 600;
 }
-th, td {
-  border: 1px solid #ccc;
-  padding: 0.4rem;
-}
 
-.negative {
-  background: #ffe6e6;
-}
+/* ================= FLOATING FIND ================= */
 
-.irregular {
-  font-weight: bold;
-}
-
-.projection-match-highlight {
-  background: yellow;
-  
-}
-/* Highlight today's date in projection */
-.projection-today {
-  background-color: #fff7d6;
-}
-
-/* Projection description + category layout */
-.projection-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.projection-item .desc {
-  text-align: left;
-  flex: 1;
-}
-
-.projection-item .cat {
-  text-align: right;
-  color: #666;
-  white-space: nowrap;
-  font-size: 0.9em;
-}
 .floating-find {
   position: sticky;
   top: 0;
@@ -76,15 +35,80 @@ th, td {
   display: flex;
   align-items: center;
   gap: 6px;
+
+  margin-bottom: 8px;
 }
 
-.floating-top {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
+/* ================= TABLES ================= */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
 }
-/* Larger, more readable inputs */
-input, select, button {
+
+th,
+td {
+  border: 1px solid #ccc;
+  padding: 0.4rem;
+}
+
+/* ================= TRANSACTIONS ================= */
+
+.expense-row td {
+  color: #b00020;
+}
+
+.irregular {
+  font-weight: bold;
+}
+
+.negative {
+  background: #ffe6e6;
+}
+
+/* ================= PROJECTION ================= */
+
+.projection-today {
+  background-color: #fff7d6;
+}
+
+.projection-selected {
+  background-color: #e8f0ff;
+}
+
+.projection-match-highlight {
+  background: yellow;
+}
+
+.projection-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.projection-item .desc {
+  flex: 1;
+  text-align: left;
+}
+
+.projection-item .cat {
+  text-align: right;
+  color: #666;
+  white-space: nowrap;
+  font-size: 0.9em;
+}
+
+/* Weekend shading */
+#projection-table tr.weekend-row {
+  background-color: #f6f6f6;
+}
+
+/* ================= FORMS ================= */
+
+input,
+select,
+button {
   font-size: 1.05rem;
   padding: 10px 12px;
 }
@@ -98,13 +122,8 @@ input, select, button {
   min-height: 44px;
 }
 
-.projection-selected {
-  background-color: #e8f0ff;
-}
+/* ================= CATEGORIES ================= */
 
-#projection-table {
-  margin-top: 48px;
-}
 .categories {
   display: flex;
   flex-wrap: wrap;
@@ -113,14 +132,13 @@ input, select, button {
 }
 
 .categories input,
-.categories select {
-  min-width: 200px;
-}
-
+.categories select,
 #edit-category-section input,
 #edit-category-section select {
   min-width: 200px;
 }
+
+/* ================= IMPORT / EXPORT ================= */
 
 #import-export {
   margin-top: 2rem;
@@ -137,9 +155,7 @@ input, select, button {
   margin-left: 0.5rem;
 }
 
-.expense-row td {
-  color: #b00020;
-}
+/* ================= MODALS ================= */
 
 .modal {
   position: fixed;
@@ -165,11 +181,10 @@ input, select, button {
   border-radius: 6px;
 }
 
-body {
-  padding: 1rem;
-}
+/* ================= BACK TO TOP ================= */
 
-/* Weekend shading in 24-month projection */
-#projection-table tr.weekend-row {
-  background-color: #f6f6f6;
+.floating-top {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
 }
