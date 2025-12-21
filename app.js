@@ -29,6 +29,7 @@ const projectionTbody = document.querySelector("#projection-table tbody");
 const editCategorySelect = document.getElementById("edit-category-select");
 const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
+const HEADER_OFFSET = 56; // px (safe margin)
 /* added edit category code*/
   renameCategoryButton.onclick = () => {
   const oldName = editCategorySelect.value;
@@ -365,10 +366,16 @@ document.getElementById("back-to-top").onclick = () =>
 function lockFindBar() {
   if (!floatingFind) return;
 
-  const y =
-    window.visualViewport
-      ? window.visualViewport.pageTop
-      : window.scrollY;
+  let y = 0;
+
+  if (window.visualViewport) {
+    y = window.visualViewport.pageTop;
+  } else {
+    y = window.scrollY;
+  }
+
+  // Clamp so it never overlaps header
+  if (y < HEADER_OFFSET) y = HEADER_OFFSET;
 
   floatingFind.style.top = y + "px";
 }
