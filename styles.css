@@ -90,12 +90,16 @@ input, select, button {
 #projection-table {
   margin-top: 48px;
 }
-
-#edit-category-section {
-  margin-top: 1rem;
+.categories {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.categories input,
+.categories select {
+  min-width: 200px;
 }
 
 #edit-category-section input,
