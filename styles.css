@@ -155,7 +155,3 @@ body {
   background-color: #f6f6f6;
 }
 
-/* Weekend shading in 24-month projection */
-#projection-table tr.weekend-row {
-  background-color: #f6f6f6;
-}
