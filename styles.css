@@ -65,10 +65,8 @@ th, td {
   font-size: 0.9em;
 }
 .floating-find {
-  position: absolute;   /* NOT fixed */
-  left: 0;
-  right: 0;
-  top: 0;
+  position: sticky;        /* <-- key change */
+  top: 56px;               /* sits below the blue header */
 
   z-index: 9999;
   background: white;
