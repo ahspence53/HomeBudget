@@ -70,12 +70,16 @@ th, td {
 }
 .floating-find {
   position: sticky;
-  top: 56px;              /* height of header */
-  z-index: 9999;
+  top: 0;
+  z-index: 1000;
 
-  background: white;
+  background: #f8f9fb;
   padding: 6px 8px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #cfd6e4;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .floating-top {
