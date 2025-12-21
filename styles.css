@@ -69,12 +69,12 @@ th, td {
   font-size: 0.9em;
 }
 .floating-find {
-  position: sticky;        /* <-- key change */
-  top: 56px;               /* sits below the blue header */
+  position: sticky;
+  top: 56px;          /* sits BELOW the blue header */
+  z-index: 1000;
 
-  z-index: 9999;
   background: white;
-  padding: 8px;
+  padding: 6px 8px;
   border-bottom: 1px solid #ccc;
 }
 
