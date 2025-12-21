@@ -276,12 +276,20 @@ document.getElementById("import-btn").onclick = () => {
     lines.forEach(line=>{
       const [date,amount,typeRaw,cat,desc,freq] = line.split(",");
       if (!categories.includes(cat)) categories.push(cat);
-      transactions.push({
-        date, description:desc, category:cat,
-        amount:parseFloat(amount),
-        type:typeRaw.toLowerCase(),
-        frequency:freq.toLowerCase()
-      });
+      const normalizedType = typeRaw.trim().toLowerCase();
+
+if (normalizedType !== "income" && normalizedType !== "expense") {
+  throw new Error(`Invalid Income/Expense value: "${typeRaw}"`);
+}
+
+transactions.push({
+  date: date.trim(),
+  description: desc.trim(),
+  category: cat.trim(),
+  amount: parseFloat(amount),
+  type: normalizedType,
+  frequency: freq.trim().toLowerCase()
+});
     });
 
     localStorage.setItem("categories", JSON.stringify(categories));
