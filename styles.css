@@ -12,7 +12,7 @@ html, body {
 
 .floating-find {
   position: fixed;
-  top: 0;
+  top: env(safe-area-inset-top);
   left: 0;
   right: 0;
 
@@ -42,6 +42,17 @@ html, body {
   color: white;
   padding: 6px 16px;
 }
+.app-header {
+  position: fixed;
+  top: calc(42px + env(safe-area-inset-top));
+  left: 0;
+  right: 0;
+
+  z-index: 1200;
+  background: #2c6bed;
+  color: white;
+  padding: 6px 16px;
+}
 
 .app-header h1 {
   margin: 0;
@@ -52,12 +63,12 @@ html, body {
 /* ================= PAGE CONTENT OFFSET ================= */
 
 .page-content {
-  padding-top: 84px;      /* find bar (42) + header (42) */
+  padding-top: calc(84px + env(safe-area-inset-top));
 }
 
 /* ================= TABLES ================= */
 #projection-table tr {
-  scroll-margin-top: 96px; /* height of top-bar */
+  scroll-margin-top: calc(96px + env(safe-area-inset-top));
 }
 
 table {
