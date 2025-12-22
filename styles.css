@@ -149,8 +149,3 @@ input, select, button {
 body {
   padding: 1rem;
 }
-
-/* Weekend shading in 24-month projection */
-#projection-table tr.weekend-row {
-  background-color: #f6f6f6;
-}

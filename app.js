@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  
 
 /* ================= STORAGE ================= */
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
@@ -30,7 +29,6 @@ const projectionTbody = document.querySelector("#projection-table tbody");
 const editCategorySelect = document.getElementById("edit-category-select");
 const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
-
 /* added edit category code*/
   renameCategoryButton.onclick = () => {
   const oldName = editCategorySelect.value;
@@ -295,11 +293,6 @@ function renderProjectionTable() {
     balance += inc-exp;
 
     const tr=document.createElement("tr");
-    // Shade weekends
-const day = new Date(iso).getDay(); // 0=Sun, 6=Sat
-if (day === 0 || day === 6) {
-  tr.classList.add("weekend-row");
-}
     if (balance<0) tr.classList.add("negative");
     tr.innerHTML = `
       <td>${formatDate(iso)}</td>
@@ -348,16 +341,10 @@ function updateCounter(){
 }
 
 function showMatch(){
-  matches.forEach(r => r.classList.remove("projection-match-highlight"));
-  if (findIdx < 0 || findIdx >= matches.length) return;
-
-  const row = matches[findIdx];
-  row.classList.add("projection-match-highlight");
-
-  // iOS-safe scroll (does NOT break fixed headers)
-  row.scrollIntoView({
-  behavior: "smooth"
-});
+  matches.forEach(r=>r.classList.remove("projection-match-highlight"));
+  if(findIdx<0||findIdx>=matches.length)return;
+  matches[findIdx].classList.add("projection-match-highlight");
+  matches[findIdx].scrollIntoView({behavior:"smooth",block:"center"});
 }
 
 findInput.oninput=collectMatches;
@@ -368,21 +355,15 @@ findPrev.onclick=()=>{if(matches.length){findIdx=(findIdx-1+matches.length)%matc
 document.getElementById("back-to-top").onclick = () =>
   window.scrollTo({top:0,behavior:"smooth"});
 
-  /*const floatingFind = document.getElementById("floating-find");*/
+  const floatingFind = document.getElementById("floating-find");
 
-/*function lockFindBar() {
+function lockFindBar() {
   if (!floatingFind) return;
 
-  let y = 0;
-
-  if (window.visualViewport) {
-    y = window.visualViewport.pageTop;
-  } else {
-    y = window.scrollY;
-  }
-
-  // Clamp so it never overlaps header
-  if (y < HEADER_OFFSET) y = HEADER_OFFSET;
+  const y =
+    window.visualViewport
+      ? window.visualViewport.pageTop
+      : window.scrollY;
 
   floatingFind.style.top = y + "px";
 }
@@ -394,10 +375,9 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener("scroll", lockFindBar);
   window.visualViewport.addEventListener("resize", lockFindBar);
 }
-*/
-  
+
 // initial position
-/*lockFindBar();*/
+lockFindBar();
 
 /* ================= CSV IMPORT ================= */
 
@@ -578,29 +558,7 @@ salaryBtn.onclick = () => {
 salaryClose.onclick = () => {
   salaryPopup.classList.add("hidden");
 };
- /* ================= FIX FIND BAR MOBILE CHROME ================= */
-
-const floatingFind = document.getElementById("floating-find");
-const header = document.querySelector(".app-header");
-
-function lockFindBar() {
-  if (!floatingFind || !window.visualViewport) return;
-
-  // Keep Find always visible below the browser UI
-  floatingFind.style.top = window.visualViewport.offsetTop + "px";
-
-  // Keep header directly under Find
-  header.style.top =
-    window.visualViewport.offsetTop + floatingFind.offsetHeight + "px";
-}
-
-// Run on all viewport changes
-window.visualViewport.addEventListener("scroll", lockFindBar);
-window.visualViewport.addEventListener("resize", lockFindBar);
-window.addEventListener("orientationchange", lockFindBar);
-
-// Initial position
-lockFindBar(); 
+  
 
 /* ================= INIT ================= */
 updateCategoryDropdown();
