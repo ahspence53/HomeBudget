@@ -5,11 +5,13 @@
   margin: 0;
   padding: 0;
 }*/
+
 body {
   font-family: system-ui, sans-serif;
   margin: 0;
   
   /* 1. Add internal spacing (margins) */
+  padding-top: 96px; /* height of top-bar */
   padding: 0 20px; 
 
   /* 2. Critical: This prevents the padding from making the body wider than 100% */
