@@ -355,9 +355,8 @@ function showMatch(){
 
   // iOS-safe scroll (does NOT break fixed headers)
   row.scrollIntoView({
-    behavior: "smooth",
-    block: "nearest"
-  });
+  behavior: "smooth"
+});
 }
 
 findInput.oninput=collectMatches;
