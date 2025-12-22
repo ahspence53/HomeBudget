@@ -56,6 +56,9 @@ html, body {
 }
 
 /* ================= TABLES ================= */
+#projection-table tr {
+  scroll-margin-top: 96px; /* height of top-bar */
+}
 
 table {
   width: 100%;
