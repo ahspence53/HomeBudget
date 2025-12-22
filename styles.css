@@ -10,7 +10,7 @@ html, body {
 
 /* ================= FIXED FIND BAR ================= */
 
-.floating-find {
+..floating-find {
   position: fixed;
   top: 0;
   left: 0;
@@ -27,16 +27,15 @@ html, body {
   border-bottom: 1px solid #cfd6e4;
 }
 
-/* ================= FIXED HEADER ================= */
+/* ================= FIXED APP HEADER ================= */
 
 .app-header {
   position: fixed;
-  top: 42px;               /* height of find bar */
+  top: 42px;              /* height of find bar */
   left: 0;
   right: 0;
 
   z-index: 1200;
-
   background: #2c6bed;
   color: white;
   padding: 6px 16px;
@@ -51,7 +50,7 @@ html, body {
 /* ================= PAGE CONTENT OFFSET ================= */
 
 .page-content {
-  padding-top: 84px;       /* find (42) + header (42) */
+  padding-top: 84px;      /* find bar (42) + header (42) */
 }
 
 /* ================= TABLES ================= */
@@ -66,11 +65,6 @@ th,
 td {
   border: 1px solid #ccc;
   padding: 0.4rem;
-}
-
-/* Offset scroll-to-row for fixed bars */
-#projection-table tr {
-  scroll-margin-top: 96px;
 }
 
 /* ================= TRANSACTIONS ================= */
