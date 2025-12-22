@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  
 
 /* ================= STORAGE ================= */
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
