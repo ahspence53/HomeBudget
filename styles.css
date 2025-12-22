@@ -10,21 +10,21 @@ html, body {
 
 /* ================= FIXED FIND BAR ================= */
 
-.floating-find {
+..floating-find {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
 
   z-index: 1300;
-  background: #f8f9fb;
-  border-bottom: 1px solid #cfd6e4;
 
   display: flex;
   align-items: center;
   gap: 6px;
 
+  background: #f8f9fb;
   padding: 6px 8px;
+  border-bottom: 1px solid #cfd6e4;
 }
 
 /* ================= FIXED APP HEADER ================= */
