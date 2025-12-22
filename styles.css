@@ -87,6 +87,11 @@ input, select, button {
 .projection-selected {
   background-color: #e8f0ff;
 }
+/* Weekend shading in 24-month projection */
+#projection-table tr.weekend-row {
+  background-color: #f6f6f6;
+}
+
 
 #projection-table {
   margin-top: 48px;
@@ -146,10 +151,7 @@ input, select, button {
   overflow-y: auto;
   border-radius: 6px;
 }
-/* Weekend shading in 24-month projection */
-#projection-table tr.weekend-row {
-  background-color: #f6f6f6;
-}
+
 body {
   padding: 1rem;
 }
