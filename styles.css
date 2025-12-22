@@ -10,7 +10,7 @@ html, body {
 
 /* ================= FIXED FIND BAR ================= */
 
-.floating-find {
+..floating-find {
   position: fixed;
   top: 0;
   left: 0;
