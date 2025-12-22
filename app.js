@@ -347,10 +347,17 @@ function updateCounter(){
 }
 
 function showMatch(){
-  matches.forEach(r=>r.classList.remove("projection-match-highlight"));
-  if(findIdx<0||findIdx>=matches.length)return;
-  matches[findIdx].classList.add("projection-match-highlight");
-  matches[findIdx].scrollIntoView({behavior:"smooth",block:"center"});
+  matches.forEach(r => r.classList.remove("projection-match-highlight"));
+  if (findIdx < 0 || findIdx >= matches.length) return;
+
+  const row = matches[findIdx];
+  row.classList.add("projection-match-highlight");
+
+  // iOS-safe scroll (does NOT break fixed headers)
+  row.scrollIntoView({
+    behavior: "smooth",
+    block: "nearest"
+  });
 }
 
 findInput.oninput=collectMatches;
