@@ -543,7 +543,13 @@ salaryBtn.onclick = () => {
     balance += inc - exp;
 
     if (salaryDates.has(iso)) {
-      const tr = document.createElement("tr");
+      /*const tr = document.createElement("tr");*/
+      // Shade weekends
+const day = new Date(iso).getDay(); // 0=Sun, 6=Sat
+if (day === 0 || day === 6) {
+  tr.classList.add("weekend-row");
+}
+      
       tr.innerHTML = `
         <td>${formatDate(iso)}</td>
         <td>${balance.toFixed(2)}</td>
