@@ -11,9 +11,8 @@ html, body {
 /* ================= FIXED FIND BAR ================= */
 
 .floating-find {
-  position: fixed !important;
-  top: 0 !important;
-  display: flex !important;
+  position: fixed;
+  top: 0;
   left: 0;
   right: 0;
 
