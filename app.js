@@ -30,7 +30,7 @@ const projectionTbody = document.querySelector("#projection-table tbody");
 const editCategorySelect = document.getElementById("edit-category-select");
 const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
-const HEADER_OFFSET = 46; // px (safe margin) was 56
+
 /* added edit category code*/
   renameCategoryButton.onclick = () => {
   const oldName = editCategorySelect.value;
@@ -578,7 +578,29 @@ salaryBtn.onclick = () => {
 salaryClose.onclick = () => {
   salaryPopup.classList.add("hidden");
 };
-  
+ /* ================= FIX FIND BAR MOBILE CHROME ================= */
+
+const floatingFind = document.getElementById("floating-find");
+const header = document.querySelector(".app-header");
+
+function lockFindBar() {
+  if (!floatingFind || !window.visualViewport) return;
+
+  // Keep Find always visible below the browser UI
+  floatingFind.style.top = window.visualViewport.offsetTop + "px";
+
+  // Keep header directly under Find
+  header.style.top =
+    window.visualViewport.offsetTop + floatingFind.offsetHeight + "px";
+}
+
+// Run on all viewport changes
+window.visualViewport.addEventListener("scroll", lockFindBar);
+window.visualViewport.addEventListener("resize", lockFindBar);
+window.addEventListener("orientationchange", lockFindBar);
+
+// Initial position
+lockFindBar(); 
 
 /* ================= INIT ================= */
 updateCategoryDropdown();
