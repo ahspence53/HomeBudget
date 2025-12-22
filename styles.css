@@ -13,7 +13,8 @@ table {
 
 th, td {
   border: 1px solid #ccc;
-  padding: 0.4rem;
+  padding: 0.6rem;
+ /* padding: 0.4rem;*/
 }
 
 .negative {
