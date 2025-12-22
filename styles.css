@@ -8,45 +8,44 @@ html, body {
   font-family: system-ui, sans-serif;
 }
 
-//* ================= FIXED FIND BAR ================= */
+/* ================= FIXED FIND BAR ================= */
 
-.floating-find { /* Fixed the double dot here */
+..floating-find {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 42px; /* Explicit height helps alignment */
+
   z-index: 1300;
+
   display: flex;
   align-items: center;
   gap: 6px;
+
   background: #f8f9fb;
   padding: 6px 8px;
   border-bottom: 1px solid #cfd6e4;
-  box-sizing: border-box; /* Ensures padding doesn't add to the height */
 }
 
 /* ================= FIXED APP HEADER ================= */
 
 .app-header {
   position: fixed;
-  top: 42px; /* Matches the height of the find bar */
+  top: 42px;              /* height of find bar */
   left: 0;
   right: 0;
+
   z-index: 1200;
   background: #2c6bed;
   color: white;
   padding: 6px 16px;
 }
 
-/* ================= CONTENT SPACING ================= */
-
-/* You need to push your main content down so it isn't hidden 
-   behind the two fixed bars (Find Bar + Header) */
-main, .content-wrapper {
-  margin-top: 85px; /* (42px Find Bar + ~43px Header) */
+.app-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
-
 
 /* ================= PAGE CONTENT OFFSET ================= */
 
