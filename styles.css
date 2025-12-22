@@ -1,29 +1,41 @@
 /* ================= BASE ================= */
 
 html, body {
-  font-family: system-ui, sans-serif;
   margin: 0;
+  padding: 0;
   max-width: 100%;
   overflow-x: hidden;
-  box-sizing: border-box;
+  font-family: system-ui, sans-serif;
 }
 
-/* ================= TOP BAR ================= */
+/* ================= FIXED FIND BAR ================= */
 
-.top-bar {
+.floating-find {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
 
-  z-index: 1200;
+  z-index: 1300;
   background: #f8f9fb;
   border-bottom: 1px solid #cfd6e4;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 6px 8px;
 }
 
-/* ================= APP HEADER ================= */
+/* ================= FIXED APP HEADER ================= */
 
 .app-header {
+  position: fixed;
+  top: 42px;              /* height of find bar */
+  left: 0;
+  right: 0;
+
+  z-index: 1200;
   background: #2c6bed;
   color: white;
   padding: 6px 16px;
@@ -35,19 +47,10 @@ html, body {
   font-weight: 600;
 }
 
-/* ================= FLOATING FIND ================= */
-
-.floating-find {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-}
-
-/* ================= PAGE CONTENT ================= */
+/* ================= PAGE CONTENT OFFSET ================= */
 
 .page-content {
-  padding-top: 96px; /* space for fixed top-bar */
+  padding-top: 84px;      /* find bar (42) + header (42) */
 }
 
 /* ================= TABLES ================= */
