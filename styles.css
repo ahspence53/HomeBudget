@@ -146,7 +146,10 @@ input, select, button {
   overflow-y: auto;
   border-radius: 6px;
 }
-
+/* Weekend shading in 24-month projection */
+#projection-table tr.weekend-row {
+  background-color: #f6f6f6;
+}
 body {
   padding: 1rem;
 }
