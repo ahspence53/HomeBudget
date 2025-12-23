@@ -607,6 +607,21 @@ salaryClose.onclick = () => {
   salaryPopup.classList.add("hidden");
 };
   
+  projectionTbody.addEventListener("click", e => {
+  if (!e.target.classList.contains("nudge-btn")) return;
+
+  const iso = e.target.dataset.iso;
+  const desc = e.target.dataset.desc;
+
+  const next = new Date(iso);
+  next.setDate(next.getDate() + 1);
+
+  const key = `${iso}|${desc}`;
+  nudges[key] = toISO(next);
+
+  saveNudges();
+  renderProjectionTable();
+});
 
 /* ================= INIT ================= */
 updateCategoryDropdown();
