@@ -325,6 +325,38 @@ const day = new Date(iso).getDay(); // 0=Sun, 6=Sat
 if (day === 0 || day === 6) {
   tr.classList.add("weekend-row");
 }
+tr.ondblclick = () => {
+  if (!desc.length) return;
+
+  const change = prompt(
+    "Adjust date:\n-1 = previous day\n1 = next day\n0 = clear override",
+    "1"
+  );
+
+  if (change === null) return;
+
+  const delta = parseInt(change, 10);
+  if (isNaN(delta)) return;
+
+  desc.forEach(html => {
+    const match = html.match(/<span class="desc">(.*?)<\/span>/);
+    if (!match) return;
+
+    const description = match[1];
+    const key = `${iso}|${description}`;
+
+    if (delta === 0) {
+      delete dateOverrides[key];
+    } else {
+      const d = new Date(iso);
+      d.setDate(d.getDate() + delta);
+      dateOverrides[key] = toISO(d);
+    }
+  });
+
+  saveOverrides();
+  renderProjectionTable();
+};
     tr.innerHTML = `
       <td>${formatDate(iso)}</td>
       <td>${desc.join("<br>")}</td>
