@@ -297,14 +297,22 @@ function renderProjectionTable() {
     let inc=0, exp=0, desc=[];
 
     transactions.forEach(tx => {
-  if (!occursOn(tx, iso)) return;
+  const normallyOccurs = occursOn(tx, iso);
+  const nudgedHere = nudgedToDate(tx, iso);
+
+  if (!normallyOccurs && !nudgedHere) return;
+
+  // If it normally occurs here BUT was nudged away, skip
+  if (normallyOccurs) {
+    const key = nudgeKey(tx, iso);
+    if (nudges[key]) return;
+  }
 
   tx.type === "income" ? inc += tx.amount : exp += tx.amount;
 
   const today = new Date(toISO(new Date()));
   const cur = new Date(iso);
   const diffDays = Math.round((cur - today) / 86400000);
-
   const showNudge = diffDays >= 0 && diffDays <= 7;
 
   desc.push(`
