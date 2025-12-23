@@ -6,6 +6,9 @@ let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 let startDate = localStorage.getItem("startDate") || "";
 let openingBalance = parseFloat(localStorage.getItem("openingBalance")) || 0;
 let editingIndex = null;
+/* NUDGE */
+let dateOverrides =
+  JSON.parse(localStorage.getItem("dateOverrides")) || {};
 
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
@@ -59,6 +62,11 @@ const renameCategoryButton = document.getElementById("rename-category");
 
   alert(`Category "${oldName}" renamed to "${newName}"`);
 };
+  
+/* ======= NUDGE FUNCTION ========= */
+function saveOverrides() {
+localStorage.setItem("dateOverrides", JSON.stringify(dateOverrides));
+}
   
 /* ================= UTILS ================= */
 function toISO(d) {
@@ -263,6 +271,12 @@ function occursOn(tx, iso) {
   return false;
 }
 
+/* ======= NUDGE ======= */
+function getEffectiveDate(tx, scheduledIso) {
+const key = `${scheduledIso}|${tx.description}`;
+return dateOverrides[key] || scheduledIso;
+}
+
 /* ================= PROJECTION ================= */
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
@@ -278,15 +292,27 @@ function renderProjectionTable() {
     const iso = toISO(d);
     let inc=0, exp=0, desc=[];
 
+ /* ====== NUDGE AMENDMENTS. =========*/
     transactions.forEach(tx => {
-      if (occursOn(tx, iso)) {
-        tx.type==="income" ? inc+=tx.amount : exp+=tx.amount;
-        desc.push(
-  `<div class="projection-item">
-     <span class="desc">${tx.description}</span>
-     <span class="cat">${tx.category || ""}</span>
-   </div>`
-);
+  if (!occursOn(tx, iso)) return;
+
+  const effectiveDate = getEffectiveDate(tx, iso);
+
+  // Skip if this occurrence was moved to another day
+  if (effectiveDate !== iso) return;
+
+  tx.type === "income" ? inc += tx.amount : exp += tx.amount;
+
+  const key = `${iso}|${tx.description}`;
+  const adjusted = dateOverrides[key];
+
+  desc.push(`
+    <div class="projection-item ${adjusted ? "projection-adjusted" : ""}">
+      <span class="desc">${tx.description}</span>
+      <span class="cat">${tx.category || ""}</span>
+    </div>
+  `);
+});
       }
     });
 
