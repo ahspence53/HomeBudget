@@ -91,6 +91,10 @@ input, select, button {
   margin-top: 48px;
 }
 
+#projection-table tr.weekend-row {
+  background-color: #f6f6f6;
+}
+
 #edit-category-section {
   margin-top: 1rem;
   display: flex;
