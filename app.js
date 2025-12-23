@@ -7,7 +7,7 @@ let startDate = localStorage.getItem("startDate") || "";
 let openingBalance = parseFloat(localStorage.getItem("openingBalance")) || 0;
 let editingIndex = null;
 let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
- /**/ 
+  
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
 const newCategoryInput = document.getElementById("new-category");
@@ -297,26 +297,17 @@ function renderProjectionTable() {
     let inc=0, exp=0, desc=[];
 
     transactions.forEach(tx => {
-  const normallyOccurs = occursOn(tx, iso);
-  const nudgedHere = nudgedToDate(tx, iso);
-
-  if (!normallyOccurs && !nudgedHere) return;
-
-  // If it normally occurs here BUT was nudged away, skip
-  if (normallyOccurs) {
-    const key = nudgeKey(tx, iso);
-    if (nudges[key]) return;
-  }
+  if (!occursOn(tx, iso)) return;
 
   tx.type === "income" ? inc += tx.amount : exp += tx.amount;
 
   const today = new Date(toISO(new Date()));
   const cur = new Date(iso);
   const diffDays = Math.round((cur - today) / 86400000);
+
   const showNudge = diffDays >= 0 && diffDays <= 7;
 
-  desc.push({
-  html: `
+  desc.push(`
     <div class="projection-item">
       <span class="desc">${tx.description}</span>
       <span class="cat">${tx.category || ""}</span>
@@ -325,9 +316,7 @@ function renderProjectionTable() {
           data-desc="${tx.description}"
           data-iso="${iso}">+1</button>` : ""}
     </div>
-  `,
-  type: tx.type,
-  amount: tx.amount
+  `);
 });
 
     balance += inc-exp;
@@ -610,25 +599,6 @@ salaryClose.onclick = () => {
   salaryPopup.classList.add("hidden");
 };
   
-  projectionTbody.addEventListener("click", e => {
-  if (!e.target.classList.contains("nudge-btn")) return;
-
-  const iso = e.target.dataset.iso;
-  const desc = e.target.dataset.desc;
-
-  // Remove previous nudges for this transaction
-  Object.keys(nudges).forEach(k => {
-    if (k.endsWith(`|${desc}`)) delete nudges[k];
-  });
-
-  const next = new Date(iso);
-  next.setDate(next.getDate() + 1);
-
-  nudges[`${iso}|${desc}`] = toISO(next);
-
-  saveNudges();
-  renderProjectionTable();
-});
 
 /* ================= INIT ================= */
 updateCategoryDropdown();
