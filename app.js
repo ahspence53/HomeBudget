@@ -6,7 +6,8 @@ let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 let startDate = localStorage.getItem("startDate") || "";
 let openingBalance = parseFloat(localStorage.getItem("openingBalance")) || 0;
 let editingIndex = null;
-
+let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
+  
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
 const newCategoryInput = document.getElementById("new-category");
@@ -78,6 +79,23 @@ function normalizeSearch(str) {
   return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
 }
 
+  function nudgeKey(tx, iso) {
+  return `${iso}|${tx.description}`;
+}
+
+function saveNudges() {
+  localStorage.setItem("nudges", JSON.stringify(nudges));
+}
+
+function nudgedToDate(tx, iso) {
+  return Object.entries(nudges).some(
+    ([key, value]) =>
+      value === iso && key.endsWith(`|${tx.description}`)
+  );
+}
+  
+
+  
 /* ================= CATEGORIES ================= */
 function updateCategoryDropdown() {
   txCategorySelect.innerHTML = '<option value="">Select category</option>';
