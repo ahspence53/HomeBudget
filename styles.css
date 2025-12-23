@@ -171,13 +171,8 @@ table button {
 
 /* === colour header === */
 header {
-  background-color: #1f4fd8;
-  padding: 12px 16px;
-  border-radius: 6px;
+  background-color: #1f4fd8 !important;
 }
-
 header h1 {
-  color: white;
-  margin: 0;
-  font-weight: 600;
+  color: white !important;
 }
