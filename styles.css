@@ -3,27 +3,16 @@
 html, body {
   margin: 0;
   padding: 0;
-  max-width: 100%;
-  overflow-x: hidden;
   font-family: system-ui, sans-serif;
 }
 
-/* Space for fixed Find bar + header */
-body {
-  padding-top: 96px; /* Find (48px) + Header (48px) */
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-/* ================= FIXED FIND BAR ================= */
+/* ================= FIND (STICKY, NOT FIXED) ================= */
 
 .floating-find {
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
 
-  z-index: 1200;
+  z-index: 1000;
 
   display: flex;
   align-items: center;
@@ -34,16 +23,9 @@ body {
   border-bottom: 1px solid #cfd6e4;
 }
 
-/* ================= FIXED HEADER ================= */
+/* ================= HEADER ================= */
 
 .app-header {
-  position: fixed;
-  top: 48px; /* height of Find bar */
-  left: 0;
-  right: 0;
-
-  z-index: 1100;
-
   background: #2c6bed;
   color: white;
   padding: 6px 16px;
@@ -63,33 +45,21 @@ table {
   margin-top: 1rem;
 }
 
-th,
-td {
+th, td {
   border: 1px solid #ccc;
-  padding: 0.4rem; /* restored original row height */
-  vertical-align: top;
+  padding: 0.4rem;
 }
 
-/* Ensure scrollIntoView accounts for fixed bars */
+/* Ensure scrollIntoView respects sticky find */
 #projection-table tr {
-  scroll-margin-top: 96px;
-}
-
-/* ================= TRANSACTIONS ================= */
-
-.expense-row td {
-  color: #b00020;
-}
-
-.irregular {
-  font-weight: bold;
-}
-
-.negative {
-  background: #ffe6e6;
+  scroll-margin-top: 48px;
 }
 
 /* ================= PROJECTION ================= */
+
+#projection-table tr.weekend-row {
+  background-color: #f6f6f6;
+}
 
 .projection-today {
   background-color: #fff7d6;
@@ -103,97 +73,15 @@ td {
   background: yellow;
 }
 
-.projection-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.projection-item .desc {
-  flex: 1;
-  text-align: left;
-}
-
-.projection-item .cat {
-  text-align: right;
-  color: #666;
-  white-space: nowrap;
-  font-size: 0.9em;
-}
-
-/* Weekend shading */
-#projection-table tr.weekend-row {
-  background-color: #f6f6f6;
+.negative {
+  background: #ffe6e6;
 }
 
 /* ================= FORMS ================= */
 
-input,
-select,
-button {
+input, select, button {
   font-size: 1.05rem;
   padding: 10px 12px;
-}
-
-#config input {
-  max-width: 220px;
-}
-
-/* ================= CATEGORIES ================= */
-
-.categories {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.categories input,
-.categories select {
-  min-width: 200px;
-}
-
-/* ================= IMPORT / EXPORT ================= */
-
-#import-export {
-  margin-top: 2rem;
-  padding: 1rem;
-  border-top: 2px solid #ddd;
-}
-
-.import-box,
-.export-box {
-  margin-top: 0.75rem;
-}
-
-#import-export button {
-  margin-left: 0.5rem;
-}
-
-/* ================= MODALS ================= */
-
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-.modal.hidden {
-  display: none;
-}
-
-.modal-content {
-  background: white;
-  padding: 16px;
-  max-width: 420px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  border-radius: 6px;
 }
 
 /* ================= BACK TO TOP ================= */
