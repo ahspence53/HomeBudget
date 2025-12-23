@@ -297,16 +297,27 @@ function renderProjectionTable() {
     let inc=0, exp=0, desc=[];
 
     transactions.forEach(tx => {
-      if (occursOn(tx, iso)) {
-        tx.type==="income" ? inc+=tx.amount : exp+=tx.amount;
-        desc.push(
-  `<div class="projection-item">
-     <span class="desc">${tx.description}</span>
-     <span class="cat">${tx.category || ""}</span>
-   </div>`
-);
-      }
-    });
+  if (!occursOn(tx, iso)) return;
+
+  tx.type === "income" ? inc += tx.amount : exp += tx.amount;
+
+  const today = new Date(toISO(new Date()));
+  const cur = new Date(iso);
+  const diffDays = Math.round((cur - today) / 86400000);
+
+  const showNudge = diffDays >= 0 && diffDays <= 7;
+
+  desc.push(`
+    <div class="projection-item">
+      <span class="desc">${tx.description}</span>
+      <span class="cat">${tx.category || ""}</span>
+      ${showNudge ? `
+        <button class="nudge-btn"
+          data-desc="${tx.description}"
+          data-iso="${iso}">+1</button>` : ""}
+    </div>
+  `);
+});
 
     balance += inc-exp;
 
