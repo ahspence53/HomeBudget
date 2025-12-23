@@ -91,7 +91,13 @@ function getEffectiveDate(tx, iso) {
 function saveNudges() {
   localStorage.setItem("nudges", JSON.stringify(nudges));
 }
-  
+  .nudge-btn {
+  margin-left: 6px;
+  font-size: 0.75em;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
 /* ================= CATEGORIES ================= */
 function updateCategoryDropdown() {
   txCategorySelect.innerHTML = '<option value="">Select category</option>';
@@ -293,10 +299,16 @@ function renderProjectionTable() {
     let inc=0, exp=0, desc=[];
 
     transactions.forEach(tx => {
-  if (!occursOn(tx, iso)) return;
+  const normallyOccurs = occursOn(tx, iso);
+  const nudgedHere = nudgedToDate(tx, iso);
 
-  const effectiveIso = getEffectiveDate(tx, iso);
-  if (effectiveIso !== iso) return; // nudged elsewhere
+  if (!normallyOccurs && !nudgedHere) return;
+
+  // If it normally occurs here BUT was nudged away, skip it
+  if (normallyOccurs) {
+    const key = `${iso}|${tx.description}`;
+    if (nudges[key]) return;
+  }
 
   tx.type === "income" ? inc += tx.amount : exp += tx.amount;
 
