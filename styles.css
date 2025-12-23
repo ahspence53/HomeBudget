@@ -1,44 +1,10 @@
-/* ================= BASE ================= */
-
-html, body {
-  margin: 0;
-  padding: 0;
+body {
   font-family: system-ui, sans-serif;
+  padding: 1rem;
 }
-
-/* ================= FIND (STICKY, NOT FIXED) ================= */
-
-.floating-find {
-  position: sticky;
-  top: 0;
-
-  z-index: 1000;
-
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  background: #f8f9fb;
-  padding: 6px 8px;
-  border-bottom: 1px solid #cfd6e4;
+body {
+  padding-top: 52px;
 }
-
-/* ================= HEADER ================= */
-
-.app-header {
-  background: #2c6bed;
-  color: white;
-  padding: 6px 16px;
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 600;
-}
-
-/* ================= TABLES ================= */
-
 table {
   width: 100%;
   border-collapse: collapse;
@@ -50,44 +16,136 @@ th, td {
   padding: 0.4rem;
 }
 
-/* Ensure scrollIntoView respects sticky find */
-#projection-table tr {
-  scroll-margin-top: 48px;
+.negative {
+  background: #ffe6e6;
 }
 
-/* ================= PROJECTION ================= */
-
-#projection-table tr.weekend-row {
-  background-color: #f6f6f6;
+.irregular {
+  font-weight: bold;
 }
 
+.projection-match-highlight {
+  background: yellow;
+  
+}
+/* Highlight today's date in projection */
 .projection-today {
   background-color: #fff7d6;
+}
+
+/* Projection description + category layout */
+.projection-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.projection-item .desc {
+  text-align: left;
+  flex: 1;
+}
+
+.projection-item .cat {
+  text-align: right;
+  color: #666;
+  white-space: nowrap;
+  font-size: 0.9em;
+}
+.floating-find {
+  position: absolute;   /* NOT fixed */
+  left: 0;
+  right: 0;
+  top: 0;
+
+  z-index: 9999;
+  background: white;
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.floating-top {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+}
+/* Larger, more readable inputs */
+input, select, button {
+  font-size: 1.05rem;
+  padding: 10px 12px;
+}
+
+#config input {
+  max-width: 220px;
+}
+
+#add-transaction-section input,
+#add-transaction-section select {
+  min-height: 44px;
 }
 
 .projection-selected {
   background-color: #e8f0ff;
 }
 
-.projection-match-highlight {
-  background: yellow;
+#projection-table {
+  margin-top: 48px;
 }
 
-.negative {
-  background: #ffe6e6;
+#edit-category-section {
+  margin-top: 1rem;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-/* ================= FORMS ================= */
-
-input, select, button {
-  font-size: 1.05rem;
-  padding: 10px 12px;
+#edit-category-section input,
+#edit-category-section select {
+  min-width: 200px;
 }
 
-/* ================= BACK TO TOP ================= */
+#import-export {
+  margin-top: 2rem;
+  padding: 1rem;
+  border-top: 2px solid #ddd;
+}
 
-.floating-top {
+.import-box,
+.export-box {
+  margin-top: 0.75rem;
+}
+
+#import-export button {
+  margin-left: 0.5rem;
+}
+
+.expense-row td {
+  color: #b00020;
+}
+
+.modal {
   position: fixed;
-  bottom: 1rem;
-  right: 1rem;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: white;
+  padding: 16px;
+  max-width: 420px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: 6px;
+}
+
+body {
+  padding: 1rem;
 }
