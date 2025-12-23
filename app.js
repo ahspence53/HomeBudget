@@ -6,7 +6,6 @@ let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 let startDate = localStorage.getItem("startDate") || "";
 let openingBalance = parseFloat(localStorage.getItem("openingBalance")) || 0;
 let editingIndex = null;
-let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
 
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
@@ -68,33 +67,13 @@ function toISO(d) {
   x.setHours(12,0,0,0);
   return x.toISOString().slice(0,10);
 }
-function nudgeKey(tx, iso) {
-  return `${iso}|${tx.description}`;
-}
 
-function getEffectiveDate(tx, iso) {
-  const key = nudgeKey(tx, iso);
-  return nudges[key] || iso;
-}
-
-function saveNudges() {
-  localStorage.setItem("nudges", JSON.stringify(nudges));
-}
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString("en-GB", {
     day:"2-digit", month:"short", year:"numeric"
   });
 }
-/* ===== nudge ======*/
-  function applyNudge(tx, dateObj) {
-  const d = new Date(dateObj);
-  if (tx.nudgeDays) {
-    d.setDate(d.getDate() + tx.nudgeDays);
-  }
-  return d;
-}
 
-  
 function normalizeSearch(str) {
   return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
 }
@@ -179,7 +158,6 @@ function saveTransactions() {
 
 addTxButton.onclick = () => {
   const tx = {
-  nudgeDays: 0,
     description: txDesc.value.trim(),
     amount: parseFloat(txAmount.value) || 0,
     type: txType.value,
@@ -284,11 +262,7 @@ function occursOn(tx, iso) {
 
   return false;
 }
-function getNudgedDate(tx, iso) {
-  if (!tx.nudges) return iso;
-  return tx.nudges[iso] || iso;
-}
-  
+
 /* ================= PROJECTION ================= */
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
@@ -304,47 +278,18 @@ function renderProjectionTable() {
     const iso = toISO(d);
     let inc=0, exp=0, desc=[];
 
- transactions.forEach(tx => {
-  if (!occursOn(tx, iso)) return;
-
-  const effectiveIso = getEffectiveDate(tx, iso);
-  if (effectiveIso !== iso) return; // nudged elsewhere
-
-  tx.type === "income" ? inc += tx.amount : exp += tx.amount;
-
-  const today = new Date(toISO(new Date()));
-  const cur = new Date(iso);
-  const diffDays = Math.round((cur - today) / 86400000);
-
-  const showNudge = diffDays >= 0 && diffDays <= 7;
-
-  desc.push(`
-    <div class="projection-item">
-      <span class="desc">${tx.description}</span>
-      <span class="cat">${tx.category || ""}</span>
-      ${showNudge ? `<button class="nudge-btn"
-        data-desc="${tx.description}"
-        data-iso="${iso}">+1</button>` : ""}
-    </div>
-  `);
-});
+    transactions.forEach(tx => {
+      if (occursOn(tx, iso)) {
+        tx.type==="income" ? inc+=tx.amount : exp+=tx.amount;
+        desc.push(
+  `<div class="projection-item">
+     <span class="desc">${tx.description}</span>
+     <span class="cat">${tx.category || ""}</span>
+   </div>`
+);
       }
     });
-projectionTbody.addEventListener("click", e => {
-  if (!e.target.classList.contains("nudge-btn")) return;
 
-  const iso = e.target.dataset.iso;
-  const desc = e.target.dataset.desc;
-
-  const next = new Date(iso);
-  next.setDate(next.getDate() + 1);
-
-  const key = `${iso}|${desc}`;
-  nudges[key] = toISO(next);
-
-  saveNudges();
-  renderProjectionTable();
-});
     balance += inc-exp;
 
     const tr=document.createElement("tr");
