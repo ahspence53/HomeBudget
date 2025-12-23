@@ -73,7 +73,16 @@ function formatDate(iso) {
     day:"2-digit", month:"short", year:"numeric"
   });
 }
+/* ===== nudge ======*/
+  function applyNudge(tx, dateObj) {
+  const d = new Date(dateObj);
+  if (tx.nudgeDays) {
+    d.setDate(d.getDate() + tx.nudgeDays);
+  }
+  return d;
+}
 
+  
 function normalizeSearch(str) {
   return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
 }
@@ -158,6 +167,7 @@ function saveTransactions() {
 
 addTxButton.onclick = () => {
   const tx = {
+  nudgeDays: 0,
     description: txDesc.value.trim(),
     amount: parseFloat(txAmount.value) || 0,
     type: txType.value,
@@ -262,7 +272,11 @@ function occursOn(tx, iso) {
 
   return false;
 }
-
+function getNudgedDate(tx, iso) {
+  if (!tx.nudges) return iso;
+  return tx.nudges[iso] || iso;
+}
+  
 /* ================= PROJECTION ================= */
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
@@ -279,7 +293,8 @@ function renderProjectionTable() {
     let inc=0, exp=0, desc=[];
 
     transactions.forEach(tx => {
-      if (occursOn(tx, iso)) {
+      const effectiveIso = getNudgedDate(tx, iso);
+if (occursOn(tx, effectiveIso)) {
         tx.type==="income" ? inc+=tx.amount : exp+=tx.amount;
         desc.push(
   `<div class="projection-item">
