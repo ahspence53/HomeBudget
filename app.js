@@ -7,7 +7,7 @@ let startDate = localStorage.getItem("startDate") || "";
 let openingBalance = parseFloat(localStorage.getItem("openingBalance")) || 0;
 let editingIndex = null;
 let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
-  
+ /**/ 
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
 const newCategoryInput = document.getElementById("new-category");
