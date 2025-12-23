@@ -174,3 +174,7 @@ table button {
 .projection-match-highlight {
   background: #fff3a0 !important;
 }
+
+.weekend-row.projection-match-highlight {
+  background-color: #ffeb3b !important;
+}
