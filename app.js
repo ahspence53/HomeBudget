@@ -143,7 +143,7 @@ if (helpButton) {
         
         // 3. Open the window with these dynamic values
         window.open(
-            'help.pdf',
+            'help.html',
             'HelpWindow', 
             'width=400,height=600,scrollbars=yes,resizable=yes');
     });
@@ -235,57 +235,32 @@ function renderTransactionTable() {
     transactionTableBody.appendChild(tr);
   });
 }
-/* ======= nudge code =========*/
-  function isWeekend(dateObj) {
-  const d = dateObj.getDay();
-  return d === 0 || d === 6;
-}
 
-function adjustForwardIfNeeded(dateObj) {
-  const d = new Date(dateObj);
-  while (isWeekend(d)) {
-    d.setDate(d.getDate() + 1);
-  }
-  return d;
-}
-  
 /* ================= RECURRENCE ================= */
 function occursOn(tx, iso) {
   if (!tx.date) return false;
 
   const start = new Date(tx.date);
   const cur = new Date(iso);
-
   start.setHours(12,0,0,0);
   cur.setHours(12,0,0,0);
 
   if (cur < start) return false;
 
-  // Irregular stays exact
-  if (tx.frequency === "irregular") {
-    return tx.date === iso;
-  }
-
-  let occurrenceDate;
+  if (tx.frequency === "irregular") return tx.date === iso;
 
   if (tx.frequency === "monthly") {
     const day = start.getDate();
-    const last = new Date(cur.getFullYear(), cur.getMonth() + 1, 0).getDate();
-    occurrenceDate = new Date(cur.getFullYear(), cur.getMonth(), Math.min(day, last));
+    const last = new Date(cur.getFullYear(),cur.getMonth()+1,0).getDate();
+    return cur.getDate() === Math.min(day,last);
   }
 
   if (tx.frequency === "4-weekly") {
-    const diff = Math.round((cur - start) / 86400000);
-    if (diff % 28 !== 0) return false;
-    occurrenceDate = new Date(cur);
+    const diff = Math.round((cur-start)/86400000);
+    return diff % 28 === 0;
   }
 
-  if (!occurrenceDate) return false;
-
-  // 👉 OPTION 2: nudge forward if weekend
-  occurrenceDate = adjustForwardIfNeeded(occurrenceDate);
-
-  return toISO(occurrenceDate) === iso;
+  return false;
 }
 
 /* ================= PROJECTION ================= */

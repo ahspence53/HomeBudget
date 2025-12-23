@@ -163,16 +163,3 @@ table button {
   bottom: 1rem;
   right: 1rem;
 }
-
-.projection-adjusted {
-  font-style: italic;
-  opacity: 0.85;
-}
-
-/* === colour header === */
-header {
-  background-color: #1f4fd8 !important;
-}
-header h1 {
-  color: white !important;
-}
