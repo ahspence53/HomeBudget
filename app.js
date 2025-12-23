@@ -294,6 +294,11 @@ function renderProjectionTable() {
 
     const tr=document.createElement("tr");
     if (balance<0) tr.classList.add("negative");
+    // Shade weekends (projection table)
+const day = new Date(iso).getDay(); // 0=Sun, 6=Sat
+if (day === 0 || day === 6) {
+  tr.classList.add("weekend-row");
+}
     tr.innerHTML = `
       <td>${formatDate(iso)}</td>
       <td>${desc.join("<br>")}</td>
