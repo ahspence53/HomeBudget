@@ -281,80 +281,99 @@ function occursOn(tx, iso) {
   return false;
 }
 
-/* ================= PROJECTION ================= */
+//* ================= PROJECTION ================= */
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
   if (!startDate) return;
 
   let balance = openingBalance;
+
   const start = new Date(startDate);
-  start.setHours(12,0,0,0);
+  start.setHours(12, 0, 0, 0);
+
   const end = new Date(start);
-  end.setMonth(end.getMonth()+24);
+  end.setMonth(end.getMonth() + 24);
 
-  for (let d=new Date(start); d<=end; d.setDate(d.getDate()+1)) {
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
-    let inc=0, exp=0, desc=[];
 
+    let inc = 0;
+    let exp = 0;
+    const desc = [];
+
+    /* ---------- scan transactions for THIS day ---------- */
     transactions.forEach(tx => {
-  // If nudged away from this date, skip
-  if (nudgedToDate(tx, iso)) return;
 
-  // If nudged TO this date, allow
-  const nudgedHere = Object.entries(nudges).some(
-    ([key, value]) =>
-      value === iso && key.endsWith(`|${tx.description}`)
-  );
+      // If this transaction was nudged away from this date, skip
+      if (nudgedToDate(tx, iso)) return;
 
-  if (!nudgedHere && !occursOn(tx, iso)) return;
+      // Check if this transaction was nudged TO this date
+      const nudgedHere = Object.entries(nudges).some(
+        ([key, value]) =>
+          value === iso && key.endsWith(`|${tx.description}`)
+      );
 
-  tx.type === "income" ? inc += tx.amount : exp += tx.amount;
+      // If neither naturally occurs nor nudged here, skip
+      if (!nudgedHere && !occursOn(tx, iso)) return;
 
-  const today = new Date(toISO(new Date()));
-  const cur = new Date(iso);
-  const diffDays = Math.round((cur - today) / 86400000);
+      // Apply amounts
+      if (tx.type === "income") inc += tx.amount;
+      else exp += tx.amount;
 
-  const showNudge = diffDays >= 0 && diffDays <= 7;
+      // Decide whether to show nudge button (today → +7 days)
+      const today = new Date(toISO(new Date()));
+      const cur = new Date(iso);
+      const diffDays = Math.round((cur - today) / 86400000);
+      const showNudge = diffDays >= 0 && diffDays <= 7;
 
-  desc.push(`
-  <div class="projection-item ${tx.type}">
-    <span class="desc">${tx.description}</span>
-    <span class="cat">${tx.category || ""}</span>
-    ${showNudge ? `
-      <button class="nudge-btn"
-        data-desc="${tx.description}"
-        data-iso="${iso}">+1</button>` : ""}
-  </div>
-`);
+      desc.push(`
+        <div class="projection-item ${tx.type}">
+          <span class="desc">${tx.description}</span>
+          <span class="cat">${tx.category || ""}</span>
+          ${showNudge ? `
+            <button class="nudge-btn"
+              data-desc="${tx.description}"
+              data-iso="${iso}">+1</button>` : ""}
+        </div>
+      `);
+    });
 
-    balance += inc-exp;
+    /* ---------- now render ONE row for the day ---------- */
 
-    const tr=document.createElement("tr");
-    if (balance<0) tr.classList.add("negative");
-    // Shade weekends (projection table)
-const day = new Date(iso).getDay(); // 0=Sun, 6=Sat
-if (day === 0 || day === 6) {
-  tr.classList.add("weekend-row");
-}
+    balance += inc - exp;
+
+    const tr = document.createElement("tr");
+
+    if (balance < 0) tr.classList.add("negative");
+
+    // Shade weekends
+    const day = new Date(iso).getDay();
+    if (day === 0 || day === 6) {
+      tr.classList.add("weekend-row");
+    }
+
     tr.innerHTML = `
       <td>${formatDate(iso)}</td>
       <td>${desc.join("<br>")}</td>
-      <td>${inc?inc.toFixed(2):""}</td>
-      <td>${exp?exp.toFixed(2):""}</td>
+      <td>${inc ? inc.toFixed(2) : ""}</td>
+      <td>${exp ? exp.toFixed(2) : ""}</td>
       <td>${balance.toFixed(2)}</td>
     `;
 
-    // Highlight today's row
-const todayIso = toISO(new Date());
-if (iso === todayIso) {
-  tr.classList.add("projection-today");
-}
+    // Highlight today
+    const todayIso = toISO(new Date());
+    if (iso === todayIso) {
+      tr.classList.add("projection-today");
+    }
+
+    // Row selection highlight
     tr.onclick = () => {
-  document
-    .querySelectorAll(".projection-selected")
-    .forEach(r => r.classList.remove("projection-selected"));
-  tr.classList.add("projection-selected");
-};
+      document
+        .querySelectorAll(".projection-selected")
+        .forEach(r => r.classList.remove("projection-selected"));
+      tr.classList.add("projection-selected");
+    };
+
     projectionTbody.appendChild(tr);
   }
 }
