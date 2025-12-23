@@ -89,8 +89,8 @@ function saveNudges() {
 
 function nudgedToDate(tx, iso) {
   return Object.entries(nudges).some(
-    ([key, value]) =>
-      value === iso && key.endsWith(`|${tx.description}`)
+    ([key, targetIso]) =>
+      key.endsWith(`|${tx.description}`) && key.startsWith(`${iso}|`)
   );
 }
   
