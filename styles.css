@@ -163,3 +163,8 @@ table button {
   bottom: 1rem;
   right: 1rem;
 }
+
+.projection-adjusted {
+  font-style: italic;
+  opacity: 0.85;
+}
