@@ -1,39 +1,50 @@
+/* ================= BASE ================= */
+
 body {
   font-family: system-ui, sans-serif;
   padding: 1rem;
+  padding-top: 72px; /* space for floating Find */
 }
-body {
-  padding-top: 66px;
-}
+
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
 }
 
+/* ================= TABLES ================= */
+
 th, td {
   border: 1px solid #ccc;
   padding: 0.4rem;
+  vertical-align: top;
 }
 
-.negative {
-  background: #ffe6e6;
+/* Allow row background colours to show */
+tr {
+  background-color: transparent;
 }
 
-.irregular {
-  font-weight: bold;
+/* Weekend shading in 24-month projection */
+#projection-table tr.weekend-row {
+  background-color: #f6f6f6;
 }
 
-.projection-match-highlight {
-  background: yellow;
-  
-}
-/* Highlight today's date in projection */
+/* Highlight today's date */
 .projection-today {
   background-color: #fff7d6;
 }
 
-/* Projection description + category layout */
+.projection-selected {
+  background-color: #e8f0ff;
+}
+
+.projection-match-highlight {
+  background: yellow;
+}
+
+/* ================= PROJECTION LAYOUT ================= */
+
 .projection-item {
   display: flex;
   justify-content: space-between;
@@ -41,8 +52,8 @@ th, td {
 }
 
 .projection-item .desc {
-  text-align: left;
   flex: 1;
+  text-align: left;
 }
 
 .projection-item .cat {
@@ -51,11 +62,14 @@ th, td {
   white-space: nowrap;
   font-size: 0.9em;
 }
+
+/* ================= FLOATING FIND ================= */
+
 .floating-find {
-  position: absolute;   /* NOT fixed */
+  position: absolute; /* keep the WORKING behaviour */
+  top: 0;
   left: 0;
   right: 0;
-  top: 0;
 
   z-index: 9999;
   background: white;
@@ -63,15 +77,19 @@ th, td {
   border-bottom: 1px solid #ccc;
 }
 
-.floating-top {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-}
-/* Larger, more readable inputs */
+/* ================= FORMS ================= */
+
 input, select, button {
   font-size: 1.05rem;
   padding: 10px 12px;
+}
+
+/* Reduce row height impact inside tables */
+table input,
+table select,
+table button {
+  padding: 4px 6px;
+  font-size: 0.95rem;
 }
 
 #config input {
@@ -83,48 +101,21 @@ input, select, button {
   min-height: 44px;
 }
 
-.projection-selected {
-  background-color: #e8f0ff;
-}
-
-#projection-table {
-  margin-top: 48px;
-}
-
-#projection-table tr.weekend-row {
-  background-color: #f6f6f6;
-}
-
-#edit-category-section {
-  margin-top: 1rem;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-#edit-category-section input,
-#edit-category-section select {
-  min-width: 200px;
-}
-
-#import-export {
-  margin-top: 2rem;
-  padding: 1rem;
-  border-top: 2px solid #ddd;
-}
-
-.import-box,
-.export-box {
-  margin-top: 0.75rem;
-}
-
-#import-export button {
-  margin-left: 0.5rem;
-}
+/* ================= TRANSACTIONS ================= */
 
 .expense-row td {
   color: #b00020;
 }
+
+.negative {
+  background: #ffe6e6;
+}
+
+.irregular {
+  font-weight: bold;
+}
+
+/* ================= MODALS ================= */
 
 .modal {
   position: fixed;
@@ -150,6 +141,25 @@ input, select, button {
   border-radius: 6px;
 }
 
-body {
+/* ================= MISC ================= */
+
+#import-export {
+  margin-top: 2rem;
   padding: 1rem;
+  border-top: 2px solid #ddd;
+}
+
+.import-box,
+.export-box {
+  margin-top: 0.75rem;
+}
+
+#import-export button {
+  margin-left: 0.5rem;
+}
+
+.floating-top {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
 }
