@@ -60,15 +60,7 @@ const renameCategoryButton = document.getElementById("rename-category");
 
   alert(`Category "${oldName}" renamed to "${newName}"`);
 };
-function nudgedToDate(tx, iso) {
-  for (const [key, targetIso] of Object.entries(nudges)) {
-    const [fromIso, desc] = key.split("|");
-    if (desc === tx.description && targetIso === iso) {
-      return true;
-    }
-  }
-  return false;
-}  
+
 /* ================= UTILS ================= */
 function toISO(d) {
   if (!d) return "";
@@ -305,7 +297,16 @@ function renderProjectionTable() {
     let inc=0, exp=0, desc=[];
 
     transactions.forEach(tx => {
-  if (!occursOn(tx, iso)) return;
+  // If nudged away from this date, skip
+  if (nudgedToDate(tx, iso)) return;
+
+  // If nudged TO this date, allow
+  const nudgedHere = Object.entries(nudges).some(
+    ([key, value]) =>
+      value === iso && key.endsWith(`|${tx.description}`)
+  );
+
+  if (!nudgedHere && !occursOn(tx, iso)) return;
 
   tx.type === "income" ? inc += tx.amount : exp += tx.amount;
 
