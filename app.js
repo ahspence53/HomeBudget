@@ -598,7 +598,26 @@ if (day === 0 || day === 6) {
 salaryClose.onclick = () => {
   salaryPopup.classList.add("hidden");
 };
-  
+  /* ===== nudge =====*/
+  projectionTbody.addEventListener("click", e => {
+  if (!e.target.classList.contains("nudge-btn")) return;
+
+  const iso = e.target.dataset.iso;
+  const desc = e.target.dataset.desc;
+
+  // Remove previous nudges for this transaction
+  Object.keys(nudges).forEach(k => {
+    if (k.endsWith(`|${desc}`)) delete nudges[k];
+  });
+
+  const next = new Date(iso);
+  next.setDate(next.getDate() + 1);
+
+  nudges[`${iso}|${desc}`] = toISO(next);
+
+  saveNudges();
+  renderProjectionTable();
+});
 
 /* ================= INIT ================= */
 updateCategoryDropdown();
