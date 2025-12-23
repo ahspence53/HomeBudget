@@ -6,7 +6,6 @@ let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 let startDate = localStorage.getItem("startDate") || "";
 let openingBalance = parseFloat(localStorage.getItem("openingBalance")) || 0;
 let editingIndex = null;
-  let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
 
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
@@ -77,25 +76,6 @@ function formatDate(iso) {
 
 function normalizeSearch(str) {
   return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
-}
-
-  function nudgeKey(tx, iso) {
-  return `${iso}|${tx.description}`;
-}
-
-function getEffectiveDate(tx, iso) {
-  const key = nudgeKey(tx, iso);
-  return nudges[key] || iso;
-}
-
-function saveNudges() {
-  localStorage.setItem("nudges", JSON.stringify(nudges));
-}
-  .nudge-btn {
-  margin-left: 6px;
-  font-size: 0.75em;
-  padding: 2px 6px;
-  cursor: pointer;
 }
 
 /* ================= CATEGORIES ================= */
@@ -299,35 +279,16 @@ function renderProjectionTable() {
     let inc=0, exp=0, desc=[];
 
     transactions.forEach(tx => {
-  const normallyOccurs = occursOn(tx, iso);
-  const nudgedHere = nudgedToDate(tx, iso);
-
-  if (!normallyOccurs && !nudgedHere) return;
-
-  // If it normally occurs here BUT was nudged away, skip it
-  if (normallyOccurs) {
-    const key = `${iso}|${tx.description}`;
-    if (nudges[key]) return;
-  }
-
-  tx.type === "income" ? inc += tx.amount : exp += tx.amount;
-
-  const today = new Date(toISO(new Date()));
-  const cur = new Date(iso);
-  const diffDays = Math.round((cur - today) / 86400000);
-
-  const showNudge = diffDays >= 0 && diffDays <= 7;
-
-  desc.push(`
-    <div class="projection-item">
-      <span class="desc">${tx.description}</span>
-      <span class="cat">${tx.category || ""}</span>
-      ${showNudge ? `<button class="nudge-btn"
-        data-desc="${tx.description}"
-        data-iso="${iso}">+1</button>` : ""}
-    </div>
-  `);
-});
+      if (occursOn(tx, iso)) {
+        tx.type==="income" ? inc+=tx.amount : exp+=tx.amount;
+        desc.push(
+  `<div class="projection-item">
+     <span class="desc">${tx.description}</span>
+     <span class="cat">${tx.category || ""}</span>
+   </div>`
+);
+      }
+    });
 
     balance += inc-exp;
 
@@ -360,24 +321,6 @@ if (iso === todayIso) {
     projectionTbody.appendChild(tr);
   }
 }
-
-projectionTbody.addEventListener("click", e => {
-  if (!e.target.classList.contains("nudge-btn")) return;
-
-  const iso = e.target.dataset.iso;
-  const desc = e.target.dataset.desc;
-
-  const next = new Date(iso);
-  next.setDate(next.getDate() + 1);
-
-  const key = `${iso}|${desc}`;
-  nudges[key] = toISO(next);
-
-  saveNudges();
-  renderProjectionTable();
-});
-  
-
 
 /* ================= STICKY FIND ================= */
 const findInput=document.getElementById("projection-find-input");
