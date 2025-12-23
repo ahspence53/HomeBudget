@@ -307,7 +307,8 @@ function renderProjectionTable() {
 
   const showNudge = diffDays >= 0 && diffDays <= 7;
 
-  desc.push(`
+  desc.push({
+  html: `
     <div class="projection-item">
       <span class="desc">${tx.description}</span>
       <span class="cat">${tx.category || ""}</span>
@@ -316,7 +317,9 @@ function renderProjectionTable() {
           data-desc="${tx.description}"
           data-iso="${iso}">+1</button>` : ""}
     </div>
-  `);
+  `,
+  type: tx.type,
+  amount: tx.amount
 });
 
     balance += inc-exp;
