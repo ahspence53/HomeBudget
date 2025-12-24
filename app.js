@@ -665,7 +665,26 @@ salaryClose.onclick = () => {
 
   renderProjectionTable();
 });
+/* ================= NUDGE CLICK HANDLER ================= */
 
+projectionTbody.addEventListener("click", e => {
+  const btn = e.target.closest(".nudge-btn");
+  if (!btn) return;
+
+  const txKey = btn.dataset.id;
+  const fromIso = btn.dataset.iso;
+
+  if (!txKey || !fromIso) return;
+
+  const next = new Date(fromIso);
+  next.setDate(next.getDate() + 1);
+  const toIso = toISO(next);
+
+  nudges[txKey] = toIso;
+  localStorage.setItem("nudges", JSON.stringify(nudges));
+
+  renderProjectionTable();
+});
 /* ================= INIT ================= */
 updateCategoryDropdown();
 updateEditCategoryDropdown();
