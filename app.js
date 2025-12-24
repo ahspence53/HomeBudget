@@ -291,7 +291,13 @@ function nudgeKey(tx, iso) {
 }
 
 function isNudgedAway(tx, iso) {
-  return nudges[nudgeKey(tx, iso)] !== undefined;
+  return nudges[txId(tx)] && tx.date === iso;
+}
+
+function effectiveOccursOn(tx, iso) {
+  const nudgedTo = nudges[txId(tx)];
+  if (nudgedTo) return nudgedTo === iso;
+  return occursOn(tx, iso);
 }
 
 function effectiveOccursOn(tx, iso) {
