@@ -85,7 +85,7 @@ function normalizeSearch(str) {
 /* ====== nudge code =======*/
   
 function nudgeKey(tx, iso) {
-  return `${iso}|${tx.description}`;
+  return `${txId(tx)}|${iso}`;
 }
 
 function saveNudges() {
@@ -317,12 +317,14 @@ function txId(tx) {
 
 // Was this transaction nudged away from THIS date?
 function isNudgedAway(tx, iso) {
-  return nudges.hasOwnProperty(`${txId(tx)}|${iso}`);
+  return nudges.hasOwnProperty(nudgeKey(tx, iso));
 }
 
-// Was this transaction nudged TO this date?
 function isNudgedHere(tx, iso) {
-  return Object.values(nudges).includes(`${txId(tx)}|${iso}`);
+  return Object.values(nudges).includes(iso) &&
+    Object.keys(nudges).some(k =>
+      k.startsWith(txId(tx) + "|") && nudges[k] === iso
+    );
 }
   
 /* ================= PROJECTION ================= */
@@ -370,9 +372,21 @@ function renderProjectionTable() {
           <span class="amt">
             ${isIncome ? tx.amount.toFixed(2) : ""}
           </span>
-          <span class="amt">
-            ${!isIncome ? tx.amount.toFixed(2) : ""}
-          </span>
+          tr.innerHTML = `
+  <td>${formatDate(iso)}</td>
+  <td>
+    <div class="projection-item ${tx.type}">
+      <span class="desc">${tx.description}</span>
+      <span class="cat">${tx.category || ""}</span>
+      ${showNudge ? `
+        <button class="nudge-btn"
+          data-key="${nudgeKey(tx, iso)}">+1</button>` : ""}
+    </div>
+  </td>
+  <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
+  <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
+  <td>${balance.toFixed(2)}</td>
+`;
           ${showNudge ? `
             <button class="nudge-btn"
               data-id="${id}"
