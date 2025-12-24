@@ -61,6 +61,25 @@ const renameCategoryButton = document.getElementById("rename-category");
   alert(`Category "${oldName}" renamed to "${newName}"`);
 };
 
+  document.addEventListener("click", e => {
+  if (!e.target.classList.contains("nudge-btn")) return;
+
+  const desc = e.target.dataset.desc;
+  const iso = e.target.dataset.iso;
+
+  // Find the transaction occurrence being nudged
+  const tx = transactions.find(t => t.description === desc);
+  if (!tx) return;
+
+  const fromDate = iso;
+  const toDate = toISO(new Date(new Date(iso).getTime() + 86400000));
+
+  const key = `${fromDate}|${tx.description}|${tx.type}|${tx.amount}`;
+  nudges[key] = toDate;
+
+  localStorage.setItem("nudges", JSON.stringify(nudges));
+  renderProjectionTable();
+});
 /* ================= UTILS ================= */
 function toISO(d) {
   if (!d) return "";
