@@ -343,57 +343,43 @@ function renderProjectionTable() {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
-    const rows = [];
+    let dayItems = [];
+    let dayIncome = 0;
+    let dayExpense = 0;
 
     transactions.forEach(tx => {
-      const id = txId(tx);
+      const key = nudgeKey(tx, iso);
 
-      const naturallyOccurs = occursOn(tx, iso);
-      const nudgedHere = nudges[id] === iso;
-      const nudgedAway = nudges[id] && nudges[id] !== iso;
+      const occurs = occursOn(tx, iso);
+      const nudgedAway = nudges[key];
+      const nudgedHere = Object.values(nudges).includes(iso) &&
+        Object.keys(nudges).includes(key);
 
-      // Skip only the nudged-away occurrence
-      if (naturallyOccurs && nudgedAway) return;
-
-      if (!naturallyOccurs && !nudgedHere) return;
+      if (occurs && nudgedAway) return;
+      if (!occurs && !nudgedHere) return;
 
       const isIncome = tx.type === "income";
-      balance += isIncome ? tx.amount : -tx.amount;
+
+      if (isIncome) dayIncome += tx.amount;
+      else dayExpense += tx.amount;
 
       const today = new Date(toISO(new Date()));
       const cur = new Date(iso);
       const diffDays = Math.round((cur - today) / 86400000);
       const showNudge = diffDays >= 0 && diffDays <= 7;
 
-      rows.push(`
+      dayItems.push(`
         <div class="projection-item ${tx.type}">
           <span class="desc">${tx.description}</span>
           <span class="cat">${tx.category || ""}</span>
-          <span class="amt">
-            ${isIncome ? tx.amount.toFixed(2) : ""}
-          </span>
-          tr.innerHTML = `
-  <td>${formatDate(iso)}</td>
-  <td>
-    <div class="projection-item ${tx.type}">
-      <span class="desc">${tx.description}</span>
-      <span class="cat">${tx.category || ""}</span>
-      ${showNudge ? `
-        <button class="nudge-btn"
-          data-key="${nudgeKey(tx, iso)}">+1</button>` : ""}
-    </div>
-  </td>
-  <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
-  <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
-  <td>${balance.toFixed(2)}</td>
-`;
           ${showNudge ? `
             <button class="nudge-btn"
-              data-id="${id}"
-              data-iso="${iso}">+1</button>` : ""}
+              data-key="${key}">+1</button>` : ""}
         </div>
       `);
     });
+
+    balance += dayIncome - dayExpense;
 
     const tr = document.createElement("tr");
 
@@ -404,9 +390,9 @@ function renderProjectionTable() {
 
     tr.innerHTML = `
       <td>${formatDate(iso)}</td>
-      <td>${rows.join("")}</td>
-      <td></td>
-      <td></td>
+      <td>${dayItems.join("")}</td>
+      <td>${dayIncome ? dayIncome.toFixed(2) : ""}</td>
+      <td>${dayExpense ? dayExpense.toFixed(2) : ""}</td>
       <td>${balance.toFixed(2)}</td>
     `;
 
