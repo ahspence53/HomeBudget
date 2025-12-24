@@ -341,33 +341,36 @@ function renderProjectionTable() {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
-    // Collect transactions for this day
-    let todaysTx = transactions.filter(tx =>
-      !isNudgedAway(tx, iso) &&
+    // collect transactions for THIS date only
+    const todaysTx = transactions.filter(tx =>
       effectiveOccursOn(tx, iso)
     );
 
-    // Income first, then expenses
+    // income first
     todaysTx.sort((a,b) =>
       a.type === b.type ? 0 : a.type === "income" ? -1 : 1
     );
-if (todaysTx.length === 0) {
-  const tr = document.createElement("tr");
 
-  const day = new Date(iso).getDay();
-  if (day === 0 || day === 6) tr.classList.add("weekend-row");
+    // if none, render empty row (no text)
+    if (todaysTx.length === 0) {
+      const tr = document.createElement("tr");
 
-  tr.innerHTML = `
-    <td>${formatDate(iso)}</td>
-    <td class="muted">No transactions</td>
-    <td></td>
-    <td></td>
-    <td>${balance.toFixed(2)}</td>
-  `;
+      const day = new Date(iso).getDay();
+      if (day === 0 || day === 6) tr.classList.add("weekend-row");
 
-  projectionTbody.appendChild(tr);
-  continue;
-}
+      tr.innerHTML = `
+        <td>${formatDate(iso)}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>${balance.toFixed(2)}</td>
+      `;
+
+      projectionTbody.appendChild(tr);
+      continue;
+    }
+
+    // render one row PER transaction
     todaysTx.forEach(tx => {
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
@@ -380,8 +383,7 @@ if (todaysTx.length === 0) {
       if (day === 0 || day === 6) tr.classList.add("weekend-row");
 
       const today = new Date(toISO(new Date()));
-      const cur = new Date(iso);
-      const diffDays = Math.round((cur - today) / 86400000);
+      const diffDays = Math.round((new Date(iso) - today) / 86400000);
       const showNudge = diffDays >= 0 && diffDays <= 7;
 
       tr.innerHTML = `
@@ -390,11 +392,11 @@ if (todaysTx.length === 0) {
           <div class="projection-item ${tx.type}">
             <span class="desc">${tx.description}</span>
             <span class="cat">${tx.category || ""}</span>
-           ${showNudge ? `
-  <button class="nudge-btn"
-    data-id="${txId(tx)}"
-    data-iso="${iso}">+1</button>
-` : ""}
+            ${showNudge ? `
+              <button class="nudge-btn"
+                data-id="${txId(tx)}"
+                data-iso="${iso}">+1</button>
+            ` : ""}
           </div>
         </td>
         <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
