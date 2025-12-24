@@ -638,19 +638,32 @@ salaryClose.onclick = () => {
 
   const iso = e.target.dataset.iso;
   const desc = e.target.dataset.desc;
+  const type = e.target.dataset.type;
+  const amount = parseFloat(e.target.dataset.amount);
 
-  // Find the exact transaction instance
-  const tx = transactions.find(t => t.description === desc);
+  const tx = transactions.find(t =>
+    t.description === desc &&
+    t.type === type &&
+    t.amount === amount
+  );
+
   if (!tx) return;
 
   const key = nudgeKey(tx, iso);
 
+  // Remove any previous nudges for THIS transaction
+  Object.keys(nudges).forEach(k => {
+    if (k.endsWith(`|${tx.description}|${tx.type}|${tx.amount}`)) {
+      delete nudges[k];
+    }
+  });
+
   const next = new Date(iso);
   next.setDate(next.getDate() + 1);
 
-  nudges[key] = toISO(next);
+  nudges[key] = nudgeKey(tx, toISO(next));
 
-  saveNudges();
+  localStorage.setItem("nudges", JSON.stringify(nudges));
   renderProjectionTable();
 });
 
