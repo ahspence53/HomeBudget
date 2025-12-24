@@ -390,10 +390,11 @@ if (todaysTx.length === 0) {
           <div class="projection-item ${tx.type}">
             <span class="desc">${tx.description}</span>
             <span class="cat">${tx.category || ""}</span>
-            ${showNudge ? `
-              <button class="nudge-btn"
-  data-id="${txId(tx)}"
-  data-iso="${iso}">+1</button>
+           ${showNudge ? `
+  <button class="nudge-btn"
+    data-id="${txId(tx)}"
+    data-iso="${iso}">+1</button>
+` : ""}
           </div>
         </td>
         <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
