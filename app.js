@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-
-  /* ================= STORAGE ================= */
+/* ================= STORAGE ================= */
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 let startDate = localStorage.getItem("startDate") || "";
@@ -61,46 +60,6 @@ const renameCategoryButton = document.getElementById("rename-category");
 
   alert(`Category "${oldName}" renamed to "${newName}"`);
 };
-
-  document.addEventListener("click", e => {
-  if (!e.target.classList.contains("nudge-btn")) return;
-
-  const iso = e.target.dataset.iso;
-  const desc = e.target.dataset.desc;
-
-  const tx = transactions.find(
-    t => t.description === desc
-  );
-  if (!tx) return;
-
-  const next = new Date(iso);
-  next.setDate(next.getDate() + 1);
-
-  nudges[nudgeKey(tx)] = toISO(next);
-
-  localStorage.setItem("nudges", JSON.stringify(nudges));
-  renderProjectionTable();
-});
-
-function normalizeSearch(str) {
-  return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
-}
-function nudgeKey(tx) {
-  return `${tx.description}|${tx.type}|${tx.amount}`;
-}
-
-function getEffectiveDate(tx, iso) {
-  const key = nudgeKey(tx);
-
-  // If nudged, ONLY show on target date
-  if (nudges[key]) {
-    return nudges[key] === iso;
-  }
-
-  // Otherwise use natural schedule
-  return occursOn(tx, iso);
-}
-
   
 /* ================= UTILS ================= */
 function toISO(d) {
@@ -116,7 +75,24 @@ function formatDate(iso) {
   });
 }
 
+function normalizeSearch(str) {
+  return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
+}
 
+  function nudgeKey(tx, iso) {
+  return `${iso}|${tx.description}`;
+}
+
+function saveNudges() {
+  localStorage.setItem("nudges", JSON.stringify(nudges));
+}
+
+function nudgedToDate(tx, iso) {
+  return Object.entries(nudges).some(
+    ([key, value]) =>
+      value === iso && key.endsWith(`|${tx.description}`)
+  );
+}
   
 
   
@@ -305,95 +281,72 @@ function occursOn(tx, iso) {
   return false;
 }
 
-//* ================= PROJECTION ================= */
+/* ================= PROJECTION ================= */
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
   if (!startDate) return;
 
   let balance = openingBalance;
-
   const start = new Date(startDate);
-  start.setHours(12, 0, 0, 0);
-
+  start.setHours(12,0,0,0);
   const end = new Date(start);
-  end.setMonth(end.getMonth() + 24);
+  end.setMonth(end.getMonth()+24);
 
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+  for (let d=new Date(start); d<=end; d.setDate(d.getDate()+1)) {
     const iso = toISO(d);
+    let inc=0, exp=0, desc=[];
 
-    let inc = 0;
-    let exp = 0;
-    const desc = [];
-
-    /* ---------- scan transactions for THIS day ---------- */
-   transactions.forEach(tx => {
-
-  // Does this transaction naturally occur on ANY date?
+    transactions.forEach(tx => {
   if (!occursOn(tx, iso)) return;
 
-  const effectiveIso = getEffectiveDate(tx, iso);
-
-  // Only render it on its effective date
-  if (effectiveIso !== iso) return;
-
-  if (tx.type === "income") inc += tx.amount;
-  else exp += tx.amount;
+  tx.type === "income" ? inc += tx.amount : exp += tx.amount;
 
   const today = new Date(toISO(new Date()));
   const cur = new Date(iso);
   const diffDays = Math.round((cur - today) / 86400000);
+
   const showNudge = diffDays >= 0 && diffDays <= 7;
 
   desc.push(`
-    <div class="projection-item ${tx.type}">
+    <div class="projection-item">
       <span class="desc">${tx.description}</span>
       <span class="cat">${tx.category || ""}</span>
       ${showNudge ? `
         <button class="nudge-btn"
           data-desc="${tx.description}"
-          data-type="${tx.type}"
-          data-amount="${tx.amount}"
           data-iso="${iso}">+1</button>` : ""}
     </div>
   `);
 });
 
-    /* ---------- now render ONE row for the day ---------- */
+    balance += inc-exp;
 
-    balance += inc - exp;
-
-    const tr = document.createElement("tr");
-
-    if (balance < 0) tr.classList.add("negative");
-
-    // Shade weekends
-    const day = new Date(iso).getDay();
-    if (day === 0 || day === 6) {
-      tr.classList.add("weekend-row");
-    }
-
+    const tr=document.createElement("tr");
+    if (balance<0) tr.classList.add("negative");
+    // Shade weekends (projection table)
+const day = new Date(iso).getDay(); // 0=Sun, 6=Sat
+if (day === 0 || day === 6) {
+  tr.classList.add("weekend-row");
+}
     tr.innerHTML = `
       <td>${formatDate(iso)}</td>
       <td>${desc.join("<br>")}</td>
-      <td>${inc ? inc.toFixed(2) : ""}</td>
-      <td>${exp ? exp.toFixed(2) : ""}</td>
+      <td>${inc?inc.toFixed(2):""}</td>
+      <td>${exp?exp.toFixed(2):""}</td>
       <td>${balance.toFixed(2)}</td>
     `;
 
-    // Highlight today
-    const todayIso = toISO(new Date());
-    if (iso === todayIso) {
-      tr.classList.add("projection-today");
-    }
-
-    // Row selection highlight
+    // Highlight today's row
+const todayIso = toISO(new Date());
+if (iso === todayIso) {
+  tr.classList.add("projection-today");
+}
     tr.onclick = () => {
-      document
-        .querySelectorAll(".projection-selected")
-        .forEach(r => r.classList.remove("projection-selected"));
-      tr.classList.add("projection-selected");
-    };
-
+  document
+    .querySelectorAll(".projection-selected")
+    .forEach(r => r.classList.remove("projection-selected"));
+  tr.classList.add("projection-selected");
+};
     projectionTbody.appendChild(tr);
   }
 }
@@ -645,33 +598,7 @@ if (day === 0 || day === 6) {
 salaryClose.onclick = () => {
   salaryPopup.classList.add("hidden");
 };
-  /* ===== nudge =====*/
-  projectionTbody.addEventListener("click", e => {
-  if (!e.target.classList.contains("nudge-btn")) return;
-
-  const iso = e.target.dataset.iso;
-  const desc = e.target.dataset.desc;
-  const type = e.target.dataset.type;
-  const amount = parseFloat(e.target.dataset.amount);
-
-  const tx = transactions.find(t =>
-    t.description === desc &&
-    t.type === type &&
-    t.amount === amount
-  );
-
-  if (!tx) return;
-
-  const key = `${iso}|${txId(tx)}`;
-
-  const next = new Date(iso);
-  next.setDate(next.getDate() + 1);
-
-  nudges[key] = toISO(next);
-
-  localStorage.setItem("nudges", JSON.stringify(nudges));
-  renderProjectionTable();
-});
+  
 
 /* ================= INIT ================= */
 updateCategoryDropdown();
