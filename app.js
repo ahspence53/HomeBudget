@@ -341,37 +341,38 @@ function renderProjectionTable() {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
-    let inc = 0;
-    let exp = 0;
-    const desc = [];
+    const rows = [];
 
     transactions.forEach(tx => {
       const id = txId(tx);
 
-      // Skip if nudged away from this date
-      if (nudges[id] && nudges[id] !== iso) return;
+      const naturallyOccurs = occursOn(tx, iso);
+      const nudgedHere = nudges[id] === iso;
+      const nudgedAway = nudges[id] && nudges[id] !== iso;
 
-      // Must either naturally occur OR be nudged here
-      const occurs =
-        occursOn(tx, iso) ||
-        nudges[id] === iso;
+      // Skip only the nudged-away occurrence
+      if (naturallyOccurs && nudgedAway) return;
 
-      if (!occurs) return;
+      if (!naturallyOccurs && !nudgedHere) return;
 
-      // Apply amounts
-      if (tx.type === "income") inc += tx.amount;
-      else exp += tx.amount;
+      const isIncome = tx.type === "income";
+      balance += isIncome ? tx.amount : -tx.amount;
 
-      // Should we show +1?
       const today = new Date(toISO(new Date()));
       const cur = new Date(iso);
       const diffDays = Math.round((cur - today) / 86400000);
       const showNudge = diffDays >= 0 && diffDays <= 7;
 
-      desc.push(`
+      rows.push(`
         <div class="projection-item ${tx.type}">
           <span class="desc">${tx.description}</span>
           <span class="cat">${tx.category || ""}</span>
+          <span class="amt">
+            ${isIncome ? tx.amount.toFixed(2) : ""}
+          </span>
+          <span class="amt">
+            ${!isIncome ? tx.amount.toFixed(2) : ""}
+          </span>
           ${showNudge ? `
             <button class="nudge-btn"
               data-id="${id}"
@@ -379,8 +380,6 @@ function renderProjectionTable() {
         </div>
       `);
     });
-
-    balance += inc - exp;
 
     const tr = document.createElement("tr");
 
@@ -391,9 +390,9 @@ function renderProjectionTable() {
 
     tr.innerHTML = `
       <td>${formatDate(iso)}</td>
-      <td>${desc.join("")}</td>
-      <td>${inc ? inc.toFixed(2) : ""}</td>
-      <td>${exp ? exp.toFixed(2) : ""}</td>
+      <td>${rows.join("")}</td>
+      <td></td>
+      <td></td>
       <td>${balance.toFixed(2)}</td>
     `;
 
