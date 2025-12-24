@@ -392,8 +392,8 @@ if (todaysTx.length === 0) {
             <span class="cat">${tx.category || ""}</span>
             ${showNudge ? `
               <button class="nudge-btn"
-                data-id="${txId(tx)}"
-                data-iso="${iso}">+1</button>` : ""}
+  data-id="${txId(tx)}"
+  data-iso="${iso}">+1</button>
           </div>
         </td>
         <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
