@@ -62,7 +62,11 @@ const renameCategoryButton = document.getElementById("rename-category");
 };
   
 /* ================= UTILS ================= */
-function toISO(d) {
+function txId(tx) {
+  return `${tx.date}|${tx.description}|${tx.amount}|${tx.type}`;
+}
+  
+  function toISO(d) {
   if (!d) return "";
   const x = new Date(d);
   x.setHours(12,0,0,0);
