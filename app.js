@@ -310,40 +310,35 @@ function renderProjectionTable() {
     /* ---------- scan transactions for THIS day ---------- */
     transactions.forEach(tx => {
 
-      // If this transaction was nudged away from this date, skip
-      if (nudgedToDate(tx, iso)) return;
+  // Skip if nudged away from this day
+  if (isNudgedAway(tx, iso)) return;
 
-      // Check if this transaction was nudged TO this date
-      const nudgedHere = Object.entries(nudges).some(
-        ([key, value]) =>
-          value === iso && key.endsWith(`|${tx.description}`)
-      );
+  const occursNaturally = occursOn(tx, iso);
+  const occursByNudge = isNudgedHere(tx, iso);
 
-      // If neither naturally occurs nor nudged here, skip
-      if (!nudgedHere && !occursOn(tx, iso)) return;
+  if (!occursNaturally && !occursByNudge) return;
 
-      // Apply amounts
-      if (tx.type === "income") inc += tx.amount;
-      else exp += tx.amount;
+  if (tx.type === "income") inc += tx.amount;
+  else exp += tx.amount;
 
-      // Decide whether to show nudge button (today → +7 days)
-      const today = new Date(toISO(new Date()));
-      const cur = new Date(iso);
-      const diffDays = Math.round((cur - today) / 86400000);
-      const showNudge = diffDays >= 0 && diffDays <= 7;
+  const today = new Date(toISO(new Date()));
+  const cur = new Date(iso);
+  const diffDays = Math.round((cur - today) / 86400000);
+  const showNudge = diffDays >= 0 && diffDays <= 7;
 
-      desc.push(`
-  <div class="projection-item ${tx.type}">
-    <span class="desc">${tx.description}</span>
-    <span class="cat">${tx.category || ""}</span>
-    <span class="amount-tag">${tx.type === "income" ? "Income" : "Expense"}</span>
-    ${showNudge ? `
-      <button class="nudge-btn"
-        data-desc="${tx.description}"
-        data-iso="${iso}">+1</button>` : ""}
-  </div>
-`);
-    });
+  desc.push(`
+    <div class="projection-item ${tx.type}">
+      <span class="desc">${tx.description}</span>
+      <span class="cat">${tx.category || ""}</span>
+      ${showNudge ? `
+        <button class="nudge-btn"
+          data-desc="${tx.description}"
+          data-type="${tx.type}"
+          data-amount="${tx.amount}"
+          data-iso="${iso}">+1</button>` : ""}
+    </div>
+  `);
+});
 
     /* ---------- now render ONE row for the day ---------- */
 
