@@ -341,7 +341,23 @@ function renderProjectionTable() {
     todaysTx.sort((a,b) =>
       a.type === b.type ? 0 : a.type === "income" ? -1 : 1
     );
+if (todaysTx.length === 0) {
+  const tr = document.createElement("tr");
 
+  const day = new Date(iso).getDay();
+  if (day === 0 || day === 6) tr.classList.add("weekend-row");
+
+  tr.innerHTML = `
+    <td>${formatDate(iso)}</td>
+    <td class="muted">No transactions</td>
+    <td></td>
+    <td></td>
+    <td>${balance.toFixed(2)}</td>
+  `;
+
+  projectionTbody.appendChild(tr);
+  continue;
+}
     todaysTx.forEach(tx => {
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
