@@ -297,6 +297,23 @@ function effectiveOccursOn(tx, iso) {
   // Otherwise use normal recurrence logic
   return occursOn(tx, iso);
 }
+
+/* ================= NUDGE HELPERS ================= */
+
+// A stable unique ID for each transaction occurrence
+function txId(tx) {
+  return `${tx.date}|${tx.frequency}|${tx.description}|${tx.amount}|${tx.type}`;
+}
+
+// Was this transaction nudged away from THIS date?
+function isNudgedAway(tx, iso) {
+  return nudges.hasOwnProperty(`${txId(tx)}|${iso}`);
+}
+
+// Was this transaction nudged TO this date?
+function isNudgedHere(tx, iso) {
+  return Object.values(nudges).includes(`${txId(tx)}|${iso}`);
+}
   
 /* ================= PROJECTION ================= */
 function renderProjectionTable() {
@@ -330,7 +347,11 @@ function renderProjectionTable() {
       if (isNudgedAway(tx, iso)) return;
 
       // Skip if not occurring here
-      if (!effectiveOccursOn(tx, iso)) return;
+      // Skip if nudged away from this date
+if (isNudgedAway(tx, iso)) return;
+
+// Allow if nudged TO this date
+if (!isNudgedHere(tx, iso) && !occursOn(tx, iso)) return;
 
       const today = new Date(toISO(new Date()));
       const cur = new Date(iso);
