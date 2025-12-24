@@ -78,8 +78,9 @@ function formatDate(iso) {
 function normalizeSearch(str) {
   return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
 }
-
-  function nudgeKey(tx, iso) {
+/* ====== nudge code =======*/
+  
+function nudgeKey(tx, iso) {
   return `${iso}|${tx.description}`;
 }
 
