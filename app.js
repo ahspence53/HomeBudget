@@ -631,15 +631,16 @@ salaryClose.onclick = () => {
   const iso = e.target.dataset.iso;
   const desc = e.target.dataset.desc;
 
-  // Remove previous nudges for this transaction
-  Object.keys(nudges).forEach(k => {
-    if (k.endsWith(`|${desc}`)) delete nudges[k];
-  });
+  // Find the exact transaction instance
+  const tx = transactions.find(t => t.description === desc);
+  if (!tx) return;
+
+  const key = nudgeKey(tx, iso);
 
   const next = new Date(iso);
   next.setDate(next.getDate() + 1);
 
-  nudges[`${iso}|${desc}`] = toISO(next);
+  nudges[key] = toISO(next);
 
   saveNudges();
   renderProjectionTable();
