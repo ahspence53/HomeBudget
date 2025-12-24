@@ -80,6 +80,27 @@ const renameCategoryButton = document.getElementById("rename-category");
   localStorage.setItem("nudges", JSON.stringify(nudges));
   renderProjectionTable();
 });
+
+function normalizeSearch(str) {
+  return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
+}
+function nudgeKey(tx) {
+  return `${tx.description}|${tx.type}|${tx.amount}`;
+}
+
+function getEffectiveDate(tx, iso) {
+  const key = nudgeKey(tx);
+
+  // If nudged, ONLY show on target date
+  if (nudges[key]) {
+    return nudges[key] === iso;
+  }
+
+  // Otherwise use natural schedule
+  return occursOn(tx, iso);
+}
+
+  
 /* ================= UTILS ================= */
 function toISO(d) {
   if (!d) return "";
@@ -94,16 +115,7 @@ function formatDate(iso) {
   });
 }
 
-function normalizeSearch(str) {
-  return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
-}
-function txId(tx) {
-  return `${tx.description}|${tx.type}|${tx.amount}`;
-}
 
-function getEffectiveDate(tx, naturalIso) {
-  return nudges[`${naturalIso}|${txId(tx)}`] || naturalIso;
-}
   
 
   
