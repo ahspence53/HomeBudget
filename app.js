@@ -282,6 +282,22 @@ function occursOn(tx, iso) {
   return false;
 }
 
+function nudgeKey(tx) {
+  return `${tx.description}|${tx.type}|${tx.amount}`;
+}
+
+function effectiveOccursOn(tx, iso) {
+  const key = nudgeKey(tx);
+
+  // If nudged, it ONLY occurs on the nudged date
+  if (nudges[key]) {
+    return nudges[key] === iso;
+  }
+
+  // Otherwise, use natural schedule
+  return occursOn(tx, iso);
+}
+  
 /* ================= PROJECTION ================= */
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
@@ -298,7 +314,7 @@ function renderProjectionTable() {
     let inc=0, exp=0, desc=[];
 
     transactions.forEach(tx => {
-  if (!occursOn(tx, iso)) return;
+  if (!effectiveOccursOn(tx, iso)) return;
 
   tx.type === "income" ? inc += tx.amount : exp += tx.amount;
 
