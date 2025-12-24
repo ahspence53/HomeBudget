@@ -282,24 +282,25 @@ function occursOn(tx, iso) {
   return false;
 }
 
-function nudgeKey(tx) {
-  return `${tx.description}|${tx.type}|${tx.amount}`;
+function nudgeKey(tx, iso) {
+  return `${tx.date}|${tx.description}|${tx.type}|${tx.amount}`;
+}
+
+function isNudgedAway(tx, iso) {
+  return nudges[nudgeKey(tx, iso)] !== undefined;
 }
 
 function effectiveOccursOn(tx, iso) {
-  const key = nudgeKey(tx);
+  // If nudged to this date, show it
+  if (Object.values(nudges).includes(iso)) return true;
 
-  // If nudged, it ONLY occurs on the nudged date
-  if (nudges[key]) {
-    return nudges[key] === iso;
-  }
-
-  // Otherwise, use natural schedule
+  // Otherwise use normal recurrence logic
   return occursOn(tx, iso);
 }
   
 /* ================= PROJECTION ================= */
 function renderProjectionTable() {
+  console.log("renderProjectionTable running", transactions.length);
   projectionTbody.innerHTML = "";
   if (!startDate) return;
 
