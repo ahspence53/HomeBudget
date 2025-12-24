@@ -294,15 +294,15 @@ function renderProjectionTable() {
     const desc = [];
 
     /* ---------- scan transactions for THIS day ---------- */
-    transactions.forEach(tx => {
+   transactions.forEach(tx => {
 
-  // Skip if nudged away from this day
-  if (isNudgedAway(tx, iso)) return;
+  // Does this transaction naturally occur on ANY date?
+  if (!occursOn(tx, iso)) return;
 
-  const occursNaturally = occursOn(tx, iso);
-  const occursByNudge = isNudgedHere(tx, iso);
+  const effectiveIso = getEffectiveDate(tx, iso);
 
-  if (!occursNaturally && !occursByNudge) return;
+  // Only render it on its effective date
+  if (effectiveIso !== iso) return;
 
   if (tx.type === "income") inc += tx.amount;
   else exp += tx.amount;
