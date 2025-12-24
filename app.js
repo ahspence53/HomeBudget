@@ -304,67 +304,64 @@ function renderProjectionTable() {
   if (!startDate) return;
 
   let balance = openingBalance;
-  const start = new Date(startDate);
-  start.setHours(12,0,0,0);
-  const end = new Date(start);
-  end.setMonth(end.getMonth()+24);
 
-  for (let d=new Date(start); d<=end; d.setDate(d.getDate()+1)) {
+  const start = new Date(startDate);
+  start.setHours(12, 0, 0, 0);
+
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + 24);
+
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
-    let inc=0, exp=0, desc=[];
 
     transactions.forEach(tx => {
-  if (!effectiveOccursOn(tx, iso)) return;
 
-  tx.type === "income" ? inc += tx.amount : exp += tx.amount;
+      // Skip if nudged away from this date
+      if (isNudgedAway(tx, iso)) return;
 
-  const today = new Date(toISO(new Date()));
-  const cur = new Date(iso);
-  const diffDays = Math.round((cur - today) / 86400000);
+      // Skip if it doesn't occur here
+      if (!effectiveOccursOn(tx, iso)) return;
 
-  const showNudge = diffDays >= 0 && diffDays <= 7;
+      const isIncome = tx.type === "income";
+      const inc = isIncome ? tx.amount : "";
+      const exp = !isIncome ? tx.amount : "";
 
-  desc.push(`
-    <div class="projection-item">
-      <span class="desc">${tx.description}</span>
-      <span class="cat">${tx.category || ""}</span>
-      ${showNudge ? `
-        <button class="nudge-btn"
-          data-desc="${tx.description}"
-          data-iso="${iso}">+1</button>` : ""}
-    </div>
-  `);
-});
+      balance += isIncome ? tx.amount : -tx.amount;
 
-    balance += inc-exp;
+      const today = new Date(toISO(new Date()));
+      const cur = new Date(iso);
+      const diffDays = Math.round((cur - today) / 86400000);
+      const showNudge = diffDays >= 0 && diffDays <= 7;
 
-    const tr=document.createElement("tr");
-    if (balance<0) tr.classList.add("negative");
-    // Shade weekends (projection table)
-const day = new Date(iso).getDay(); // 0=Sun, 6=Sat
-if (day === 0 || day === 6) {
-  tr.classList.add("weekend-row");
-}
-    tr.innerHTML = `
-      <td>${formatDate(iso)}</td>
-      <td>${desc.join("<br>")}</td>
-      <td>${inc?inc.toFixed(2):""}</td>
-      <td>${exp?exp.toFixed(2):""}</td>
-      <td>${balance.toFixed(2)}</td>
-    `;
+      const tr = document.createElement("tr");
 
-    // Highlight today's row
-const todayIso = toISO(new Date());
-if (iso === todayIso) {
-  tr.classList.add("projection-today");
-}
-    tr.onclick = () => {
-  document
-    .querySelectorAll(".projection-selected")
-    .forEach(r => r.classList.remove("projection-selected"));
-  tr.classList.add("projection-selected");
-};
-    projectionTbody.appendChild(tr);
+      if (balance < 0) tr.classList.add("negative");
+
+      const day = cur.getDay();
+      if (day === 0 || day === 6) tr.classList.add("weekend-row");
+
+      tr.innerHTML = `
+        <td>${formatDate(iso)}</td>
+        <td>
+          <div class="projection-item ${tx.type}">
+            <span class="desc">${tx.description}</span>
+            <span class="cat">${tx.category || ""}</span>
+            ${showNudge ? `
+              <button class="nudge-btn"
+                data-desc="${tx.description}"
+                data-iso="${iso}">+1</button>` : ""}
+          </div>
+        </td>
+        <td>${inc !== "" ? inc.toFixed(2) : ""}</td>
+        <td>${exp !== "" ? exp.toFixed(2) : ""}</td>
+        <td>${balance.toFixed(2)}</td>
+      `;
+
+      const todayIso = toISO(new Date());
+      if (iso === todayIso) tr.classList.add("projection-today");
+
+      projectionTbody.appendChild(tr);
+    });
   }
 }
 
