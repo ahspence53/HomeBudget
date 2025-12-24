@@ -78,26 +78,12 @@ function formatDate(iso) {
 function normalizeSearch(str) {
   return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
 }
-function nudgeKey(tx, iso) {
-  return `${tx.date}|${iso}|${tx.description}`;
+function txId(tx) {
+  return `${tx.description}|${tx.type}|${tx.amount}`;
 }
 
-function saveNudges() {
-  localStorage.setItem("nudges", JSON.stringify(nudges));
-}
-
-function nudgeKey(tx, iso) {
-  return `${iso}|${tx.description}|${tx.type}|${tx.amount}`;
-}
-
-function isNudgedAway(tx, iso) {
-  return nudges.hasOwnProperty(nudgeKey(tx, iso));
-}
-
-function isNudgedHere(tx, iso) {
-  return Object.values(nudges).includes(
-    `${iso}|${tx.description}|${tx.type}|${tx.amount}`
-  );
+function getEffectiveDate(tx, naturalIso) {
+  return nudges[`${naturalIso}|${txId(tx)}`] || naturalIso;
 }
   
 
