@@ -86,10 +86,17 @@ function saveNudges() {
   localStorage.setItem("nudges", JSON.stringify(nudges));
 }
 
-function nudgedToDate(tx, iso) {
-  return Object.entries(nudges).some(
-    ([key, targetIso]) =>
-      key.endsWith(`|${tx.description}`) && key.startsWith(`${iso}|`)
+function nudgeKey(tx, iso) {
+  return `${iso}|${tx.description}|${tx.type}|${tx.amount}`;
+}
+
+function isNudgedAway(tx, iso) {
+  return nudges.hasOwnProperty(nudgeKey(tx, iso));
+}
+
+function isNudgedHere(tx, iso) {
+  return Object.values(nudges).includes(
+    `${iso}|${tx.description}|${tx.type}|${tx.amount}`
   );
 }
   
