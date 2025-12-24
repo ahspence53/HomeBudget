@@ -630,19 +630,12 @@ salaryClose.onclick = () => {
 
   if (!tx) return;
 
-  const key = nudgeKey(tx, iso);
-
-  // Remove any previous nudges for THIS transaction
-  Object.keys(nudges).forEach(k => {
-    if (k.endsWith(`|${tx.description}|${tx.type}|${tx.amount}`)) {
-      delete nudges[k];
-    }
-  });
+  const key = `${iso}|${txId(tx)}`;
 
   const next = new Date(iso);
   next.setDate(next.getDate() + 1);
 
-  nudges[key] = nudgeKey(tx, toISO(next));
+  nudges[key] = toISO(next);
 
   localStorage.setItem("nudges", JSON.stringify(nudges));
   renderProjectionTable();
