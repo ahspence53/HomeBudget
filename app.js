@@ -326,15 +326,16 @@ function renderProjectionTable() {
       const showNudge = diffDays >= 0 && diffDays <= 7;
 
       desc.push(`
-        <div class="projection-item ${tx.type}">
-          <span class="desc">${tx.description}</span>
-          <span class="cat">${tx.category || ""}</span>
-          ${showNudge ? `
-            <button class="nudge-btn"
-              data-desc="${tx.description}"
-              data-iso="${iso}">+1</button>` : ""}
-        </div>
-      `);
+  <div class="projection-item ${tx.type}">
+    <span class="desc">${tx.description}</span>
+    <span class="cat">${tx.category || ""}</span>
+    <span class="amount-tag">${tx.type === "income" ? "Income" : "Expense"}</span>
+    ${showNudge ? `
+      <button class="nudge-btn"
+        data-desc="${tx.description}"
+        data-iso="${iso}">+1</button>` : ""}
+  </div>
+`);
     });
 
     /* ---------- now render ONE row for the day ---------- */
