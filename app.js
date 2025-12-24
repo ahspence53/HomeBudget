@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-/* ================= STORAGE ================= */
+
+  /* ================= STORAGE ================= */
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 let startDate = localStorage.getItem("startDate") || "";
