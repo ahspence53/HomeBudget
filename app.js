@@ -343,43 +343,57 @@ function renderProjectionTable() {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
-    let dayItems = [];
-    let dayIncome = 0;
-    let dayExpense = 0;
+    // --- collect transactions for this date ---
+    const todaysTx = transactions.filter(tx => {
+      const id = txId(tx);
+      const naturallyOccurs = occursOn(tx, iso);
+      const nudgedToHere = nudges[id] === iso;
+      const nudgedAway = nudges[id] && nudges[id] !== iso;
 
-    transactions.forEach(tx => {
-      const key = nudgeKey(tx, iso);
+      if (naturallyOccurs && nudgedAway) return false;
+      if (!naturallyOccurs && !nudgedToHere) return false;
+      return true;
+    });
 
-      const occurs = occursOn(tx, iso);
-      const nudgedAway = nudges[key];
-      const nudgedHere = Object.values(nudges).includes(iso) &&
-        Object.keys(nudges).includes(key);
+    // Income first, then expense
+    todaysTx.sort((a, b) =>
+      a.type === b.type ? 0 : a.type === "income" ? -1 : 1
+    );
 
-      if (occurs && nudgedAway) return;
-      if (!occurs && !nudgedHere) return;
+    const descLines = [];
 
+    let dayIncome = "";
+    let dayExpense = "";
+
+    todaysTx.forEach(tx => {
       const isIncome = tx.type === "income";
-
-      if (isIncome) dayIncome += tx.amount;
-      else dayExpense += tx.amount;
+      balance += isIncome ? tx.amount : -tx.amount;
 
       const today = new Date(toISO(new Date()));
       const cur = new Date(iso);
       const diffDays = Math.round((cur - today) / 86400000);
       const showNudge = diffDays >= 0 && diffDays <= 7;
 
-      dayItems.push(`
+      descLines.push(`
         <div class="projection-item ${tx.type}">
           <span class="desc">${tx.description}</span>
           <span class="cat">${tx.category || ""}</span>
+          <span class="line-amt">
+            ${tx.amount.toFixed(2)}
+          </span>
           ${showNudge ? `
             <button class="nudge-btn"
-              data-key="${key}">+1</button>` : ""}
+              data-id="${txId(tx)}"
+              data-iso="${iso}">+1</button>` : ""}
         </div>
       `);
-    });
 
-    balance += dayIncome - dayExpense;
+      // Only populate columns if EXACTLY one transaction
+      if (todaysTx.length === 1) {
+        if (isIncome) dayIncome = tx.amount.toFixed(2);
+        else dayExpense = tx.amount.toFixed(2);
+      }
+    });
 
     const tr = document.createElement("tr");
 
@@ -388,11 +402,14 @@ function renderProjectionTable() {
     const day = new Date(iso).getDay();
     if (day === 0 || day === 6) tr.classList.add("weekend-row");
 
+    const todayIso = toISO(new Date());
+    if (iso === todayIso) tr.classList.add("projection-today");
+
     tr.innerHTML = `
       <td>${formatDate(iso)}</td>
-      <td>${dayItems.join("")}</td>
-      <td>${dayIncome ? dayIncome.toFixed(2) : ""}</td>
-      <td>${dayExpense ? dayExpense.toFixed(2) : ""}</td>
+      <td>${descLines.join("")}</td>
+      <td>${dayIncome}</td>
+      <td>${dayExpense}</td>
       <td>${balance.toFixed(2)}</td>
     `;
 
