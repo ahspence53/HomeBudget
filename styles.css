@@ -1,3 +1,10 @@
+/* ================= HEADER =============== */
+header {
+  background-color: #1e4fa1; /* blue */
+  color: white;
+  padding: 12px;
+  text-align: center;
+}
 /* ================= BASE ================= */
 
 body {
