@@ -170,3 +170,24 @@ table button {
   padding: 2px 6px;
   cursor: pointer;
 }
+
+/* Remove top border for continuation rows (same date) */
+#projection-table tr td:first-child:empty {
+  border-top: none;
+}
+
+/* Reduce visual boxing for same-day rows */
+#projection-table tr td {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+/* Slight indent for continuation rows */
+#projection-table tr td:first-child:empty + td {
+  padding-left: 18px;
+}
+
+/* Keep weekend shading consistent */
+.weekend-row td {
+  background-color: #f3f3f3;
+}
