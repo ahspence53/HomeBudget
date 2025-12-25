@@ -344,77 +344,77 @@ function renderProjectionTable() {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
-    const descItems = [];
-    const incomeItems = [];
-    const expenseItems = [];
-
-    // Collect today's transactions
-    transactions.forEach(tx => {
+    // Collect transactions that occur on this date
+    const todaysTx = transactions.filter(tx => {
       const id = txId(tx);
 
       const naturallyOccurs = occursOn(tx, iso);
-const nudgedDate = nudges[id];
+      const nudgedHere = nudges[id] === iso;
+      const nudgedAway = nudges[id] && nudges[id] !== iso;
 
-if (nudgedDate) {
-  if (iso === nudgedDate) {
-    // show nudged instance
-  } else if (naturallyOccurs && iso < nudgedDate) {
-    // suppress original occurrence before nudge
-    return;
-  } else if (!naturallyOccurs) {
-    return;
-  }
-} else {
-  if (!naturallyOccurs) return;
-}
+      if (naturallyOccurs && nudgedAway) return false;
+      if (!naturallyOccurs && !nudgedHere) return false;
 
+      return true;
+    });
+
+    // No transactions → single empty row
+    if (todaysTx.length === 0) {
+      const tr = document.createElement("tr");
+
+      const day = new Date(iso).getDay();
+      if (day === 0 || day === 6) tr.classList.add("weekend-row");
+
+      tr.innerHTML = `
+        <td>${formatDate(iso)}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>${balance.toFixed(2)}</td>
+      `;
+
+      projectionTbody.appendChild(tr);
+      continue;
+    }
+
+    // Transactions exist → one row PER transaction
+    todaysTx.forEach((tx, index) => {
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
+
+      const tr = document.createElement("tr");
+
+      const day = new Date(iso).getDay();
+      if (day === 0 || day === 6) tr.classList.add("weekend-row");
+      if (balance < 0) tr.classList.add("negative");
 
       const today = new Date(toISO(new Date()));
       const cur = new Date(iso);
       const diffDays = Math.round((cur - today) / 86400000);
       const showNudge = diffDays >= 0 && diffDays <= 7;
 
-      descItems.push(`
-        <div class="projection-item ${tx.type}">
-          <span class="desc">${tx.description}</span>
-          <span class="cat">${tx.category || ""}</span>
-          ${showNudge ? `
-            <button class="nudge-btn"
-              data-id="${id}"
-              data-iso="${iso}">+1</button>` : ""}
-        </div>
-      `);
+      tr.innerHTML = `
+        <td>${index === 0 ? formatDate(iso) : ""}</td>
+        <td>
+          <div class="projection-item ${tx.type}">
+            <span class="desc">${tx.description}</span>
+            <span class="cat">${tx.category || ""}</span>
+            ${showNudge ? `
+              <button class="nudge-btn"
+                data-id="${txId(tx)}"
+                data-iso="${iso}">+1</button>
+            ` : ""}
+          </div>
+        </td>
+        <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
+        <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
+        <td>${balance.toFixed(2)}</td>
+      `;
 
-      if (isIncome) {
-  incomeItems.push(`<div class="amt">${tx.amount.toFixed(2)}</div>`);
-  expenseItems.push(`<div class="amt"></div>`);
-} else {
-  incomeItems.push(`<div class="amt"></div>`);
-  expenseItems.push(`<div class="amt">${tx.amount.toFixed(2)}</div>`);
-}
+      projectionTbody.appendChild(tr);
     });
-
-    const tr = document.createElement("tr");
-
-    if (balance < 0) tr.classList.add("negative");
-
-    const day = new Date(iso).getDay();
-    if (day === 0 || day === 6) tr.classList.add("weekend-row");
-
-    tr.innerHTML = `
-      <td>${formatDate(iso)}</td>
-      <td>${descItems.join("")}</td>
-      <td>${incomeItems.join("")}</td>
-      <td>${expenseItems.join("")}</td>
-      <td>${balance.toFixed(2)}</td>
-    `;
-
-    projectionTbody.appendChild(tr);
   }
 }
-
 /* ================= STICKY FIND ================= */
 const findInput=document.getElementById("projection-find-input");
 const findNext=document.getElementById("projection-find-next");
