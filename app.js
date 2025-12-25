@@ -343,77 +343,76 @@ function renderProjectionTable() {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
-    // --- collect transactions for this date ---
+    // Collect transactions for this date
     const todaysTx = transactions.filter(tx => {
       const id = txId(tx);
       const naturallyOccurs = occursOn(tx, iso);
-      const nudgedToHere = nudges[id] === iso;
+      const nudgedHere = nudges[id] === iso;
       const nudgedAway = nudges[id] && nudges[id] !== iso;
 
       if (naturallyOccurs && nudgedAway) return false;
-      if (!naturallyOccurs && !nudgedToHere) return false;
+      if (!naturallyOccurs && !nudgedHere) return false;
       return true;
     });
 
-    // Income first, then expense
+    // Income first
     todaysTx.sort((a, b) =>
       a.type === b.type ? 0 : a.type === "income" ? -1 : 1
     );
 
-    const descLines = [];
+    // No transactions → still render empty day row
+    if (todaysTx.length === 0) {
+      const tr = document.createElement("tr");
 
-    let dayIncome = "";
-    let dayExpense = "";
+      const day = new Date(iso).getDay();
+      if (day === 0 || day === 6) tr.classList.add("weekend-row");
 
-    todaysTx.forEach(tx => {
+      tr.innerHTML = `
+        <td>${formatDate(iso)}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>${balance.toFixed(2)}</td>
+      `;
+      projectionTbody.appendChild(tr);
+      continue;
+    }
+
+    todaysTx.forEach((tx, idx) => {
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
+
+      const tr = document.createElement("tr");
+
+      if (balance < 0) tr.classList.add("negative");
+
+      const day = new Date(iso).getDay();
+      if (day === 0 || day === 6) tr.classList.add("weekend-row");
 
       const today = new Date(toISO(new Date()));
       const cur = new Date(iso);
       const diffDays = Math.round((cur - today) / 86400000);
       const showNudge = diffDays >= 0 && diffDays <= 7;
 
-      descLines.push(`
-        <div class="projection-item ${tx.type}">
-          <span class="desc">${tx.description}</span>
-          <span class="cat">${tx.category || ""}</span>
-          <span class="line-amt">
-            ${tx.amount.toFixed(2)}
-          </span>
-          ${showNudge ? `
-            <button class="nudge-btn"
-              data-id="${txId(tx)}"
-              data-iso="${iso}">+1</button>` : ""}
-        </div>
-      `);
+      tr.innerHTML = `
+        <td>${idx === 0 ? formatDate(iso) : ""}</td>
+        <td>
+          <div class="projection-item ${tx.type}">
+            <span class="desc">${tx.description}</span>
+            <span class="cat">${tx.category || ""}</span>
+            ${showNudge ? `
+              <button class="nudge-btn"
+                data-id="${txId(tx)}"
+                data-iso="${iso}">+1</button>` : ""}
+          </div>
+        </td>
+        <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
+        <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
+        <td>${balance.toFixed(2)}</td>
+      `;
 
-      // Only populate columns if EXACTLY one transaction
-      if (todaysTx.length === 1) {
-        if (isIncome) dayIncome = tx.amount.toFixed(2);
-        else dayExpense = tx.amount.toFixed(2);
-      }
+      projectionTbody.appendChild(tr);
     });
-
-    const tr = document.createElement("tr");
-
-    if (balance < 0) tr.classList.add("negative");
-
-    const day = new Date(iso).getDay();
-    if (day === 0 || day === 6) tr.classList.add("weekend-row");
-
-    const todayIso = toISO(new Date());
-    if (iso === todayIso) tr.classList.add("projection-today");
-
-    tr.innerHTML = `
-      <td>${formatDate(iso)}</td>
-      <td>${descLines.join("")}</td>
-      <td>${dayIncome}</td>
-      <td>${dayExpense}</td>
-      <td>${balance.toFixed(2)}</td>
-    `;
-
-    projectionTbody.appendChild(tr);
   }
 }
 
