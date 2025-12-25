@@ -378,7 +378,14 @@ function renderProjectionTable() {
     }
 
     // Transactions exist → one row PER transaction
-    todaysTx.forEach((tx, index) => {
+    // Income first, then expenses
+todaysTx.sort((a, b) => {
+  if (a.type === b.type) return 0;
+  return a.type === "income" ? -1 : 1;
+});
+
+// Transactions exist → one row PER transaction
+todaysTx.forEach((tx, index) => {
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
 
