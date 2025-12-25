@@ -170,6 +170,15 @@ table button {
   padding: 2px 6px;
   cursor: pointer;
 }
+
+tr.projection-selected {
+  background-color: #d6ebff !important;
+}
+
+tr.weekend-row {
+  background-color: #f6f6f6;
+}
+
 /* ================================
    Projection: flatten same-day items
    ================================ */
