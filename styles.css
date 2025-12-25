@@ -171,37 +171,26 @@ table button {
   cursor: pointer;
 }
 /* ================================
-   Projection table row grouping
+   Projection: flatten same-day items
    ================================ */
 
-/* Default cell borders (keep for first row of each day) */
-#projection-table td {
-  border-top: 1px solid #ddd;
+/* Remove all box styling from projection items */
+#projection-table .projection-item {
+  border: none !important;
+  background: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
 }
 
-/* Continuation rows (same date) */
-#projection-table td:first-child:empty {
-  border-top: none;
+/* Keep items stacked neatly */
+#projection-table .projection-item {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  column-gap: 8px;
 }
 
-/* Remove boxing effect on continuation rows */
-#projection-table td:first-child:empty ~ td {
-  border-top: none;
+/* Small vertical separation only */
+#projection-table .projection-item + .projection-item {
+  margin-top: 2px;
 }
-
-/* Compact spacing for same-day rows */
-#projection-table td {
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-
-/* Indent descriptions on same-day rows */
-#projection-table td:first-child:empty + td {
-  padding-left: 18px;
-}
-
-/* Keep weekend shading unified */
-.weekend-row td {
-  background-color: #f5f5f5;
-}
-
