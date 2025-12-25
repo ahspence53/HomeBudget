@@ -42,9 +42,6 @@ tr {
 .projection-match-highlight {
   background: yellow;
 }
-#projection-table tr.weekend-row {
-  background-color: #f7f9fc;
-}
 
 /* ================= PROJECTION LAYOUT ================= */
 
