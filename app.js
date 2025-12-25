@@ -377,13 +377,13 @@ function renderProjectionTable() {
         </div>
       `);
 
-      incomeItems.push(
-        isIncome ? `<div class="amt">${tx.amount.toFixed(2)}</div>` : `<div class="amt"></div>`
-      );
-
-      expenseItems.push(
-        !isIncome ? `<div class="amt">${tx.amount.toFixed(2)}</div>` : `<div class="amt"></div>`
-      );
+      if (isIncome) {
+  incomeItems.push(`<div class="amt">${tx.amount.toFixed(2)}</div>`);
+  expenseItems.push(`<div class="amt"></div>`);
+} else {
+  incomeItems.push(`<div class="amt"></div>`);
+  expenseItems.push(`<div class="amt">${tx.amount.toFixed(2)}</div>`);
+}
     });
 
     const tr = document.createElement("tr");
