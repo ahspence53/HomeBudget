@@ -352,11 +352,20 @@ function renderProjectionTable() {
       const id = txId(tx);
 
       const naturallyOccurs = occursOn(tx, iso);
-      const nudgedHere = nudges[id] === iso;
-      const nudgedAway = nudges[id] && nudges[id] !== iso;
+const nudgedDate = nudges[id];
 
-      if (naturallyOccurs && nudgedAway) return;
-      if (!naturallyOccurs && !nudgedHere) return;
+if (nudgedDate) {
+  if (iso === nudgedDate) {
+    // show nudged instance
+  } else if (naturallyOccurs && iso < nudgedDate) {
+    // suppress original occurrence before nudge
+    return;
+  } else if (!naturallyOccurs) {
+    return;
+  }
+} else {
+  if (!naturallyOccurs) return;
+}
 
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
