@@ -329,7 +329,7 @@ function isNudgedHere(tx, iso) {
 }
   
 /* projection*/
-  /* ================= PROJECTION ================= */
+ /* ================= PROJECTION ================= */
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
   if (!startDate) return;
@@ -345,23 +345,25 @@ function renderProjectionTable() {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
-    // --- collect transactions for this date ---
+    // --- collect transactions for this specific day ---
     const todaysTx = transactions.filter(tx => {
       const id = txId(tx);
+
       const natural = occursOn(tx, iso);
 
       // was THIS occurrence nudged away?
       if (nudges[`${id}|${iso}`]) return false;
 
-      // was it nudged TO this date?
+      // was a different occurrence nudged TO this date?
       const nudgedHere = Object.entries(nudges).some(
-        ([key, val]) => key.startsWith(id + "|") && val === iso
+        ([key, value]) =>
+          key.startsWith(id + "|") && value === iso
       );
 
       return natural || nudgedHere;
     });
 
-    // no transactions → one empty row
+    // no transactions → single row
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
 
@@ -418,13 +420,15 @@ function renderProjectionTable() {
         </td>
         <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
         <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
-        <td>${isLastOfDay ? `<strong>${balance.toFixed(2)}</strong>` : balance.toFixed(2)}</td>
+        <td>${isLastOfDay
+          ? `<strong>${balance.toFixed(2)}</strong>`
+          : balance.toFixed(2)}</td>
       `;
 
       projectionTbody.appendChild(tr);
     });
   }
-}
+} 
 /* ================= STICKY FIND ================= */
 const findInput=document.getElementById("projection-find-input");
 const findNext=document.getElementById("projection-find-next");
