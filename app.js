@@ -288,9 +288,6 @@ function occursOn(tx, iso) {
   return false;
 }
 
-function nudgeKey(tx, iso) {
-  return `${tx.date}|${tx.description}|${tx.type}|${tx.amount}`;
-}
 
 
 
