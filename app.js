@@ -329,7 +329,7 @@ function isNudgedHere(tx, iso) {
 }
   
 /* projection*/
- /* ================= PROJECTION ================= */
+/* ================= PROJECTION ================= */
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
   if (!startDate) return;
@@ -345,16 +345,15 @@ function renderProjectionTable() {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
-    // --- collect transactions for this specific day ---
     const todaysTx = transactions.filter(tx => {
       const id = txId(tx);
 
       const natural = occursOn(tx, iso);
 
-      // was THIS occurrence nudged away?
-      if (nudges[`${id}|${iso}`]) return false;
+      // Was THIS exact natural occurrence nudged away?
+      if (natural && nudges[`${id}|${iso}`]) return false;
 
-      // was a different occurrence nudged TO this date?
+      // Was some occurrence nudged TO today?
       const nudgedHere = Object.entries(nudges).some(
         ([key, value]) =>
           key.startsWith(id + "|") && value === iso
@@ -363,7 +362,7 @@ function renderProjectionTable() {
       return natural || nudgedHere;
     });
 
-    // no transactions → single row
+    // No transactions → single row
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
 
@@ -382,7 +381,7 @@ function renderProjectionTable() {
       continue;
     }
 
-    // income first, then expenses
+    // Income first, then expenses
     todaysTx.sort((a, b) => {
       if (a.type === b.type) return 0;
       return a.type === "income" ? -1 : 1;
@@ -428,7 +427,7 @@ function renderProjectionTable() {
       projectionTbody.appendChild(tr);
     });
   }
-} 
+}
 /* ================= STICKY FIND ================= */
 const findInput=document.getElementById("projection-find-input");
 const findNext=document.getElementById("projection-find-next");
