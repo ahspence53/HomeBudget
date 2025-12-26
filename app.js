@@ -312,6 +312,8 @@ function isNudgedHere(tx, iso) {
 }
   
 /* projection*/
+/* ================= PROJECTION ================= */
+
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
   if (!startDate) return;
@@ -327,23 +329,31 @@ function renderProjectionTable() {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
-    const todaysTx = transactions.filter(tx => {
+    const todaysTx = [];
+
+    transactions.forEach(tx => {
       const id = txId(tx);
-      const key = `${id}|${iso}`;
 
-      const naturallyOccurs = occursOn(tx, iso);
-      const nudgedHere = nudges[key] === iso;
-      const nudgedAway = nudges[key] && nudges[key] !== iso;
+      // 1. Does this transaction naturally occur today?
+      const natural = occursOn(tx, iso);
 
-      if (naturallyOccurs && nudgedAway) return false;
-      if (!naturallyOccurs && !nudgedHere) return false;
+      // 2. Was THIS occurrence nudged away?
+      const nudgedAway = nudges[`${id}|${iso}`];
 
-      return true;
+      // 3. Was it nudged here FROM another day?
+      const nudgedHere = Object.entries(nudges).some(
+        ([key, targetIso]) =>
+          key.startsWith(id + "|") && targetIso === iso
+      );
+
+      if (natural && !nudgedAway) todaysTx.push(tx);
+      else if (!natural && nudgedHere) todaysTx.push(tx);
     });
 
+    // No transactions → blank row
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
-      if ([0,6].includes(new Date(iso).getDay())) tr.classList.add("weekend-row");
+      if ([0, 6].includes(new Date(iso).getDay())) tr.classList.add("weekend-row");
 
       tr.innerHTML = `
         <td>${formatDate(iso)}</td>
@@ -354,14 +364,17 @@ function renderProjectionTable() {
       continue;
     }
 
-    todaysTx.sort((a, b) => a.type === b.type ? 0 : a.type === "income" ? -1 : 1);
+    // Income first
+    todaysTx.sort((a, b) =>
+      a.type === b.type ? 0 : a.type === "income" ? -1 : 1
+    );
 
     todaysTx.forEach((tx, index) => {
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
 
       const tr = document.createElement("tr");
-      if ([0,6].includes(new Date(iso).getDay())) tr.classList.add("weekend-row");
+      if ([0, 6].includes(new Date(iso).getDay())) tr.classList.add("weekend-row");
       if (balance < 0) tr.classList.add("negative");
 
       const today = new Date(toISO(new Date()));
@@ -385,8 +398,7 @@ function renderProjectionTable() {
         <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
         <td>${index === todaysTx.length - 1
           ? `<strong>${balance.toFixed(2)}</strong>`
-          : balance.toFixed(2)
-        }</td>
+          : balance.toFixed(2)}</td>
       `;
 
       projectionTbody.appendChild(tr);
