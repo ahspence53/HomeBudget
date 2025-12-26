@@ -313,7 +313,6 @@ function isNudgedHere(tx, iso) {
   
 /* projection*/
 /* ================= PROJECTION ================= */
-
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
   if (!startDate) return;
@@ -328,32 +327,39 @@ function renderProjectionTable() {
 
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
-
     const todaysTx = [];
 
     transactions.forEach(tx => {
       const id = txId(tx);
 
-      // Does it naturally occur today?
+      // 1. Does this transaction naturally occur on this date?
       const natural = occursOn(tx, iso);
 
-      // Was THIS exact occurrence nudged away?
-      const nudgedAway = nudges.hasOwnProperty(`${id}|${iso}`);
+      // 2. Was THIS date nudged away?
+      const nudgedAway = Object.keys(nudges).some(
+        k => k === `${id}|${iso}`
+      );
 
-      // Was it nudged here from another date?
+      // 3. Was it nudged here from another date?
       const nudgedHere = Object.entries(nudges).some(
         ([key, targetIso]) =>
           key.startsWith(id + "|") && targetIso === iso
       );
 
-      if (natural && !nudgedAway) {
+      // 4. Has this transaction been nudged somewhere else?
+      //    (this suppresses ALL natural occurrences)
+      const nudgedSomewhereElse = Object.keys(nudges).some(
+        k => k.startsWith(id + "|") && !k.endsWith("|" + iso)
+      );
+
+      if (natural && !nudgedAway && !nudgedSomewhereElse) {
         todaysTx.push(tx);
       } else if (!natural && nudgedHere) {
         todaysTx.push(tx);
       }
     });
 
-    // No transactions → blank row
+    // ---- No transactions: blank row ----
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
       if ([0, 6].includes(new Date(iso).getDay())) {
@@ -374,6 +380,7 @@ function renderProjectionTable() {
       a.type === b.type ? 0 : a.type === "income" ? -1 : 1
     );
 
+    // ---- One row per transaction ----
     todaysTx.forEach((tx, index) => {
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
