@@ -27,7 +27,7 @@ tr {
 
 /* Weekend shading in 24-month projection */
 #projection-table tr.weekend-row {
-  background-color: #ffffc5;
+  background-color: #f6f6f6;
 }
 
 /* Highlight today's date */
@@ -170,54 +170,3 @@ table button {
   padding: 2px 6px;
   cursor: pointer;
 }
-
-tr.projection-selected {
-  background-color: #d6ebff !important;
-}
-
-
-
-.app-header {
-  background-color: #0b5ed7;
-  color: white;
-  padding: 12px 16px;
-  position: relative;
-  z-index: 1;
-}
-
-.app-header h1 {
-  margin: 0;
-}
-
-/* Daily balance emphasis */
-#projection-table td.balance-cell {
-  font-weight: normal;
-}
-
-#projection-table tr.end-of-day td.balance-cell {
-  font-weight: 700;
-}
-/* ================================
-   Projection: flatten same-day items
-   ================================ */
-
-/* Remove all box styling from projection items */
-/*#projection-table .projection-item {
-  border: none !important;
-  background: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  box-shadow: none !important;
-}*/
-
-/* Keep items stacked neatly */
-/*#projection-table .projection-item {
-  display: grid;
-  grid-template-columns: auto auto auto;
-  column-gap: 8px;
-}*/
-
-/* Small vertical separation only */
-/*#projection-table .projection-item + .projection-item {
-  margin-top: 2px;
-}*/
