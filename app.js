@@ -329,7 +329,6 @@ function isNudgedHere(tx, iso) {
 }
   
 /* projection*/
-/* ================= PROJECTION ================= */
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
   if (!startDate) return;
@@ -345,20 +344,13 @@ function renderProjectionTable() {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
-    // Collect transactions that occur on this date
     const todaysTx = transactions.filter(tx => {
-      const baseId = txId(tx);
-      const nudgeKey = `${baseId}|${iso}`;
+      const id = txId(tx);
+      const key = `${id}|${iso}`;
 
       const naturallyOccurs = occursOn(tx, iso);
-
-      // Was this specific occurrence nudged away?
-      const nudgedAway = nudges[nudgeKey] && nudges[nudgeKey] !== iso;
-
-      // Was some occurrence nudged *to* today?
-      const nudgedHere = Object.entries(nudges).some(
-        ([key, val]) => key.startsWith(baseId + "|") && val === iso
-      );
+      const nudgedHere = nudges[key] === iso;
+      const nudgedAway = nudges[key] && nudges[key] !== iso;
 
       if (naturallyOccurs && nudgedAway) return false;
       if (!naturallyOccurs && !nudgedHere) return false;
@@ -366,51 +358,32 @@ function renderProjectionTable() {
       return true;
     });
 
-    // No transactions → single empty row
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
-
-      const day = new Date(iso).getDay();
-      if (day === 0 || day === 6) tr.classList.add("weekend-row");
+      if ([0,6].includes(new Date(iso).getDay())) tr.classList.add("weekend-row");
 
       tr.innerHTML = `
         <td>${formatDate(iso)}</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td>${balance.toFixed(2)}</td>
+        <td></td><td></td><td></td>
+        <td><strong>${balance.toFixed(2)}</strong></td>
       `;
-
       projectionTbody.appendChild(tr);
       continue;
     }
 
-    // Income first, then expenses
-    todaysTx.sort((a, b) => {
-      if (a.type === b.type) return 0;
-      return a.type === "income" ? -1 : 1;
-    });
+    todaysTx.sort((a, b) => a.type === b.type ? 0 : a.type === "income" ? -1 : 1);
 
-    // One row per transaction
     todaysTx.forEach((tx, index) => {
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
 
       const tr = document.createElement("tr");
-
-      const day = new Date(iso).getDay();
-      if (day === 0 || day === 6) tr.classList.add("weekend-row");
+      if ([0,6].includes(new Date(iso).getDay())) tr.classList.add("weekend-row");
       if (balance < 0) tr.classList.add("negative");
 
       const today = new Date(toISO(new Date()));
-      const cur = new Date(iso);
-      const diffDays = Math.round((cur - today) / 86400000);
+      const diffDays = Math.round((new Date(iso) - today) / 86400000);
       const showNudge = diffDays >= 0 && diffDays <= 7;
-
-      const isLastOfDay = index === todaysTx.length - 1;
-      const balanceCell = isLastOfDay
-        ? `<strong>${balance.toFixed(2)}</strong>`
-        : balance.toFixed(2);
 
       tr.innerHTML = `
         <td>${index === 0 ? formatDate(iso) : ""}</td>
@@ -427,7 +400,10 @@ function renderProjectionTable() {
         </td>
         <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
         <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
-        <td>${balanceCell}</td>
+        <td>${index === todaysTx.length - 1
+          ? `<strong>${balance.toFixed(2)}</strong>`
+          : balance.toFixed(2)
+        }</td>
       `;
 
       projectionTbody.appendChild(tr);
@@ -702,23 +678,22 @@ salaryClose.onclick = () => {
 });
 
  /*=====nudge=====*/
-  /* ================= NUDGE CLICK HANDLER ================= */
-
+  console.log("NUDGE CLICK", e.target);
+  
 projectionTbody.addEventListener("click", e => {
   const btn = e.target.closest(".nudge-btn");
   if (!btn) return;
 
-  const baseId = btn.dataset.id;
+  const id = btn.dataset.id;
   const fromIso = btn.dataset.iso;
 
-  const fromDate = new Date(fromIso);
-  fromDate.setDate(fromDate.getDate() + 1);
-  const toIso = toISO(fromDate);
+  const next = new Date(fromIso);
+  next.setDate(next.getDate() + 1);
+  const toIso = toISO(next);
 
-  // Key nudges per occurrence, not per transaction
-  const nudgeKey = `${baseId}|${fromIso}`;
+  const key = `${id}|${fromIso}`;
 
-  nudges[nudgeKey] = toIso;
+  nudges[key] = toIso;
 
   saveState();
   renderProjectionTable();
