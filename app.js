@@ -345,24 +345,25 @@ function renderProjectionTable() {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
+    // Collect transactions effective on this date
     const todaysTx = transactions.filter(tx => {
       const id = txId(tx);
 
-      const natural = occursOn(tx, iso);
+      const naturallyOccurs = occursOn(tx, iso);
+      const nudgedHere = nudges[id] === iso;
+      const hasAnyNudge = nudges[id] !== undefined;
 
-      // Was THIS exact natural occurrence nudged away?
-      if (natural && nudges[`${id}|${iso}`]) return false;
+      // If this transaction has been nudged at all,
+      // suppress ALL natural occurrences
+      if (hasAnyNudge && !nudgedHere) return false;
 
-      // Was some occurrence nudged TO today?
-      const nudgedHere = Object.entries(nudges).some(
-        ([key, value]) =>
-          key.startsWith(id + "|") && value === iso
-      );
+      // Otherwise allow natural occurrence or nudged target
+      if (!naturallyOccurs && !nudgedHere) return false;
 
-      return natural || nudgedHere;
+      return true;
     });
 
-    // No transactions → single row
+    // No transactions → single balance row
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
 
@@ -387,6 +388,7 @@ function renderProjectionTable() {
       return a.type === "income" ? -1 : 1;
     });
 
+    // Render one row per transaction
     todaysTx.forEach((tx, index) => {
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
@@ -402,7 +404,7 @@ function renderProjectionTable() {
       const diffDays = Math.round((cur - today) / 86400000);
       const showNudge = diffDays >= 0 && diffDays <= 7;
 
-      const isLastOfDay = index === todaysTx.length - 1;
+      const isLastTxOfDay = index === todaysTx.length - 1;
 
       tr.innerHTML = `
         <td>${index === 0 ? formatDate(iso) : ""}</td>
@@ -419,15 +421,14 @@ function renderProjectionTable() {
         </td>
         <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
         <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
-        <td>${isLastOfDay
-          ? `<strong>${balance.toFixed(2)}</strong>`
-          : balance.toFixed(2)}</td>
+        <td>${isLastTxOfDay ? `<strong>${balance.toFixed(2)}</strong>` : balance.toFixed(2)}</td>
       `;
 
       projectionTbody.appendChild(tr);
     });
   }
 }
+  
 /* ================= STICKY FIND ================= */
 const findInput=document.getElementById("projection-find-input");
 const findNext=document.getElementById("projection-find-next");
