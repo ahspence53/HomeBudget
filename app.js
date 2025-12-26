@@ -710,11 +710,19 @@ projectionTbody.addEventListener("click", e => {
     const id = e.target.dataset.id;
     const iso = e.target.dataset.iso;
 
-    const from = new Date(iso);
-    from.setDate(from.getDate() + 1);
-    const toIso = toISO(from);
+    // Calculate next day
+    const next = new Date(iso);
+    next.setDate(next.getDate() + 1);
+    const toIso = toISO(next);
 
-    // Store nudge PER OCCURRENCE
+    // 🔴 REMOVE any existing nudges for this transaction
+    Object.keys(nudges).forEach(key => {
+      if (key.startsWith(id + "|")) {
+        delete nudges[key];
+      }
+    });
+
+    // ✅ Add the new nudge
     nudges[`${id}|${iso}`] = toIso;
 
     renderProjectionTable();
