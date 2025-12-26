@@ -35,11 +35,9 @@ tr {
   background-color: #fff7d6;
 }
 
-/*.projection-selected {
-  background-color: #e8f0ff;
-}*/
 .projection-selected {
-  background-color: #ffff00;
+  background-color: #e8f0ff;
+
 
 .projection-match-highlight {
   background: yellow;
