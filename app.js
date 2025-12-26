@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+  
 /* ================= STORAGE ================= */
 let categories = JSON.parse(localStorage.getItem("categories")) || [];
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
@@ -85,7 +86,7 @@ function normalizeSearch(str) {
 /* ====== nudge code =======*/
   
 function nudgeKey(tx, iso) {
-  return `${iso}|${tx.description}`;
+  return `${txId(tx)}|${iso}`;
 }
 
 function saveNudges() {
@@ -317,14 +318,17 @@ function txId(tx) {
 
 // Was this transaction nudged away from THIS date?
 function isNudgedAway(tx, iso) {
-  return nudges.hasOwnProperty(`${txId(tx)}|${iso}`);
+  return nudges.hasOwnProperty(nudgeKey(tx, iso));
 }
 
-// Was this transaction nudged TO this date?
 function isNudgedHere(tx, iso) {
-  return Object.values(nudges).includes(`${txId(tx)}|${iso}`);
+  return Object.values(nudges).includes(iso) &&
+    Object.keys(nudges).some(k =>
+      k.startsWith(txId(tx) + "|") && nudges[k] === iso
+    );
 }
   
+/* projection*/
 /* ================= PROJECTION ================= */
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
@@ -341,66 +345,89 @@ function renderProjectionTable() {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
-    let inc = 0;
-    let exp = 0;
-    const desc = [];
-
-    transactions.forEach(tx => {
+    const todaysTx = transactions.filter(tx => {
       const id = txId(tx);
 
-      // Skip if nudged away from this date
-      if (nudges[id] && nudges[id] !== iso) return;
+      const natural = occursOn(tx, iso);
 
-      // Must either naturally occur OR be nudged here
-      const occurs =
-        occursOn(tx, iso) ||
-        nudges[id] === iso;
+      // Was THIS exact natural occurrence nudged away?
+      if (natural && nudges[`${id}|${iso}`]) return false;
 
-      if (!occurs) return;
+      // Was some occurrence nudged TO today?
+      const nudgedHere = Object.entries(nudges).some(
+        ([key, value]) =>
+          key.startsWith(id + "|") && value === iso
+      );
 
-      // Apply amounts
-      if (tx.type === "income") inc += tx.amount;
-      else exp += tx.amount;
+      return natural || nudgedHere;
+    });
 
-      // Should we show +1?
+    // No transactions → single row
+    if (todaysTx.length === 0) {
+      const tr = document.createElement("tr");
+
+      const day = new Date(iso).getDay();
+      if (day === 0 || day === 6) tr.classList.add("weekend-row");
+
+      tr.innerHTML = `
+        <td>${formatDate(iso)}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><strong>${balance.toFixed(2)}</strong></td>
+      `;
+
+      projectionTbody.appendChild(tr);
+      continue;
+    }
+
+    // Income first, then expenses
+    todaysTx.sort((a, b) => {
+      if (a.type === b.type) return 0;
+      return a.type === "income" ? -1 : 1;
+    });
+
+    todaysTx.forEach((tx, index) => {
+      const isIncome = tx.type === "income";
+      balance += isIncome ? tx.amount : -tx.amount;
+
+      const tr = document.createElement("tr");
+
+      const day = new Date(iso).getDay();
+      if (day === 0 || day === 6) tr.classList.add("weekend-row");
+      if (balance < 0) tr.classList.add("negative");
+
       const today = new Date(toISO(new Date()));
       const cur = new Date(iso);
       const diffDays = Math.round((cur - today) / 86400000);
       const showNudge = diffDays >= 0 && diffDays <= 7;
 
-      desc.push(`
-        <div class="projection-item ${tx.type}">
-          <span class="desc">${tx.description}</span>
-          <span class="cat">${tx.category || ""}</span>
-          ${showNudge ? `
-            <button class="nudge-btn"
-              data-id="${id}"
-              data-iso="${iso}">+1</button>` : ""}
-        </div>
-      `);
+      const isLastOfDay = index === todaysTx.length - 1;
+
+      tr.innerHTML = `
+        <td>${index === 0 ? formatDate(iso) : ""}</td>
+        <td>
+          <div class="projection-item ${tx.type}">
+            <span class="desc">${tx.description}</span>
+            <span class="cat">${tx.category || ""}</span>
+            ${showNudge ? `
+              <button class="nudge-btn"
+                data-id="${txId(tx)}"
+                data-iso="${iso}">+1</button>
+            ` : ""}
+          </div>
+        </td>
+        <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
+        <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
+        <td>${isLastOfDay
+          ? `<strong>${balance.toFixed(2)}</strong>`
+          : balance.toFixed(2)}</td>
+      `;
+
+      projectionTbody.appendChild(tr);
     });
-
-    balance += inc - exp;
-
-    const tr = document.createElement("tr");
-
-    if (balance < 0) tr.classList.add("negative");
-
-    const day = new Date(iso).getDay();
-    if (day === 0 || day === 6) tr.classList.add("weekend-row");
-
-    tr.innerHTML = `
-      <td>${formatDate(iso)}</td>
-      <td>${desc.join("")}</td>
-      <td>${inc ? inc.toFixed(2) : ""}</td>
-      <td>${exp ? exp.toFixed(2) : ""}</td>
-      <td>${balance.toFixed(2)}</td>
-    `;
-
-    projectionTbody.appendChild(tr);
   }
 }
-
 /* ================= STICKY FIND ================= */
 const findInput=document.getElementById("projection-find-input");
 const findNext=document.getElementById("projection-find-next");
@@ -666,21 +693,43 @@ salaryClose.onclick = () => {
 
   renderProjectionTable();
 });
-/* ================= NUDGE CLICK HANDLER ================= */
+/* ================= NUDGE + ROW SELECT ================= */
 
 projectionTbody.addEventListener("click", e => {
-  if (!e.target.classList.contains("nudge-btn")) return;
 
-  const iso = e.target.dataset.iso;
-  const id  = e.target.dataset.id;
+  /* ---------- NUDGE ---------- */
+  if (e.target.classList.contains("nudge-btn")) {
+    const id = e.target.dataset.id;
+    const iso = e.target.dataset.iso;
 
-  const next = new Date(iso);
-  next.setDate(next.getDate() + 1);
+    // Calculate next day
+    const next = new Date(iso);
+    next.setDate(next.getDate() + 1);
+    const toIso = toISO(next);
 
-  nudges[id] = toISO(next);
+    // 🔴 REMOVE any existing nudges for this transaction
+    Object.keys(nudges).forEach(key => {
+      if (key.startsWith(id + "|")) {
+        delete nudges[key];
+      }
+    });
 
-  localStorage.setItem("nudges", JSON.stringify(nudges));
-  renderProjectionTable();
+    // ✅ Add the new nudge
+    nudges[`${id}|${iso}`] = toIso;
+
+    renderProjectionTable();
+    return;
+  }
+
+  /* ---------- ROW HIGHLIGHT ---------- */
+  const row = e.target.closest("tr");
+  if (!row) return;
+
+  document
+    .querySelectorAll(".projection-selected")
+    .forEach(r => r.classList.remove("projection-selected"));
+
+  row.classList.add("projection-selected");
 });
 /* ================= INIT ================= */
 updateCategoryDropdown();
