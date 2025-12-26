@@ -188,6 +188,16 @@ tr.projection-selected {
 .app-header h1 {
   margin: 0;
 }
+
+/* Daily balance emphasis */
+#projection-table td.balance-cell {
+  font-weight: normal;
+}
+
+#projection-table tr.end-of-day td.balance-cell {
+  font-weight: 700;
+}
+
 /* ================================
    Projection: flatten same-day items
    ================================ */
