@@ -64,7 +64,15 @@ const renameCategoryButton = document.getElementById("rename-category");
   
 /* ================= UTILS ================= */
 function txId(tx) {
-  return `${tx.date}|${tx.description}|${tx.amount}|${tx.type}`;
+  return `${tx.date}|${tx.frequency}|${tx.description}|${tx.amount}|${tx.type}`;
+}
+
+function nudgeKey(id, iso) {
+  return `${id}|${iso}`;
+}
+
+function saveNudges() {
+  localStorage.setItem("nudges", JSON.stringify(nudges));
 }
   
   function toISO(d) {
@@ -85,20 +93,13 @@ function normalizeSearch(str) {
 }
 /* ====== nudge code =======*/
   
-function nudgeKey(tx, iso) {
-  return `${txId(tx)}|${iso}`;
-}
+
 
 function saveNudges() {
   localStorage.setItem("nudges", JSON.stringify(nudges));
 }
 
-function nudgedToDate(tx, iso) {
-  return Object.entries(nudges).some(
-    ([key, value]) =>
-      value === iso && key.endsWith(`|${tx.description}`)
-  );
-}
+
   
 
   
@@ -291,23 +292,8 @@ function nudgeKey(tx, iso) {
   return `${tx.date}|${tx.description}|${tx.type}|${tx.amount}`;
 }
 
-function isNudgedAway(tx, iso) {
-  return nudges[txId(tx)] && tx.date === iso;
-}
 
-function effectiveOccursOn(tx, iso) {
-  const nudgedTo = nudges[txId(tx)];
-  if (nudgedTo) return nudgedTo === iso;
-  return occursOn(tx, iso);
-}
 
-function effectiveOccursOn(tx, iso) {
-  // If nudged to this date, show it
-  if (Object.values(nudges).includes(iso)) return true;
-
-  // Otherwise use normal recurrence logic
-  return occursOn(tx, iso);
-}
 
 /* ================= NUDGE HELPERS ================= */
 
@@ -659,8 +645,7 @@ salaryClose.onclick = () => {
   salaryPopup.classList.add("hidden");
 };
 
-  document.addEventListener("click", e => {
-  if (!e.target.classList.contains("nudge-btn")) return;
+  
 
   const iso = e.target.dataset.iso;
   const desc = e.target.dataset.desc;
@@ -678,7 +663,7 @@ salaryClose.onclick = () => {
 });
 
  /*=====nudge=====*/
-  console.log("NUDGE CLICK", e.target);
+  
   
 projectionTbody.addEventListener("click", e => {
   const btn = e.target.closest(".nudge-btn");
@@ -691,11 +676,10 @@ projectionTbody.addEventListener("click", e => {
   next.setDate(next.getDate() + 1);
   const toIso = toISO(next);
 
-  const key = `${id}|${fromIso}`;
-
+  const key = nudgeKey(id, fromIso);
   nudges[key] = toIso;
 
-  saveState();
+  saveNudges();
   renderProjectionTable();
 });
 
