@@ -694,29 +694,37 @@ salaryClose.onclick = () => {
 
   renderProjectionTable();
 });
+
+  
+/* ================= NUDGE + ROW CLICK HANDLER ================= */
+
 projectionTbody.addEventListener("click", e => {
-  const btn = e.target.closest(".nudge-btn");
-  if (!btn) return;
 
-  const id = btn.dataset.id;
-  const fromIso = btn.dataset.iso;
+  /* ---------- NUDGE BUTTON ---------- */
+  if (e.target.classList.contains("nudge-btn")) {
+    const id = e.target.dataset.id;
+    const iso = e.target.dataset.iso;
 
-  const fromDate = new Date(fromIso);
-  fromDate.setDate(fromDate.getDate() + 1);
-  const toIso = toISO(fromDate);
+    const next = new Date(iso);
+    next.setDate(next.getDate() + 1);
 
-  // 🔥 REMOVE any existing nudges for this transaction
-  Object.keys(nudges).forEach(key => {
-    if (key.startsWith(id + "|")) {
-      delete nudges[key];
-    }
-  });
+    // Store ONLY the target date for this transaction
+    nudges[id] = toISO(next);
+    saveNudges();
 
-  // ✅ Store the NEW nudge only
-  nudges[`${id}|${fromIso}`] = toIso;
+    renderProjectionTable();
+    return; // IMPORTANT: stop here
+  }
 
-  saveNudges();
-  renderProjectionTable();
+  /* ---------- ROW HIGHLIGHT ---------- */
+  const row = e.target.closest("tr");
+  if (!row) return;
+
+  document
+    .querySelectorAll(".projection-selected")
+    .forEach(r => r.classList.remove("projection-selected"));
+
+  row.classList.add("projection-selected");
 });
   
 /* ================= INIT ================= */
