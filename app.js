@@ -334,26 +334,31 @@ function renderProjectionTable() {
     transactions.forEach(tx => {
       const id = txId(tx);
 
-      // 1. Does this transaction naturally occur today?
+      // Does it naturally occur today?
       const natural = occursOn(tx, iso);
 
-      // 2. Was THIS occurrence nudged away?
-      const nudgedAway = nudges[`${id}|${iso}`];
+      // Was THIS exact occurrence nudged away?
+      const nudgedAway = nudges.hasOwnProperty(`${id}|${iso}`);
 
-      // 3. Was it nudged here FROM another day?
+      // Was it nudged here from another date?
       const nudgedHere = Object.entries(nudges).some(
         ([key, targetIso]) =>
           key.startsWith(id + "|") && targetIso === iso
       );
 
-      if (natural && !nudgedAway) todaysTx.push(tx);
-      else if (!natural && nudgedHere) todaysTx.push(tx);
+      if (natural && !nudgedAway) {
+        todaysTx.push(tx);
+      } else if (!natural && nudgedHere) {
+        todaysTx.push(tx);
+      }
     });
 
     // No transactions → blank row
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
-      if ([0, 6].includes(new Date(iso).getDay())) tr.classList.add("weekend-row");
+      if ([0, 6].includes(new Date(iso).getDay())) {
+        tr.classList.add("weekend-row");
+      }
 
       tr.innerHTML = `
         <td>${formatDate(iso)}</td>
@@ -374,7 +379,9 @@ function renderProjectionTable() {
       balance += isIncome ? tx.amount : -tx.amount;
 
       const tr = document.createElement("tr");
-      if ([0, 6].includes(new Date(iso).getDay())) tr.classList.add("weekend-row");
+      if ([0, 6].includes(new Date(iso).getDay())) {
+        tr.classList.add("weekend-row");
+      }
       if (balance < 0) tr.classList.add("negative");
 
       const today = new Date(toISO(new Date()));
@@ -396,9 +403,11 @@ function renderProjectionTable() {
         </td>
         <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
         <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
-        <td>${index === todaysTx.length - 1
-          ? `<strong>${balance.toFixed(2)}</strong>`
-          : balance.toFixed(2)}</td>
+        <td>${
+          index === todaysTx.length - 1
+            ? `<strong>${balance.toFixed(2)}</strong>`
+            : balance.toFixed(2)
+        }</td>
       `;
 
       projectionTbody.appendChild(tr);
