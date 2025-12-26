@@ -702,35 +702,26 @@ salaryClose.onclick = () => {
 });
 
   
-/* ================= NUDGE + ROW CLICK HANDLER ================= */
+/* ================= NUDGE CLICK HANDLER ================= */
 
 projectionTbody.addEventListener("click", e => {
+  const btn = e.target.closest(".nudge-btn");
+  if (!btn) return;
 
-  /* ---------- NUDGE BUTTON ---------- */
-  if (e.target.classList.contains("nudge-btn")) {
-    const id = e.target.dataset.id;
-    const iso = e.target.dataset.iso;
+  const baseId = btn.dataset.id;
+  const fromIso = btn.dataset.iso;
 
-    const next = new Date(iso);
-    next.setDate(next.getDate() + 1);
+  const fromDate = new Date(fromIso);
+  fromDate.setDate(fromDate.getDate() + 1);
+  const toIso = toISO(fromDate);
 
-    // Store ONLY the target date for this transaction
-    nudges[id] = toISO(next);
-    saveNudges();
+  // Key nudges per occurrence, not per transaction
+  const nudgeKey = `${baseId}|${fromIso}`;
 
-    renderProjectionTable();
-    return; // IMPORTANT: stop here
-  }
+  nudges[nudgeKey] = toIso;
 
-  /* ---------- ROW HIGHLIGHT ---------- */
-  const row = e.target.closest("tr");
-  if (!row) return;
-
-  document
-    .querySelectorAll(".projection-selected")
-    .forEach(r => r.classList.remove("projection-selected"));
-
-  row.classList.add("projection-selected");
+  saveState();
+  renderProjectionTable();
 });
   
 /* ================= INIT ================= */
