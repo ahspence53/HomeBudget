@@ -701,8 +701,8 @@ salaryClose.onclick = () => {
   renderProjectionTable();
 });
 
-  
-/* ================= NUDGE CLICK HANDLER ================= */
+ /*=====nudge=====*/
+  /* ================= NUDGE CLICK HANDLER ================= */
 
 projectionTbody.addEventListener("click", e => {
   const btn = e.target.closest(".nudge-btn");
@@ -723,6 +723,7 @@ projectionTbody.addEventListener("click", e => {
   saveState();
   renderProjectionTable();
 });
+
   
 /* ================= INIT ================= */
 updateCategoryDropdown();
