@@ -329,7 +329,6 @@ function isNudgedHere(tx, iso) {
 }
   
 /* ================= PROJECTION ================= */
-/* ================= PROJECTION ================= */
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
   if (!startDate) return;
@@ -359,7 +358,7 @@ function renderProjectionTable() {
       return true;
     });
 
-    // No transactions → single row
+    // No transactions → single empty row
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
 
@@ -371,32 +370,30 @@ function renderProjectionTable() {
         <td></td>
         <td></td>
         <td></td>
-        <td class="balance-cell end-of-day">${balance.toFixed(2)}</td>
+        <td>${balance.toFixed(2)}</td>
       `;
 
       projectionTbody.appendChild(tr);
       continue;
     }
 
+    // Transactions exist → one row PER transaction
     // Income first, then expenses
-    todaysTx.sort((a, b) => {
-      if (a.type === b.type) return 0;
-      return a.type === "income" ? -1 : 1;
-    });
+todaysTx.sort((a, b) => {
+  if (a.type === b.type) return 0;
+  return a.type === "income" ? -1 : 1;
+});
 
-    // One row PER transaction
-    todaysTx.forEach((tx, index) => {
+// Transactions exist → one row PER transaction
+todaysTx.forEach((tx, index) => {
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
-
-      const isLastForDay = index === todaysTx.length - 1;
 
       const tr = document.createElement("tr");
 
       const day = new Date(iso).getDay();
       if (day === 0 || day === 6) tr.classList.add("weekend-row");
       if (balance < 0) tr.classList.add("negative");
-      if (isLastForDay) tr.classList.add("end-of-day");
 
       const today = new Date(toISO(new Date()));
       const cur = new Date(iso);
@@ -418,7 +415,7 @@ function renderProjectionTable() {
         </td>
         <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
         <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
-        <td class="balance-cell">${balance.toFixed(2)}</td>
+        <td>${balance.toFixed(2)}</td>
       `;
 
       projectionTbody.appendChild(tr);

@@ -27,7 +27,7 @@ tr {
 
 /* Weekend shading in 24-month projection */
 #projection-table tr.weekend-row {
-  background-color: #eaf2ff;
+  background-color: #9fd975;
 }
 
 /* Highlight today's date */
@@ -37,7 +37,7 @@ tr {
 
 .projection-selected {
   background-color: #e8f0ff;
-
+}
 
 .projection-match-highlight {
   background: yellow;
@@ -188,16 +188,6 @@ tr.projection-selected {
 .app-header h1 {
   margin: 0;
 }
-
-/* Daily balance emphasis */
-#projection-table td.balance-cell {
-  font-weight: normal;
-}
-
-#projection-table tr.end-of-day td.balance-cell {
-  font-weight: 700;
-}
-
 /* ================================
    Projection: flatten same-day items
    ================================ */
