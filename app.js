@@ -701,29 +701,27 @@ salaryClose.onclick = () => {
 
   renderProjectionTable();
 });
-/* ================= NUDGE + ROW CLICK HANDLER ================= */
+/* ================= NUDGE + ROW SELECT ================= */
 
 projectionTbody.addEventListener("click", e => {
 
-  /* ---------- NUDGE BUTTON ---------- */
+  /* ---------- NUDGE ---------- */
   if (e.target.classList.contains("nudge-btn")) {
-    e.stopPropagation();
-
     const id = e.target.dataset.id;
     const iso = e.target.dataset.iso;
 
-    const cur = new Date(iso);
-    cur.setDate(cur.getDate() + 1);
-    const newIso = toISO(cur);
+    const from = new Date(iso);
+    from.setDate(from.getDate() + 1);
+    const toIso = toISO(from);
 
-    nudges[id] = newIso;
-    saveNudges();
+    // Store nudge PER OCCURRENCE
+    nudges[`${id}|${iso}`] = toIso;
 
     renderProjectionTable();
     return;
   }
 
-  /* ---------- ROW SELECTION ---------- */
+  /* ---------- ROW HIGHLIGHT ---------- */
   const row = e.target.closest("tr");
   if (!row) return;
 
