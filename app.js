@@ -328,8 +328,8 @@ function isNudgedHere(tx, iso) {
     );
 }
   
-/* ================= PROJECTION ================= */
-/* ================= PROJECTION ================= */
+/* projection*/
+  /* ================= PROJECTION ================= */
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
   if (!startDate) return;
@@ -345,28 +345,23 @@ function renderProjectionTable() {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
-    // Collect transactions that occur on this date
+    // --- collect transactions for this date ---
     const todaysTx = transactions.filter(tx => {
       const id = txId(tx);
-      const key = `${id}|${iso}`;
+      const natural = occursOn(tx, iso);
 
-      const naturallyOccurs = occursOn(tx, iso);
+      // was THIS occurrence nudged away?
+      if (nudges[`${id}|${iso}`]) return false;
 
-      // This specific occurrence was nudged elsewhere
-      const nudgedAway = nudges[key] && nudges[key] !== iso;
-
-      // Some other date was nudged TO today
+      // was it nudged TO this date?
       const nudgedHere = Object.entries(nudges).some(
-        ([k, v]) => k.startsWith(id + "|") && v === iso
+        ([key, val]) => key.startsWith(id + "|") && val === iso
       );
 
-      if (naturallyOccurs && nudgedAway) return false;
-      if (!naturallyOccurs && !nudgedHere) return false;
-
-      return true;
+      return natural || nudgedHere;
     });
 
-    // No transactions → single empty row
+    // no transactions → one empty row
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
 
@@ -385,13 +380,12 @@ function renderProjectionTable() {
       continue;
     }
 
-    // Income first, then expenses
+    // income first, then expenses
     todaysTx.sort((a, b) => {
       if (a.type === b.type) return 0;
       return a.type === "income" ? -1 : 1;
     });
 
-    // One row per transaction
     todaysTx.forEach((tx, index) => {
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
@@ -407,7 +401,7 @@ function renderProjectionTable() {
       const diffDays = Math.round((cur - today) / 86400000);
       const showNudge = diffDays >= 0 && diffDays <= 7;
 
-      const isLastRowOfDay = index === todaysTx.length - 1;
+      const isLastOfDay = index === todaysTx.length - 1;
 
       tr.innerHTML = `
         <td>${index === 0 ? formatDate(iso) : ""}</td>
@@ -424,12 +418,7 @@ function renderProjectionTable() {
         </td>
         <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
         <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
-        <td>
-          ${isLastRowOfDay
-            ? `<strong>${balance.toFixed(2)}</strong>`
-            : balance.toFixed(2)
-          }
-        </td>
+        <td>${isLastOfDay ? `<strong>${balance.toFixed(2)}</strong>` : balance.toFixed(2)}</td>
       `;
 
       projectionTbody.appendChild(tr);
