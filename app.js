@@ -329,7 +329,11 @@ function isNudgedHere(tx, iso) {
 
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
-  if (!startDate) return;
+  if (!startDate) {
+  document.body.classList.remove("modal-open");
+  alert("Start date not set");
+  return;
+}
 
   let balance = openingBalance;
 
@@ -547,10 +551,11 @@ transactions.push({
   /* ================= EXPORT 24-MONTH PROJECTION ================= */
 
 document.getElementById("export-projection-btn").onclick = () => {
-  if (!startDate) {
-    alert("Start date not set");
-    return;
-  }
+if (!startDate) {
+  document.body.classList.remove("modal-open");
+  alert("Start date not set");
+  return;
+}
 
   let csv = "Date,Description,Category,Income,Expense,Balance\n";
 
