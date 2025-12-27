@@ -313,6 +313,7 @@ function isNudgedHere(tx, iso) {
   
 /* projection*/
 /* ================= PROJECTION ================= */
+
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
   if (!startDate) return;
@@ -335,10 +336,12 @@ function renderProjectionTable() {
       // Does this transaction naturally occur today?
       const natural = occursOn(tx, iso);
 
-      // Was THIS exact occurrence nudged away?
-      const nudgedAway = nudges[`${id}|${iso}`];
+      // Has THIS date ever been nudged away?
+      const nudgedAway = Object.keys(nudges).some(
+        key => key === `${id}|${iso}`
+      );
 
-      // Was it nudged HERE from another date?
+      // Was it nudged here from another date?
       const nudgedHere = Object.entries(nudges).some(
         ([key, targetIso]) =>
           key.startsWith(id + "|") && targetIso === iso
@@ -351,35 +354,43 @@ function renderProjectionTable() {
       }
     });
 
-    // ---- No transactions ----
+    /* ========== NO TRANSACTIONS ========= */
+
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
+
       if ([0, 6].includes(new Date(iso).getDay())) {
         tr.classList.add("weekend-row");
       }
 
       tr.innerHTML = `
         <td>${formatDate(iso)}</td>
-        <td></td><td></td><td></td>
+        <td></td>
+        <td></td>
+        <td></td>
         <td><strong>${balance.toFixed(2)}</strong></td>
       `;
+
       projectionTbody.appendChild(tr);
       continue;
     }
 
-    // Income first
+    /* ========== INCOME FIRST ========= */
+
     todaysTx.sort((a, b) =>
       a.type === b.type ? 0 : a.type === "income" ? -1 : 1
     );
+
+    /* ========== RENDER TRANSACTIONS ========= */
 
     todaysTx.forEach((tx, index) => {
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
 
       const tr = document.createElement("tr");
-      if ([0, 6].includes(new Date(iso).getDay())) {
-        tr.classList.add("weekend-row");
-      }
+
+      const day = new Date(iso).getDay();
+      if (day === 0 || day === 6) tr.classList.add("weekend-row");
       if (balance < 0) tr.classList.add("negative");
 
       const today = new Date(toISO(new Date()));
