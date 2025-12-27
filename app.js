@@ -88,6 +88,28 @@ function saveNudges() {
   });
 }
 */
+function jumpToProjectionDate(iso) {
+  const rows = document.querySelectorAll("#projection-table tbody tr");
+
+  for (const row of rows) {
+    const cell = row.querySelector("td");
+    if (!cell) continue;
+
+    const text = cell.textContent.trim();
+    if (normalizeSearch(text).includes(normalizeSearch(formatDate(iso)))) {
+      row.classList.add("projection-jump-highlight");
+      row.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      // Remove highlight after a moment
+      setTimeout(() => {
+        row.classList.remove("projection-jump-highlight");
+      }, 1500);
+
+      break;
+    }
+  }
+}
+  
   
 /* ====== NEW DATE FORMAT =======*/
 function formatDate(iso) {
@@ -690,10 +712,23 @@ salaryBtn.onclick = () => {
       const tr = document.createElement("tr");
       if (balance < 0) tr.classList.add("negative");
 
-      tr.innerHTML = `
-        <td>${formatDate(iso)}</td>
-        <td style="text-align:right"><strong>${balance.toFixed(2)}</strong></td>
-      `;
+tr.innerHTML = `
+  <td class="salary-date">${formatDate(iso)}</td>
+  <td style="text-align:right"><strong>${balance.toFixed(2)}</strong></td>
+`;
+
+tr.style.cursor = "pointer";
+tr.title = "Tap to jump to this date";
+
+tr.addEventListener("click", () => {
+  salaryPopup.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+
+  // Small delay so modal closes cleanly first
+  setTimeout(() => {
+    jumpToProjectionDate(iso);
+  }, 200);
+});
       tbody.appendChild(tr);
     }
   }
