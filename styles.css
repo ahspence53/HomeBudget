@@ -298,4 +298,6 @@ body.modal-open {
   opacity: 1;
 }
 
-
+tr.freq-4weekly {
+  background-color: #f4f7fb;
+}
