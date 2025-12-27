@@ -71,6 +71,28 @@ function nudgeKey(id, iso) {
   return `${id}|${iso}`;
 }
 
+function getDisplayedTransactionDate(tx) {
+  if (!tx.date) return "";
+
+  // Monthly or irregular → show original day
+  if (tx.frequency !== "4-weekly") {
+    return formatDayOnly(tx.date);
+  }
+
+  // 4-weekly → roll forward to next occurrence ≥ startDate
+  let d = new Date(tx.date);
+  d.setHours(12, 0, 0, 0);
+
+  const start = new Date(startDate);
+  start.setHours(12, 0, 0, 0);
+
+  while (d < start) {
+    d.setDate(d.getDate() + 28);
+  }
+
+  return d.getDate() + getOrdinalSuffix(d.getDate());
+}  
+  
 function saveNudges() {
   localStorage.setItem("nudges", JSON.stringify(nudges));
 }
@@ -275,7 +297,7 @@ function renderTransactionTable() {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-   <td>${formatDayOnly(tx.date)}</td>
+   <td>${getDisplayedTransactionDate(tx)}</td>
       <td>${tx.description}</td>
       <td>${tx.type}</td>
       <td>${tx.amount.toFixed(2)}</td>
