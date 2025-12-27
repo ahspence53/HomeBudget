@@ -82,11 +82,20 @@ function saveNudges() {
   return x.toISOString().slice(0,10);
 }
 
-function formatDate(iso) {
+/*function formatDate(iso) {
   return new Date(iso).toLocaleDateString("en-GB", {
     day:"2-digit", month:"short", year:"numeric"
   });
 }
+*/
+  
+/* ====== NEW DATE FORMAT =======*/
+function formatDate(iso) {
+  const options = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
+  return new Date(iso).toLocaleDateString("en-GB", options).replace(',', '');
+}
+
+/* ==============================*/
 
 function normalizeSearch(str) {
   return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
