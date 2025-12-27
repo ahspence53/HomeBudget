@@ -625,7 +625,22 @@ salaryBtn.onclick = () => {
     return;
   }
 
-  // Collect all salary -1 dates
+  // Create table structure
+  const table = document.createElement("table");
+  table.className = "salary-table";
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th style="text-align:right">Balance</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  `;
+
+  const tbody = table.querySelector("tbody");
+
+  // Collect salary -1 dates
   const salaryMinusOne = new Set();
 
   transactions.forEach(tx => {
@@ -645,7 +660,7 @@ salaryBtn.onclick = () => {
     }
   });
 
-  // Calculate balance day-by-day and show salary -1 balances
+  // Calculate balances day-by-day
   let balance = openingBalance;
 
   const start = new Date(startDate);
@@ -657,10 +672,8 @@ salaryBtn.onclick = () => {
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = toISO(d);
 
-    // Apply all transactions for this day (same logic as projection)
     transactions.forEach(tx => {
       const id = txId(tx);
-
       const natural = occursOn(tx, iso);
       const nudgedAway = nudges[`${id}|${iso}`];
       const nudgedHere = Object.entries(nudges).some(
@@ -673,28 +686,27 @@ salaryBtn.onclick = () => {
       }
     });
 
-    // If this is a salary -1 day, display it
     if (salaryMinusOne.has(iso)) {
-      const row = document.createElement("div");
-      row.className = "salary-row";
-      row.innerHTML = `
-        <span>${formatDate(iso)}</span>
-        <strong>${balance.toFixed(2)}</strong>
+      const tr = document.createElement("tr");
+      if (balance < 0) tr.classList.add("negative");
+
+      tr.innerHTML = `
+        <td>${formatDate(iso)}</td>
+        <td style="text-align:right"><strong>${balance.toFixed(2)}</strong></td>
       `;
-      salaryPopupBody.appendChild(row);
+      tbody.appendChild(tr);
     }
   }
 
+  salaryPopupBody.appendChild(table);
   salaryPopup.classList.remove("hidden");
 };
 
-// Close popup
 salaryClose.onclick = () => {
   salaryPopup.classList.add("hidden");
   document.body.classList.remove("modal-open");
 };
 
-// Click outside to close
 salaryPopup.addEventListener("click", e => {
   if (e.target === salaryPopup) {
     salaryPopup.classList.add("hidden");
