@@ -116,7 +116,7 @@ table button {
 }
 
 /* ================= MODALS ================= */
-/*
+
 .modal {
   position: fixed;
   inset: 0;
@@ -140,7 +140,7 @@ table button {
   overflow-y: auto;
   border-radius: 6px;
 }
-*/
+
 /* ================= MISC ================= */
 
 #import-export {
@@ -197,7 +197,7 @@ tr.projection-selected {
 #projection-table tr.end-of-day td.balance-cell {
   font-weight: 700;
 }
-
+/* ================ MODALS FOR HELP POPUP ============== */
 .modal {
   position: fixed;
   inset: 0;
@@ -237,27 +237,3 @@ tr.projection-selected {
   font-size: 20px;
   cursor: pointer;
 }
-/* ================================
-   Projection: flatten same-day items
-   ================================ */
-
-/* Remove all box styling from projection items */
-/*#projection-table .projection-item {
-  border: none !important;
-  background: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  box-shadow: none !important;
-}*/
-
-/* Keep items stacked neatly */
-/*#projection-table .projection-item {
-  display: grid;
-  grid-template-columns: auto auto auto;
-  column-gap: 8px;
-}*/
-
-/* Small vertical separation only */
-/*#projection-table .projection-item + .projection-item {
-  margin-top: 2px;
-}*/
