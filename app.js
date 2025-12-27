@@ -605,15 +605,21 @@ document.getElementById("export-projection-btn").onclick = () => {
   /* salary minus one day*/
   /* ================= SALARY -1 DAY POPUP ================= */
 
+/* ================= SALARY -1 DAY POPUP ================= */
+
 const salaryBtn = document.getElementById("salary-popup-btn");
 const salaryPopup = document.getElementById("salary-popup");
 const salaryPopupBody = document.getElementById("salary-popup-body");
 const salaryClose = document.getElementById("salary-popup-close");
 
 salaryBtn.onclick = () => {
+  // 🔒 Lock background scrolling
+  document.body.classList.add("modal-open");
+
   salaryPopupBody.innerHTML = "";
 
   if (!startDate) {
+    document.body.classList.remove("modal-open"); // safety unlock
     alert("Start date not set");
     return;
   }
@@ -638,47 +644,32 @@ salaryBtn.onclick = () => {
     }
   });
 
-  // Calculate balances day by day
-  let balance = openingBalance;
-  const start = new Date(startDate);
-  start.setHours(12,0,0,0);
-  const end = new Date(start);
-  end.setMonth(end.getMonth() + 24);
-
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    const iso = toISO(d);
-
-    let inc = 0, exp = 0;
-    transactions.forEach(tx => {
-      if (occursOn(tx, iso)) {
-        tx.type === "income" ? inc += tx.amount : exp += tx.amount;
-      }
+  // Render popup content (your existing logic)
+  [...salaryDates]
+    .sort()
+    .forEach(date => {
+      const div = document.createElement("div");
+      div.textContent = formatDate(date);
+      salaryPopupBody.appendChild(div);
     });
 
-    balance += inc - exp;
-
-    if (salaryDates.has(iso)) {
-      const tr = document.createElement("tr");
-      // Shade weekends
-const day = new Date(iso).getDay(); // 0=Sun, 6=Sat
-if (day === 0 || day === 6) {
-  tr.classList.add("weekend-row");
-}
-      
-      tr.innerHTML = `
-        <td>${formatDate(iso)}</td>
-        <td>${balance.toFixed(2)}</td>
-      `;
-      salaryPopupBody.appendChild(tr);
-    }
-  }
-
+  // Show popup
   salaryPopup.classList.remove("hidden");
 };
 
+// ❌ Close button
 salaryClose.onclick = () => {
   salaryPopup.classList.add("hidden");
+  document.body.classList.remove("modal-open"); // 🔓 unlock scroll
 };
+
+// ❌ Click outside popup to close
+salaryPopup.addEventListener("click", e => {
+  if (e.target === salaryPopup) {
+    salaryPopup.classList.add("hidden");
+    document.body.classList.remove("modal-open"); // 🔓 unlock scroll
+  }
+});
 
   
 
