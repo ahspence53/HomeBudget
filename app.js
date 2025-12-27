@@ -170,21 +170,18 @@ const helpClose = document.getElementById("help-close");
 
 if (helpButton) {
   helpButton.addEventListener("click", () => {
-    document.body.classList.add("modal-open");
     helpModal.classList.remove("hidden");
   });
 }
 
 helpClose.addEventListener("click", () => {
   helpModal.classList.add("hidden");
-  document.body.classList.remove("modal-open");
 });
 
-// Click outside to close
+// Optional: click outside to close
 helpModal.addEventListener("click", e => {
   if (e.target === helpModal) {
     helpModal.classList.add("hidden");
-    document.body.classList.remove("modal-open");
   }
 });
 
@@ -603,7 +600,7 @@ document.getElementById("export-projection-btn").onclick = () => {
 };
 
   /* salary minus one day*/
-/* ================= SALARY -1 DAY POPUP ================= */
+  /* ================= SALARY -1 DAY POPUP ================= */
 
 const salaryBtn = document.getElementById("salary-popup-btn");
 const salaryPopup = document.getElementById("salary-popup");
@@ -611,13 +608,9 @@ const salaryPopupBody = document.getElementById("salary-popup-body");
 const salaryClose = document.getElementById("salary-popup-close");
 
 salaryBtn.onclick = () => {
-  // 🔒 Lock background scrolling
-  document.body.classList.add("modal-open");
-
   salaryPopupBody.innerHTML = "";
 
   if (!startDate) {
-    document.body.classList.remove("modal-open"); // safety unlock
     alert("Start date not set");
     return;
   }
@@ -641,33 +634,6 @@ salaryBtn.onclick = () => {
       }
     }
   });
-
-  // Render popup content (your existing logic)
-  [...salaryDates]
-    .sort()
-    .forEach(date => {
-      const div = document.createElement("div");
-      div.textContent = formatDate(date);
-      salaryPopupBody.appendChild(div);
-    });
-
-  // Show popup
-  salaryPopup.classList.remove("hidden");
-};
-
-// ❌ Close button
-salaryClose.onclick = () => {
-  salaryPopup.classList.add("hidden");
-  document.body.classList.remove("modal-open"); // 🔓 unlock scroll
-};
-
-// ❌ Click outside popup to close
-salaryPopup.addEventListener("click", e => {
-  if (e.target === salaryPopup) {
-    salaryPopup.classList.add("hidden");
-    document.body.classList.remove("modal-open"); // 🔓 unlock scroll
-  }
-});
 
   // Calculate balances day by day
   let balance = openingBalance;
