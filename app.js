@@ -712,6 +712,18 @@ projectionTbody.addEventListener("click", e => {
   saveNudges();
   renderProjectionTable();
 });
+  projectionTbody.addEventListener("click", e => {
+  const row = e.target.closest("tr");
+  if (!row) return;
+
+  // Clear previous selection
+  projectionTbody
+    .querySelectorAll(".projection-selected")
+    .forEach(r => r.classList.remove("projection-selected"));
+
+  // Highlight clicked row
+  row.classList.add("projection-selected");
+});
 
   
 /* ================= INIT ================= */
