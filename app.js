@@ -685,12 +685,21 @@ projectionTbody.addEventListener("click", e => {
   const id = btn.dataset.id;
   const fromIso = btn.dataset.iso;
 
+  // Calculate target date (+1 day)
   const next = new Date(fromIso);
   next.setDate(next.getDate() + 1);
   const toIso = toISO(next);
 
-  const key = nudgeKey(id, fromIso);
-  nudges[key] = toIso;
+  // 🔥 IMPORTANT FIX:
+  // Remove ANY existing nudge for this transaction
+  Object.keys(nudges).forEach(k => {
+    if (k.startsWith(id + "|")) {
+      delete nudges[k];
+    }
+  });
+
+  // Add the new nudge
+  nudges[`${id}|${fromIso}`] = toIso;
 
   saveNudges();
   renderProjectionTable();
