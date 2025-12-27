@@ -91,6 +91,10 @@ function formatDate(iso) {
 function normalizeSearch(str) {
   return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
 }
+function hasNudgedAwayTransaction(iso) {
+  return Object.keys(nudges).some(key => key.endsWith("|" + iso));
+}
+  
 /* ====== nudge code =======*/
   
 
@@ -356,7 +360,7 @@ function renderProjectionTable() {
 
     /* ========== NO TRANSACTIONS ========= */
 
-    if (todaysTx.length === 0) {
+    if (todaysTx.length === 0 && !hasNudgedAwayTransaction(iso)) {
       const tr = document.createElement("tr");
 
       if ([0, 6].includes(new Date(iso).getDay())) {
