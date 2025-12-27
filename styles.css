@@ -253,5 +253,9 @@ body.modal-open {
   -webkit-overflow-scrolling: touch;
 }
 
+.projection-jump-highlight {
+  background-color: #fff3b0 !important;
+  transition: background-color 0.3s ease;
+}
 
 
