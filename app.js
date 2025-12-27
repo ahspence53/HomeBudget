@@ -332,34 +332,26 @@ function renderProjectionTable() {
     transactions.forEach(tx => {
       const id = txId(tx);
 
-      // 1. Does this transaction naturally occur on this date?
+      // Does this transaction naturally occur today?
       const natural = occursOn(tx, iso);
 
-      // 2. Was THIS date nudged away?
-      const nudgedAway = Object.keys(nudges).some(
-        k => k === `${id}|${iso}`
-      );
+      // Was THIS exact occurrence nudged away?
+      const nudgedAway = nudges[`${id}|${iso}`];
 
-      // 3. Was it nudged here from another date?
+      // Was it nudged HERE from another date?
       const nudgedHere = Object.entries(nudges).some(
         ([key, targetIso]) =>
           key.startsWith(id + "|") && targetIso === iso
       );
 
-      // 4. Has this transaction been nudged somewhere else?
-      //    (this suppresses ALL natural occurrences)
-      const nudgedSomewhereElse = Object.keys(nudges).some(
-        k => k.startsWith(id + "|") && !k.endsWith("|" + iso)
-      );
-
-      if (natural && !nudgedAway && !nudgedSomewhereElse) {
+      if (natural && !nudgedAway) {
         todaysTx.push(tx);
       } else if (!natural && nudgedHere) {
         todaysTx.push(tx);
       }
     });
 
-    // ---- No transactions: blank row ----
+    // ---- No transactions ----
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
       if ([0, 6].includes(new Date(iso).getDay())) {
@@ -380,7 +372,6 @@ function renderProjectionTable() {
       a.type === b.type ? 0 : a.type === "income" ? -1 : 1
     );
 
-    // ---- One row per transaction ----
     todaysTx.forEach((tx, index) => {
       const isIncome = tx.type === "income";
       balance += isIncome ? tx.amount : -tx.amount;
