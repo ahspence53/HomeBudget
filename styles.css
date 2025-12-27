@@ -155,14 +155,14 @@ table button {
 }
 
 /* Styling the Salary popup button */
-#salary-popup-btn {
+/*#salary-popup-btn {
   background-color: #FF0000; /* A RED color */
   color: white;
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-}
+}*/
 
 #import-export {
   margin-top: 2rem;
