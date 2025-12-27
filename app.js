@@ -181,7 +181,7 @@ if (helpButton) {
         
         // 3. Open the window with these dynamic values
         window.open(
-            'help.html',
+            'help.pdf',
             'HelpWindow', 
             'width=400,height=600,scrollbars=yes,resizable=yes');
     });
