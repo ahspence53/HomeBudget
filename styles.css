@@ -117,7 +117,7 @@ table button {
 
 /* ================= MODALS ================= */
 
-/*.modal {
+.modal {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.4);
@@ -139,38 +139,8 @@ table button {
   max-height: 80vh;
   overflow-y: auto;
   border-radius: 6px;
-}*/
-/* ============ NEW MODALS ================= */
-/* ================= MODALS ================= */
-
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
 }
 
-.modal.hidden {
-  display: none;
-}
-
-.modal-content {
-  background: white;
-  padding: 24px; /* Increased padding for better spacing */
-  
-  /* KEY CHANGES BELOW */
-  width: 90%;          /* Uses 90% of the screen on mobile */
-  max-width: 800px;    /* Increases the size on desktop (adjust as needed) */
-  height: auto;        /* Allows it to grow with content */
-  max-height: 85vh;    /* Keeps it slightly smaller than the full screen height */
-  
-  overflow-y: auto;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2); /* Optional: adds depth */
-}
 
 
 /* ================= MISC ================= */
