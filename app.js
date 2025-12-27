@@ -82,6 +82,22 @@ function saveNudges() {
   return x.toISOString().slice(0,10);
 }
 
+function formatDayOnly(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.getDate() + getOrdinalSuffix(d.getDate());
+}
+
+function getOrdinalSuffix(n) {
+  if (n > 3 && n < 21) return "th";
+  switch (n % 10) {
+    case 1: return "st";
+    case 2: return "nd";
+    case 3: return "rd";
+    default: return "th";
+  }
+}
+  
 /*function formatDate(iso) {
   return new Date(iso).toLocaleDateString("en-GB", {
     day:"2-digit", month:"short", year:"numeric"
@@ -259,7 +275,7 @@ function renderTransactionTable() {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${formatDate(tx.date)}</td>
+   <td>${formatDayOnly(tx.date)}</td>
       <td>${tx.description}</td>
       <td>${tx.type}</td>
       <td>${tx.amount.toFixed(2)}</td>
