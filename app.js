@@ -166,7 +166,7 @@ openingBalanceInput.value = openingBalance || "";
   /* ==============HELP============ */
   /* HELP */
   // Locate the help button by its ID
-const helpButton = document.getElementById('help');
+/*const helpButton = document.getElementById('help');
 
 
 if (helpButton) {
@@ -186,7 +186,27 @@ if (helpButton) {
             'width=400,height=600,scrollbars=yes,resizable=yes');
     });
 }
+*/
+  const helpButton = document.getElementById("help");
+const helpModal = document.getElementById("help-modal");
+const helpClose = document.getElementById("help-close");
 
+if (helpButton) {
+  helpButton.addEventListener("click", () => {
+    helpModal.classList.remove("hidden");
+  });
+}
+
+helpClose.addEventListener("click", () => {
+  helpModal.classList.add("hidden");
+});
+
+// Optional: click outside to close
+helpModal.addEventListener("click", e => {
+  if (e.target === helpModal) {
+    helpModal.classList.add("hidden");
+  }
+});
 
 
 /* ================= TRANSACTIONS ================= */
