@@ -116,7 +116,7 @@ table button {
 }
 
 /* ================= MODALS ================= */
-
+/*
 .modal {
   position: fixed;
   inset: 0;
@@ -140,7 +140,7 @@ table button {
   overflow-y: auto;
   border-radius: 6px;
 }
-
+*/
 /* ================= MISC ================= */
 
 #import-export {
