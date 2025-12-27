@@ -330,62 +330,57 @@ function renderProjectionTable() {
   const end = new Date(start);
   end.setMonth(end.getMonth() + 24);
 
+  // Build a map: isoDate -> array of transactions for that day
+  const dayMap = {};
+
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    const iso = toISO(d);
-    const todaysTx = [];
+    dayMap[toISO(d)] = [];
+  }
 
-    transactions.forEach(tx => {
+  // Place each transaction occurrence on exactly ONE date
+  transactions.forEach(tx => {
+    for (let iso in dayMap) {
+      if (!occursOn(tx, iso)) continue;
+
       const id = txId(tx);
+      const nudgeKeyForDay = `${id}|${iso}`;
 
-      // Does this transaction naturally occur today?
-      const natural = occursOn(tx, iso);
-
-      // Has THIS date ever been nudged away?
-      const nudgedAway = Object.keys(nudges).some(
-        key => key === `${id}|${iso}`
-      );
-
-      // Was it nudged here from another date?
-      const nudgedHere = Object.entries(nudges).some(
-        ([key, targetIso]) =>
-          key.startsWith(id + "|") && targetIso === iso
-      );
-
-      if (natural && !nudgedAway) {
-        todaysTx.push(tx);
-      } else if (!natural && nudgedHere) {
-        todaysTx.push(tx);
+      // If nudged, move it
+      if (nudges[nudgeKeyForDay]) {
+        const targetIso = nudges[nudgeKeyForDay];
+        if (dayMap[targetIso]) {
+          dayMap[targetIso].push(tx);
+        }
+      } else {
+        // Not nudged → stays on natural day
+        dayMap[iso].push(tx);
       }
-    });
+    }
+  });
 
-    /* ========== NO TRANSACTIONS ========= */
+  // Now render day by day
+  Object.keys(dayMap).forEach(iso => {
+    const todaysTx = dayMap[iso];
 
-    if (todaysTx.length === 0 && !hasNudgedAwayTransaction(iso)) {
+    if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
-
       if ([0, 6].includes(new Date(iso).getDay())) {
         tr.classList.add("weekend-row");
       }
 
       tr.innerHTML = `
         <td>${formatDate(iso)}</td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td></td><td></td><td></td>
         <td><strong>${balance.toFixed(2)}</strong></td>
       `;
-
       projectionTbody.appendChild(tr);
-      continue;
+      return;
     }
 
-    /* ========== INCOME FIRST ========= */
-
+    // Income first
     todaysTx.sort((a, b) =>
       a.type === b.type ? 0 : a.type === "income" ? -1 : 1
     );
-
-    /* ========== RENDER TRANSACTIONS ========= */
 
     todaysTx.forEach((tx, index) => {
       const isIncome = tx.type === "income";
@@ -393,8 +388,9 @@ function renderProjectionTable() {
 
       const tr = document.createElement("tr");
 
-      const day = new Date(iso).getDay();
-      if (day === 0 || day === 6) tr.classList.add("weekend-row");
+      if ([0, 6].includes(new Date(iso).getDay())) {
+        tr.classList.add("weekend-row");
+      }
       if (balance < 0) tr.classList.add("negative");
 
       const today = new Date(toISO(new Date()));
@@ -416,16 +412,15 @@ function renderProjectionTable() {
         </td>
         <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
         <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
-        <td>${
-          index === todaysTx.length - 1
-            ? `<strong>${balance.toFixed(2)}</strong>`
-            : balance.toFixed(2)
+        <td>${index === todaysTx.length - 1
+          ? `<strong>${balance.toFixed(2)}</strong>`
+          : balance.toFixed(2)
         }</td>
       `;
 
       projectionTbody.appendChild(tr);
     });
-  }
+  });
 }
   
 /* ================= STICKY FIND ================= */
