@@ -608,14 +608,99 @@ if (!startDate) {
 };
 
   /* salary minus one day*/
-  /* ================= SALARY -1 DAY POPUP ================= */
+/* ================= SALARY -1 DAY POPUP ================= */
 
-if (!startDate) {
+const salaryBtn = document.getElementById("salary-popup-btn");
+const salaryPopup = document.getElementById("salary-popup");
+const salaryPopupBody = document.getElementById("salary-popup-body");
+const salaryClose = document.getElementById("salary-popup-close");
+
+salaryBtn.onclick = () => {
+  document.body.classList.add("modal-open");
+  salaryPopupBody.innerHTML = "";
+
+  if (!startDate) {
+    document.body.classList.remove("modal-open");
+    alert("Start date not set");
+    return;
+  }
+
+  // Collect all salary -1 dates
+  const salaryMinusOne = new Set();
+
+  transactions.forEach(tx => {
+    if (tx.type === "income") {
+      const start = new Date(tx.date);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 24);
+
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const iso = toISO(d);
+        if (occursOn(tx, iso)) {
+          const prev = new Date(d);
+          prev.setDate(prev.getDate() - 1);
+          salaryMinusOne.add(toISO(prev));
+        }
+      }
+    }
+  });
+
+  // Calculate balance day-by-day and show salary -1 balances
+  let balance = openingBalance;
+
+  const start = new Date(startDate);
+  start.setHours(12, 0, 0, 0);
+
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + 24);
+
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const iso = toISO(d);
+
+    // Apply all transactions for this day (same logic as projection)
+    transactions.forEach(tx => {
+      const id = txId(tx);
+
+      const natural = occursOn(tx, iso);
+      const nudgedAway = nudges[`${id}|${iso}`];
+      const nudgedHere = Object.entries(nudges).some(
+        ([key, target]) =>
+          key.startsWith(id + "|") && target === iso
+      );
+
+      if (natural && !nudgedAway || (!natural && nudgedHere)) {
+        balance += tx.type === "income" ? tx.amount : -tx.amount;
+      }
+    });
+
+    // If this is a salary -1 day, display it
+    if (salaryMinusOne.has(iso)) {
+      const row = document.createElement("div");
+      row.className = "salary-row";
+      row.innerHTML = `
+        <span>${formatDate(iso)}</span>
+        <strong>${balance.toFixed(2)}</strong>
+      `;
+      salaryPopupBody.appendChild(row);
+    }
+  }
+
+  salaryPopup.classList.remove("hidden");
+};
+
+// Close popup
+salaryClose.onclick = () => {
+  salaryPopup.classList.add("hidden");
   document.body.classList.remove("modal-open");
-  alert("Start date not set");
-  return;
-}
-  
+};
+
+// Click outside to close
+salaryPopup.addEventListener("click", e => {
+  if (e.target === salaryPopup) {
+    salaryPopup.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  }
+});
 
   
 
