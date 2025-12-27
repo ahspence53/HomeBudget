@@ -163,31 +163,8 @@ saveConfigButton.onclick = () => {
 startDateInput.value = startDate;
 openingBalanceInput.value = openingBalance || "";
 
-  /* ==============HELP============ */
-  /* HELP */
-  // Locate the help button by its ID
-/*const helpButton = document.getElementById('help');
-
-
-if (helpButton) {
-    helpButton.addEventListener('click', () => {
-        // 1. Determine the desired size (80% of the screen width/height)
-        const w = window.screen.width * 0.8;
-        const h = window.screen.height * 0.8;
-
-        // 2. Calculate the position to perfectly center it
-        const left = (window.screen.width / 2) - (w / 2);
-        const top = (window.screen.height / 2) - (h / 2);
-        
-        // 3. Open the window with these dynamic values
-        window.open(
-            'help.pdf',
-            'HelpWindow', 
-            'width=400,height=600,scrollbars=yes,resizable=yes');
-    });
-}
-*/
-  const helpButton = document.getElementById("help");
+/* ==============HELP============ */
+const helpButton = document.getElementById("help");
 const helpModal = document.getElementById("help-modal");
 const helpClose = document.getElementById("help-close");
 
