@@ -258,4 +258,20 @@ body.modal-open {
   transition: background-color 0.3s ease;
 }
 
+.salary-date {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.salary-jump-icon {
+  font-size: 0.9em;
+  opacity: 0.5;
+}
+
+.salary-date:hover .salary-jump-icon {
+  opacity: 1;
+}
+
 
