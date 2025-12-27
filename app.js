@@ -532,7 +532,7 @@ findPrev.onclick=()=>{if(matches.length){findIdx=(findIdx-1+matches.length)%matc
 
 /* ================= TOP ================= */
 document.getElementById("back-to-top").onclick = () =>
-  window.scrollTo({top:0,behavior:"smooth"});
+  window.scrollTo({top:288,behavior:"smooth"});
 
   const floatingFind = document.getElementById("floating-find");
 
