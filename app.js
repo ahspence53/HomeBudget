@@ -713,7 +713,10 @@ salaryBtn.onclick = () => {
       if (balance < 0) tr.classList.add("negative");
 
 tr.innerHTML = `
-  <td class="salary-date">${formatDate(iso)}</td>
+  <td class="salary-date">
+    <span class="salary-date-text">${formatDate(iso)}</span>
+    <span class="salary-jump-icon" title="Tap to jump to this date">🔍</span>
+  </td>
   <td style="text-align:right"><strong>${balance.toFixed(2)}</strong></td>
 `;
 
