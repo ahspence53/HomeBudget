@@ -170,18 +170,21 @@ const helpClose = document.getElementById("help-close");
 
 if (helpButton) {
   helpButton.addEventListener("click", () => {
+    document.body.classList.add("modal-open");
     helpModal.classList.remove("hidden");
   });
 }
 
 helpClose.addEventListener("click", () => {
   helpModal.classList.add("hidden");
+  document.body.classList.remove("modal-open");
 });
 
-// Optional: click outside to close
+// Click outside to close
 helpModal.addEventListener("click", e => {
   if (e.target === helpModal) {
     helpModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
   }
 });
 
