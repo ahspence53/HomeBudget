@@ -330,6 +330,9 @@ function renderTransactionTable() {
     };
     /* added to make expense red*/
     if (tx.type === "expense") tr.classList.add("expense-row");
+    if (tx.frequency === "4-weekly") {
+  tr.classList.add("freq-4weekly");
+}
     transactionTableBody.appendChild(tr);
   });
 }
