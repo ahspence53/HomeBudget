@@ -198,7 +198,7 @@ tr.projection-selected {
   font-weight: 700;
 }
 /* ================ MODALS FOR HELP POPUP ============== */
-.modal {
+/*.modal {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.6);
@@ -237,3 +237,4 @@ tr.projection-selected {
   font-size: 20px;
   cursor: pointer;
 }
+*/
