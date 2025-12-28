@@ -129,6 +129,7 @@ tr.freq-4weekly {
   display: none;
 }
 
+/* =========== */
 /* Modal window */
 .modal-content {
   background: #fff;
@@ -141,6 +142,9 @@ tr.freq-4weekly {
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  /* Alex added next two lines*/
+  display: flex;
+  flex-direction: column;
 }
 
 /* Close button */
@@ -152,6 +156,13 @@ tr.freq-4weekly {
   font-size: 20px;
   cursor: pointer;
   padding: 8px;
+}
+/* Help iframe must fill modal */
+.modal-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  flex: 1;
 }
 
 /* ================= HELP DOC TEXT ================= */
