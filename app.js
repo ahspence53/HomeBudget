@@ -222,9 +222,18 @@ saveConfigButton.onclick = () => {
 
 startDateInput.value = startDate;
 openingBalanceInput.value = openingBalance || "";
-
+/* ================== HELP ===========================*/
 const modal = document.querySelector('.modal');
 const body = document.body;
+  const helpButton = document.getElementById("help");
+const helpModal = document.getElementById("help-modal");
+const helpClose = document.getElementById("help-close");
+/* ===== ADDITION ======*/
+  helpButton.addEventListener("click", () => {
+  scrollBeforeHelp = window.scrollY;
+
+  helpModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
 
 function openModal() {
   modal.classList.remove('hidden');
