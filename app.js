@@ -224,6 +224,7 @@ startDateInput.value = startDate;
 openingBalanceInput.value = openingBalance || "";
 
 /* ============== HELP MODAL ============== */
+/* ============== HELP MODAL (SAFE VERSION) ============== */
 
 const helpButton = document.getElementById("help");
 const helpModal = document.getElementById("help-modal");
@@ -231,23 +232,23 @@ const helpClose = document.getElementById("help-close");
 
 let scrollBeforeHelp = 0;
 
-helpButton.addEventListener("click", () => {
-  scrollBeforeHelp = window.scrollY;
+if (helpButton && helpModal && helpClose) {
 
-  helpModal.classList.remove("hidden");
-  document.body.classList.add("modal-open");
-});
+  helpButton.addEventListener("click", () => {
+    scrollBeforeHelp = window.scrollY;
+    helpModal.classList.remove("hidden");
+    document.body.classList.add("modal-open");
+  });
 
-helpClose.addEventListener("click", () => {
-  closeHelp();
-});
+  helpClose.addEventListener("click", closeHelp);
 
-// Click outside modal content to close
-helpModal.addEventListener("click", e => {
-  if (e.target === helpModal) {
-    closeHelp();
-  }
-});
+  helpModal.addEventListener("click", e => {
+    if (e.target === helpModal) {
+      closeHelp();
+    }
+  });
+
+}
 
 function closeHelp() {
   helpModal.classList.add("hidden");
@@ -258,6 +259,7 @@ function closeHelp() {
     behavior: "auto"
   });
 }
+
 
 
 /* ================= TRANSACTIONS ================= */
