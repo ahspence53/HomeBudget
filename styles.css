@@ -3,7 +3,7 @@
 body {
   font-family: system-ui, sans-serif;
   padding: 1rem;
-  padding-top: 72px;
+  padding-top: 72px; /* space for floating Find */
 }
 
 table {
@@ -103,6 +103,7 @@ table button {
   font-weight: bold;
 }
 
+/* 4-weekly visual distinction */
 tr.freq-4weekly {
   background-color: #f4f7fb;
 }
@@ -111,9 +112,8 @@ tr.freq-4weekly {
   font-style: italic;
 }
 
-/* ================= MODALS ================= */
+/* ================= MODALS (HELP + SALARY) ================= */
 
-/* Backdrop */
 .modal {
   position: fixed;
   inset: 0;
@@ -133,11 +133,18 @@ tr.freq-4weekly {
   background: #fff;
   width: 90%;
   max-width: 900px;
-  height: 90vh;              /* FIXED HEIGHT */
+  height: 90vh;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;         /* IMPORTANT */
+}
+
+/* Scrollable modal content */
+.modal-body {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Close button */
@@ -148,15 +155,6 @@ tr.freq-4weekly {
   font-size: 20px;
   cursor: pointer;
   padding: 8px;
-}
-
-/* Help iframe (only scrolling surface) */
-.modal-frame {
-  flex: 1;
-  width: 100%;
-  border: none;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* ================= HELP DOC TEXT ================= */
