@@ -233,6 +233,10 @@ tr.projection-selected {
   font-weight: 700;
 }
 /* ================ MODALS FOR HELP POPUP ============== */
+.oview {
+  white-space: pre-wrap;
+}
+
 .modal {
   position: fixed;
   inset: 0;
@@ -313,7 +317,4 @@ tr.freq-4weekly {
 
 .freq-4weekly td {
   font-style: italic;
-}
-.oview {
-  white-space: pre-wrap;
 }
