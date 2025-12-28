@@ -223,34 +223,26 @@ saveConfigButton.onclick = () => {
 startDateInput.value = startDate;
 openingBalanceInput.value = openingBalance || "";
 
-/* ============== HELP MODAL ============== */
-/* ============== HELP MODAL (SAFE VERSION) ============== */
-
+/* ==============HELP============ */
 const helpButton = document.getElementById("help");
 const helpModal = document.getElementById("help-modal");
 const helpClose = document.getElementById("help-close");
-
-let scrollBeforeHelp = 0;
-
-if (helpButton && helpModal && helpClose) {
-
+/* ===== ADDITION ======*/
   helpButton.addEventListener("click", () => {
-    scrollBeforeHelp = window.scrollY;
-    helpModal.classList.remove("hidden");
+  scrollBeforeHelp = window.scrollY;
+
+  helpModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+});
+  /* ==============*/
+if (helpButton) {
+  helpButton.addEventListener("click", () => {
     document.body.classList.add("modal-open");
+    helpModal.classList.remove("hidden");
   });
-
-  helpClose.addEventListener("click", closeHelp);
-
-  helpModal.addEventListener("click", e => {
-    if (e.target === helpModal) {
-      closeHelp();
-    }
-  });
-
 }
 
-function closeHelp() {
+helpClose.addEventListener("click", () => {
   helpModal.classList.add("hidden");
   document.body.classList.remove("modal-open");
 
@@ -258,8 +250,20 @@ function closeHelp() {
     top: scrollBeforeHelp,
     behavior: "auto"
   });
-}
+});
 
+// Click outside to close
+helpModal.addEventListener("click", e => {
+  if (e.target === helpModal) {
+    helpModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+
+    window.scrollTo({
+      top: scrollBeforeHelp,
+      behavior: "auto"
+    });
+  }
+});
 
 
 /* ================= TRANSACTIONS ================= */
