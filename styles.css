@@ -173,10 +173,6 @@ table button {
   cursor: pointer;
 }
 
-/* Adding a hover effect */
-#salary-popup-btn:hover {
-  background-color: #45a049;
-}
 
 #import-export {
   margin-top: 2rem;
