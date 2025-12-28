@@ -8,7 +8,7 @@ let startDate = localStorage.getItem("startDate") || "";
 let openingBalance = parseFloat(localStorage.getItem("openingBalance")) || 0;
 let editingIndex = null;
 let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
-  
+let scrollBeforeHelp = 0;
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
 const newCategoryInput = document.getElementById("new-category");
@@ -227,7 +227,14 @@ openingBalanceInput.value = openingBalance || "";
 const helpButton = document.getElementById("help");
 const helpModal = document.getElementById("help-modal");
 const helpClose = document.getElementById("help-close");
+/* ===== ADDITION ======*/
+  helpButton.addEventListener("click", () => {
+  scrollBeforeHelp = window.scrollY;
 
+  helpModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+});
+  /* ==============*/
 if (helpButton) {
   helpButton.addEventListener("click", () => {
     document.body.classList.add("modal-open");
@@ -238,6 +245,11 @@ if (helpButton) {
 helpClose.addEventListener("click", () => {
   helpModal.classList.add("hidden");
   document.body.classList.remove("modal-open");
+
+  window.scrollTo({
+    top: scrollBeforeHelp,
+    behavior: "auto"
+  });
 });
 
 // Click outside to close
@@ -245,6 +257,11 @@ helpModal.addEventListener("click", e => {
   if (e.target === helpModal) {
     helpModal.classList.add("hidden");
     document.body.classList.remove("modal-open");
+
+    window.scrollTo({
+      top: scrollBeforeHelp,
+      behavior: "auto"
+    });
   }
 });
 
