@@ -223,26 +223,33 @@ saveConfigButton.onclick = () => {
 startDateInput.value = startDate;
 openingBalanceInput.value = openingBalance || "";
 
-/* ==============HELP============ */
+/* ============== HELP MODAL ============== */
+
 const helpButton = document.getElementById("help");
 const helpModal = document.getElementById("help-modal");
 const helpClose = document.getElementById("help-close");
-/* ===== ADDITION ======*/
-  helpButton.addEventListener("click", () => {
+
+let scrollBeforeHelp = 0;
+
+helpButton.addEventListener("click", () => {
   scrollBeforeHelp = window.scrollY;
 
   helpModal.classList.remove("hidden");
   document.body.classList.add("modal-open");
 });
-  /* ==============*/
-if (helpButton) {
-  helpButton.addEventListener("click", () => {
-    document.body.classList.add("modal-open");
-    helpModal.classList.remove("hidden");
-  });
-}
 
 helpClose.addEventListener("click", () => {
+  closeHelp();
+});
+
+// Click outside modal content to close
+helpModal.addEventListener("click", e => {
+  if (e.target === helpModal) {
+    closeHelp();
+  }
+});
+
+function closeHelp() {
   helpModal.classList.add("hidden");
   document.body.classList.remove("modal-open");
 
@@ -250,20 +257,7 @@ helpClose.addEventListener("click", () => {
     top: scrollBeforeHelp,
     behavior: "auto"
   });
-});
-
-// Click outside to close
-helpModal.addEventListener("click", e => {
-  if (e.target === helpModal) {
-    helpModal.classList.add("hidden");
-    document.body.classList.remove("modal-open");
-
-    window.scrollTo({
-      top: scrollBeforeHelp,
-      behavior: "auto"
-    });
-  }
-});
+}
 
 
 /* ================= TRANSACTIONS ================= */
