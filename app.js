@@ -235,6 +235,11 @@ const helpClose = document.getElementById("help-close");
   document.body.classList.add("modal-open");
 });
   /* ==============*/
+  function openModal() {
+  modal.classList.remove('hidden');
+  body.classList.add('modal-open'); // Stops background scroll
+}
+  /* ===============*/
 if (helpButton) {
   helpButton.addEventListener("click", () => {
     document.body.classList.add("modal-open");
