@@ -277,16 +277,12 @@ tr.projection-selected {
   cursor: pointer;
 }
 /* Prevent background scroll when modal is open */
-/*body.modal-open {
+body.modal-open {
   position: fixed;
   width: 100%;
   overflow: hidden;
   touch-action: none;
-}*/
-body.modal-open {
-  overflow: hidden; /* Prevents the background from scrolling away under the modal */
 }
-
 
 /* Make modal content scroll internally */
 .modal-content {
