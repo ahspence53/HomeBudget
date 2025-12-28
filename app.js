@@ -216,7 +216,7 @@ saveConfigButton.onclick = () => {
   openingBalance = parseFloat(openingBalanceInput.value) || 0;
   localStorage.setItem("startDate", startDate);
   localStorage.setItem("openingBalance", openingBalance);
-  alert("Saving config");
+  /*alert("Saving config");*/
   renderProjectionTable();
 };
 
@@ -622,7 +622,7 @@ transactions.push({
     updateEditCategoryDropdown();
     renderTransactionTable();
     renderProjectionTable();
-    alert("CSV import successful");
+    /*alert("CSV import successful");*/
   };
 
   reader.readAsText(rows);
