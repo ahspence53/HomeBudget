@@ -345,4 +345,9 @@ tr.freq-4weekly {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
-
+.modal-body {
+  padding: 16px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
