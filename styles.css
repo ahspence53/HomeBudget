@@ -276,12 +276,7 @@ tr.projection-selected {
   font-size: 20px;
   cursor: pointer;
 }
-/* Prevent background scroll when modal is open */
-body.modal-open {
-  position: fixed;
-  width: 100%;
-  overflow: hidden;
-}
+
 
 /* Make modal content scroll internally */
 .modal-content {
@@ -322,6 +317,19 @@ tr.freq-4weekly {
   touch-action: none;
 }
 
+/* Lock background scroll */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* Disable touch interaction on backdrop only */
+.modal {
+  touch-action: none;
+}
+
+/* Allow normal scrolling inside help */
 .modal-body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
