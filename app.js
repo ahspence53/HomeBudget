@@ -227,19 +227,21 @@ openingBalanceInput.value = openingBalance || "";
 const helpButton = document.getElementById("help");
 const helpModal = document.getElementById("help-modal");
 const helpClose = document.getElementById("help-close");
+const helpContainer = document.getElementById("help-container");
 
-helpButton.addEventListener("click", () => {
-  helpModal.classList.remove("hidden");
+helpButton.addEventListener("click", async () => {
+  try {
+    const res = await fetch("doc.html");
+    const html = await res.text();
+    helpContainer.innerHTML = html;
+    helpModal.classList.remove("hidden");
+  } catch (err) {
+    helpContainer.innerHTML = "<p>Failed to load help document.</p>";
+  }
 });
 
 helpClose.addEventListener("click", () => {
   helpModal.classList.add("hidden");
-});
-
-helpModal.addEventListener("click", e => {
-  if (e.target === helpModal) {
-    helpModal.classList.add("hidden");
-  }
 });
 
 
