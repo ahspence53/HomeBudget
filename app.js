@@ -227,44 +227,28 @@ openingBalanceInput.value = openingBalance || "";
 const helpButton = document.getElementById("help");
 const helpModal = document.getElementById("help-modal");
 const helpClose = document.getElementById("help-close");
-/* ===== ADDITION ======*/
-  helpButton.addEventListener("click", () => {
-  scrollBeforeHelp = window.scrollY;
 
-  helpModal.classList.remove("hidden");
-  document.body.classList.add("modal-open");
-});
-  /* ==============*/
+let scrollBeforeHelp = 0;
+
 if (helpButton) {
   helpButton.addEventListener("click", () => {
-    document.body.classList.add("modal-open");
+    scrollBeforeHelp = window.scrollY;
     helpModal.classList.remove("hidden");
+    document.body.classList.add("modal-open");
   });
 }
 
-helpClose.addEventListener("click", () => {
+helpClose.addEventListener("click", closeHelp);
+
+helpModal.addEventListener("click", e => {
+  if (e.target === helpModal) closeHelp();
+});
+
+function closeHelp() {
   helpModal.classList.add("hidden");
   document.body.classList.remove("modal-open");
-
-  window.scrollTo({
-    top: scrollBeforeHelp,
-    behavior: "auto"
-  });
-});
-
-// Click outside to close
-helpModal.addEventListener("click", e => {
-  if (e.target === helpModal) {
-    helpModal.classList.add("hidden");
-    document.body.classList.remove("modal-open");
-
-    window.scrollTo({
-      top: scrollBeforeHelp,
-      behavior: "auto"
-    });
-  }
-});
-
+  window.scrollTo({ top: scrollBeforeHelp, behavior: "auto" });
+}
 
 /* ================= TRANSACTIONS ================= */
 function saveTransactions() {
