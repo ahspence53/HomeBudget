@@ -223,47 +223,26 @@ saveConfigButton.onclick = () => {
 startDateInput.value = startDate;
 openingBalanceInput.value = openingBalance || "";
 
-/* ==============HELP============ */
-const helpButton = document.getElementById("help");
-const helpModal = document.getElementById("help-modal");
-const helpClose = document.getElementById("help-close");
-/* ===== ADDITION ======*/
-  helpButton.addEventListener("click", () => {
-  scrollBeforeHelp = window.scrollY;
+const modal = document.querySelector('.modal');
+const body = document.body;
 
-  helpModal.classList.remove("hidden");
-  document.body.classList.add("modal-open");
-});
-  /* ==============*/
-if (helpButton) {
-  helpButton.addEventListener("click", () => {
-    document.body.classList.add("modal-open");
-    helpModal.classList.remove("hidden");
-  });
+function openModal() {
+  modal.classList.remove('hidden');
+  body.classList.add('modal-open'); // Stops background scroll
 }
 
-helpClose.addEventListener("click", () => {
-  helpModal.classList.add("hidden");
-  document.body.classList.remove("modal-open");
+function closeModal() {
+  modal.classList.add('hidden');
+  body.classList.remove('modal-open'); // Restores background scroll
+}
 
-  window.scrollTo({
-    top: scrollBeforeHelp,
-    behavior: "auto"
-  });
-});
-
-// Click outside to close
-helpModal.addEventListener("click", e => {
-  if (e.target === helpModal) {
-    helpModal.classList.add("hidden");
-    document.body.classList.remove("modal-open");
-
-    window.scrollTo({
-      top: scrollBeforeHelp,
-      behavior: "auto"
-    });
+// Example: Close modal if clicking the dark overlay
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    closeModal();
   }
 });
+
 
 
 /* ================= TRANSACTIONS ================= */
