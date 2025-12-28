@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Home Budget Tracker</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <title>Home Budget Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-  <div id="floating-find" class="floating-find">
+
+<!-- Floating Find -->
+<div id="floating-find" class="floating-find">
   <input id="projection-find-input" placeholder="Find (text or date)">
-  <button id="projection-find-prev">◀</button>
-  <button id="projection-find-next">▶</button>
+  <button id="projection-find-prev" type="button">◀</button>
+  <button id="projection-find-next" type="button">▶</button>
   <span id="find-counter">0/0</span>
 </div>
 
@@ -19,59 +21,73 @@
   <h1>Home Budget Tracker</h1>
 </header>
 
+<!-- Configuration -->
 <section class="config">
-  <label>Start date:
+  <label>
+    Start date:
     <input type="date" id="start-date">
   </label>
-  <label>Opening balance:
+
+  <label>
+    Opening balance:
     <input type="number" id="opening-balance" step="0.01">
   </label>
-  <button id="save-config">Save</button>
-  
-  
-  
+
+  <button id="save-config" type="button">Save</button>
 </section>
 
+<!-- Categories -->
 <section class="categories">
   <input id="new-category" placeholder="New category">
-  <button id="add-category">Add Category</button>
+  <button id="add-category" type="button">Add Category</button>
 </section>
+
 <section id="edit-category-section">
   <h3>Edit Category</h3>
-
   <select id="edit-category-select"></select>
   <input type="text" id="edit-category-name" placeholder="New category name">
-  <button id="rename-category">Rename Category</button>
+  <button id="rename-category" type="button">Rename Category</button>
 </section>
 
+<!-- Transactions -->
 <section class="transactions">
   <input id="tx-desc" placeholder="Description">
   <input id="tx-amount" type="number" step="0.01" placeholder="Amount">
+
   <select id="tx-type">
     <option value="expense">Expense</option>
     <option value="income">Income</option>
   </select>
+
   <select id="tx-frequency">
     <option value="irregular">Irregular</option>
     <option value="monthly">Monthly</option>
     <option value="4-weekly">4-weekly</option>
   </select>
+
   <input id="tx-date" type="date">
   <select id="tx-category"></select>
-  <button id="add-transaction">Add Transaction</button>
+
+  <button id="add-transaction" type="button">Add Transaction</button>
 </section>
 
+<!-- Transaction Table -->
 <table id="transaction-table">
   <thead>
     <tr>
-      <th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Category</th><th></th>
+      <th>Date</th>
+      <th>Description</th>
+      <th>Type</th>
+      <th>Amount</th>
+      <th>Category</th>
+      <th></th>
     </tr>
   </thead>
   <tbody></tbody>
 </table>
 
-
-  <section id="import-export">
+<!-- Import / Export -->
+<section id="import-export">
   <h3>Import / Export</h3>
 
   <div class="import-box">
@@ -79,63 +95,79 @@
       Import transactions (CSV):
       <input type="file" id="csv-import" accept=".csv">
     </label>
-    <button id="import-btn">Import (Replace existing)</button>
-    <button id="help">Help document for App</button>
-    <button id="TopofApp">View Transactions</button>
+
+    <button id="import-btn" type="button">Import (Replace existing)</button>
+    <button id="help" type="button">Help document for App</button>
+    <button id="TopofApp" type="button">View Transactions</button>
   </div>
 
-    
-    <button id="salary-popup-btn">Salary -1 day balances</button>
+  <button id="salary-popup-btn" type="button">
+    Salary -1 day balances
+  </button>
 
+  <div class="export-box">
+    <button id="export-projection-btn" type="button">
+      Export 24-month projection (CSV)
+    </button>
+  </div>
+</section>
+
+<!-- Salary Popup -->
 <div id="salary-popup" class="modal hidden">
   <div class="modal-content">
     <h3>Balances the day before salary</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Balance</th>
-        </tr>
-      </thead>
-      <tbody id="salary-popup-body"></tbody>
-    </table>
-    <button id="salary-popup-close">Close</button>
+
+    <div class="modal-body">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Balance</th>
+          </tr>
+        </thead>
+        <tbody id="salary-popup-body"></tbody>
+      </table>
+    </div>
+
+    <button id="salary-popup-close" type="button">Close</button>
   </div>
 </div>
 
-  <div class="export-box">
-  <button id="export-projection-btn">
-    Export 24-month projection (CSV)
-  </button>
-</div>
-    
-</section>
-
+<!-- Projection -->
 <h2>24-Month Projection</h2>
-
-
 
 <table id="projection-table">
   <thead>
     <tr>
-      <th>Date</th><th>Description</th><th>Income</th><th>Expense</th><th>Balance</th>
+      <th>Date</th>
+      <th>Description</th>
+      <th>Income</th>
+      <th>Expense</th>
+      <th>Balance</th>
     </tr>
   </thead>
   <tbody></tbody>
 </table>
+
+<!-- Help Modal -->
 <div id="help-modal" class="modal hidden">
   <div class="modal-content">
-    <button id="help-close" class="modal-close">✕</button>
-    <iframe
-      src="doc.html"
-      title="Help"
-      class="modal-frame">
-    </iframe>
+    <button id="help-close" class="modal-close" type="button">✕</button>
+
+    <div class="modal-body">
+      <iframe
+        src="doc.html"
+        title="Help"
+        class="modal-frame">
+      </iframe>
+    </div>
   </div>
 </div>
-  
 
-<button id="back-to-top" class="floating-top">⬆ Top of Projections</button>
+<!-- Back to top -->
+<button id="back-to-top" class="floating-top" type="button">
+  ⬆ Top of Projections
+</button>
 
 <script src="app.js"></script>
 </body>
