@@ -20,6 +20,7 @@ th, td {
   vertical-align: top;
 }
 
+/* Allow row background colours to show */
 tr {
   background-color: transparent;
 }
@@ -29,6 +30,7 @@ tr {
   background-color: #ffffc5;
 }
 
+/* Highlight today's date */
 .projection-today {
   background-color: #fff7d6;
 }
@@ -64,10 +66,11 @@ tr {
 /* ================= FLOATING FIND ================= */
 
 .floating-find {
-  position: absolute;
+  position: absolute; /* keep the WORKING behaviour */
   top: 0;
   left: 0;
   right: 0;
+
   z-index: 9999;
   background: white;
   padding: 8px;
@@ -81,6 +84,7 @@ input, select, button {
   padding: 10px 12px;
 }
 
+/* Reduce row height impact inside tables */
 table input,
 table select,
 table button {
@@ -111,74 +115,38 @@ table button {
   font-weight: bold;
 }
 
-/* Distinguish 4-weekly transactions */
-tr.freq-4weekly {
-  background-color: #f4f7fb;
-}
-
-.freq-4weekly td {
-  font-style: italic;
-}
-
-/* ================= MODALS (HELP + SALARY) ================= */
+/* ================= MODALS ================= */
 
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 3000;
+  z-index: 2000;
 }
 
 .modal.hidden {
   display: none;
 }
 
-/* Modal window */
 .modal-content {
-  background: #fff;
-  width: 90%;
-  max-width: 900px;
-  max-height: 90vh;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Scrollable content inside modal */
-.modal-body {
+  background: white;
   padding: 16px;
+  max-width: 420px;
+  width: 90%;
+  max-height: 80vh;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  border-radius: 6px;
 }
 
-/* Close button */
-.modal-close {
-  align-self: flex-end;
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 8px;
-}
 
-/* Lock background scroll while modal open */
-body.modal-open {
-  overflow: hidden;
-}
 
-/* ================= HELP DOC TEXT ================= */
-
-.oview {
-  white-space: pre-wrap;
-}
-
-/* ================= BUTTONS ================= */
-
+/* ================= MISC ================= */
+/* Styling the Help button */
 #help {
-  background-color: #008CBA;
+  background-color: #008CBA; /* A blue color */
   color: white;
   padding: 10px 20px;
   border: none;
@@ -186,8 +154,8 @@ body.modal-open {
   cursor: pointer;
 }
 
-#TopofApp {
-  background-color: #008000;
+#TopofApp{
+  background-color: #008000; /* A green color */
   color: white;
   padding: 10px 20px;
   border: none;
@@ -195,8 +163,9 @@ body.modal-open {
   cursor: pointer;
 }
 
+/* Styling the Salary popup button */
 #salary-popup-btn {
-  background-color: #FF0000;
+  background-color: #FF0000; /* A RED color */
   color: white;
   padding: 10px 20px;
   border: none;
@@ -204,11 +173,10 @@ body.modal-open {
   cursor: pointer;
 }
 
+/* Adding a hover effect */
 #salary-popup-btn:hover {
   background-color: #45a049;
 }
-
-/* ================= IMPORT / EXPORT ================= */
 
 #import-export {
   margin-top: 2rem;
@@ -225,8 +193,6 @@ body.modal-open {
   margin-left: 0.5rem;
 }
 
-/* ================= MISC ================= */
-
 .floating-top {
   position: fixed;
   bottom: 1rem;
@@ -239,6 +205,12 @@ body.modal-open {
   padding: 2px 6px;
   cursor: pointer;
 }
+
+tr.projection-selected {
+  background-color: #d6ebff !important;
+}
+
+
 
 .app-header {
   background-color: #0b5ed7;
@@ -260,14 +232,69 @@ body.modal-open {
 #projection-table tr.end-of-day td.balance-cell {
   font-weight: 700;
 }
+/* ================ MODALS FOR HELP POPUP ============== */
+.oview {
+  white-space: pre-wrap;
+}
 
-/* Projection jump highlight */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #fff;
+  width: 90%;
+  max-width: 900px;
+  height: 90%;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+/* Prevent background scroll when modal is open */
+body.modal-open {
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* Make modal content scroll internally */
+.modal-content {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .projection-jump-highlight {
   background-color: #fff3b0 !important;
   transition: background-color 0.3s ease;
 }
 
-/* Salary popup jump indicator */
 .salary-date {
   display: flex;
   align-items: center;
@@ -282,4 +309,12 @@ body.modal-open {
 
 .salary-date:hover .salary-jump-icon {
   opacity: 1;
+}
+
+tr.freq-4weekly {
+  background-color: #f4f7fb;
+}
+
+.freq-4weekly td {
+  font-style: italic;
 }
