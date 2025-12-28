@@ -227,46 +227,18 @@ openingBalanceInput.value = openingBalance || "";
 const helpButton = document.getElementById("help");
 const helpModal = document.getElementById("help-modal");
 const helpClose = document.getElementById("help-close");
-/* ===== ADDITION ======*/
-  helpButton.addEventListener("click", () => {
-  scrollBeforeHelp = window.scrollY;
 
+helpButton.addEventListener("click", () => {
   helpModal.classList.remove("hidden");
-  document.body.classList.add("modal-open");
 });
-  /* ==============*/
-  function openModal() {
-  modal.classList.remove('hidden');
-  body.classList.add('modal-open'); // Stops background scroll
-}
-  /* ===============*/
-if (helpButton) {
-  helpButton.addEventListener("click", () => {
-    document.body.classList.add("modal-open");
-    helpModal.classList.remove("hidden");
-  });
-}
 
 helpClose.addEventListener("click", () => {
   helpModal.classList.add("hidden");
-  document.body.classList.remove("modal-open");
-
-  window.scrollTo({
-    top: scrollBeforeHelp,
-    behavior: "auto"
-  });
 });
 
-// Click outside to close
 helpModal.addEventListener("click", e => {
   if (e.target === helpModal) {
     helpModal.classList.add("hidden");
-    document.body.classList.remove("modal-open");
-
-    window.scrollTo({
-      top: scrollBeforeHelp,
-      behavior: "auto"
-    });
   }
 });
 
