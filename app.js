@@ -553,7 +553,10 @@ findPrev.onclick=()=>{if(matches.length){findIdx=(findIdx-1+matches.length)%matc
 /* ================= TOP ================= */
 document.getElementById("back-to-top").onclick = () =>
   window.scrollTo({top:1500,behavior:"smooth"});
-
+/* ============== VIEW TRANSACTIONS =========== */
+document.getElementById("TopofApp").onclick = () =>
+  window.scrollTo({top:0,behavior:"smooth"});
+  
   const floatingFind = document.getElementById("floating-find");
 
 function lockFindBar() {
