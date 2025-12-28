@@ -1,9 +1,16 @@
 /* ================= BASE ================= */
 
 body {
-  font-family: system-ui, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
   padding: 1rem;
-  padding-top: 72px; /* space for floating Find */
+  padding-top: 72px; /* space for floating Find bar */
+  line-height: 1.5;
+}
+
+/* Prevent background scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+  /* position: fixed can cause jumps; overflow: hidden is usually enough */
 }
 
 table {
@@ -12,38 +19,53 @@ table {
   margin-top: 1rem;
 }
 
-/* ================= TABLES ================= */
-
 th, td {
   border: 1px solid #ccc;
   padding: 0.4rem;
   vertical-align: top;
 }
 
-/* Allow row background colours to show */
+/* ================= TABLES & PROJECTION ================= */
+
 tr {
   background-color: transparent;
 }
 
-/* Weekend shading in 24-month projection */
-#projection-table tr.weekend-row {
+/* Specificity fix: target the cells so row colors actually show up */
+#projection-table tr.weekend-row td {
   background-color: #ffffc5;
 }
 
-/* Highlight today's date */
-.projection-today {
+.projection-today td {
   background-color: #fff7d6;
 }
 
-.projection-selected {
-  background-color: #e8f0ff;
+/* Selected row - increased specificity to avoid !important */
+#projection-table tr.projection-selected td {
+  background-color: #d6ebff;
 }
 
 .projection-match-highlight {
   background: yellow;
 }
 
-/* ================= PROJECTION LAYOUT ================= */
+.projection-jump-highlight {
+  background-color: #fff3b0;
+  transition: background-color 0.3s ease;
+}
+
+/* 4-Weekly Logic */
+tr.freq-4weekly td {
+  background-color: #f4f7fb;
+  font-style: italic;
+}
+
+/* Daily balance emphasis */
+#projection-table tr.end-of-day td.balance-cell {
+  font-weight: 700;
+}
+
+/* ================= LAYOUT COMPONENTS ================= */
 
 .projection-item {
   display: flex;
@@ -63,151 +85,6 @@ tr {
   font-size: 0.9em;
 }
 
-/* ================= FLOATING FIND ================= */
-
-.floating-find {
-  position: absolute; /* keep the WORKING behaviour */
-  top: 0;
-  left: 0;
-  right: 0;
-
-  z-index: 9999;
-  background: white;
-  padding: 8px;
-  border-bottom: 1px solid #ccc;
-}
-
-/* ================= FORMS ================= */
-
-input, select, button {
-  font-size: 1.05rem;
-  padding: 10px 12px;
-}
-
-/* Reduce row height impact inside tables */
-table input,
-table select,
-table button {
-  padding: 4px 6px;
-  font-size: 0.95rem;
-}
-
-#config input {
-  max-width: 220px;
-}
-
-#add-transaction-section input,
-#add-transaction-section select {
-  min-height: 44px;
-}
-
-/* ================= TRANSACTIONS ================= */
-
-.expense-row td {
-  color: #b00020;
-}
-
-.negative {
-  background: #ffe6e6;
-}
-
-.irregular {
-  font-weight: bold;
-}
-
-/* ================= MODALS ================= */
-
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-.modal.hidden {
-  display: none;
-}
-
-.modal-content {
-  background: white;
-  padding: 16px;
-  max-width: 420px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  border-radius: 6px;
-}
-
-
-
-/* ================= MISC ================= */
-/* Styling the Help button */
-#help {
-  background-color: #008CBA; /* A blue color */
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-#TopofApp{
-  background-color: #008000; /* A green color */
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-/* Styling the Salary popup button */
-#salary-popup-btn {
-  background-color: #FF0000; /* A RED color */
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-
-#import-export {
-  margin-top: 2rem;
-  padding: 1rem;
-  border-top: 2px solid #ddd;
-}
-
-.import-box,
-.export-box {
-  margin-top: 0.75rem;
-}
-
-#import-export button {
-  margin-left: 0.5rem;
-}
-
-.floating-top {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-}
-
-.nudge-btn {
-  margin-left: 6px;
-  font-size: 0.75em;
-  padding: 2px 6px;
-  cursor: pointer;
-}
-
-tr.projection-selected {
-  background-color: #d6ebff !important;
-}
-
-
-
 .app-header {
   background-color: #0b5ed7;
   color: white;
@@ -216,79 +93,120 @@ tr.projection-selected {
   z-index: 1;
 }
 
-.app-header h1 {
-  margin: 0;
+.app-header h1 { margin: 0; }
+
+.floating-find {
+  position: absolute; 
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: white;
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
 }
 
-/* Daily balance emphasis */
-#projection-table td.balance-cell {
-  font-weight: normal;
+.floating-top {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
 }
 
-#projection-table tr.end-of-day td.balance-cell {
-  font-weight: 700;
+/* ================= FORMS & BUTTONS ================= */
+
+input, select, button {
+  font-size: 1.05rem;
+  padding: 10px 12px;
 }
-/* ================ MODALS FOR HELP POPUP ============== */
-.oview {
-  white-space: pre-wrap;
+
+/* Table-specific inputs */
+table input, table select, table button {
+  padding: 4px 6px;
+  font-size: 0.95rem;
 }
+
+#config input { max-width: 220px; }
+
+#add-transaction-section input,
+#add-transaction-section select {
+  min-height: 44px;
+}
+
+button { cursor: pointer; border: none; border-radius: 4px; }
+
+#help { background-color: #008CBA; color: white; padding: 10px 20px; }
+#TopofApp { background-color: #008000; color: white; padding: 10px 20px; }
+
+#salary-popup-btn { 
+  background-color: #FF0000; 
+  color: white; 
+  padding: 10px 20px; 
+}
+
+#salary-popup-btn:hover { background-color: #c40000; } /* Keep color family consistent */
+
+.nudge-btn {
+  margin-left: 6px;
+  font-size: 0.75em;
+  padding: 2px 6px;
+}
+
+/* ================= MODALS ================= */
+
+
 
 .modal {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.6);
-  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 9999;
 }
 
-.modal.hidden {
-  display: none;
-}
+.modal.hidden { display: none; }
 
 .modal-content {
-  background: #fff;
+  background: white;
+  padding: 16px;
   width: 90%;
-  max-width: 900px;
-  height: 90%;
+  max-width: 420px; /* Default for small popups */
+  max-height: 85vh;
+  overflow-y: auto;
   border-radius: 8px;
   position: relative;
-  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
-.modal-frame {
-  width: 100%;
-  height: 100%;
-  border: none;
+/* Use this for the larger Help/Overview popup */
+.modal-content.large {
+  max-width: 900px;
+  height: 90%;
 }
+
+.modal-frame { width: 100%; height: 100%; border: none; }
 
 .modal-close {
   position: absolute;
   top: 8px;
   right: 10px;
   background: none;
-  border: none;
-  font-size: 20px;
+  font-size: 24px;
   cursor: pointer;
 }
-/* Prevent background scroll when modal is open */
-body.modal-open {
-  position: fixed;
-  width: 100%;
-  overflow: hidden;
-  touch-action: none;
-}
 
-/* Make modal content scroll internally */
-.modal-content {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
+/* ================= MISC ================= */
 
-.projection-jump-highlight {
-  background-color: #fff3b0 !important;
-  transition: background-color 0.3s ease;
+.expense-row td { color: #b00020; }
+.negative { background: #ffe6e6; }
+.irregular { font-weight: bold; }
+.oview { white-space: pre-wrap; }
+
+#import-export {
+  margin-top: 2rem;
+  padding: 1rem;
+  border-top: 2px solid #ddd;
 }
 
 .salary-date {
@@ -298,19 +216,5 @@ body.modal-open {
   gap: 8px;
 }
 
-.salary-jump-icon {
-  font-size: 0.9em;
-  opacity: 0.5;
-}
-
-.salary-date:hover .salary-jump-icon {
-  opacity: 1;
-}
-
-tr.freq-4weekly {
-  background-color: #f4f7fb;
-}
-
-.freq-4weekly td {
-  font-style: italic;
-}
+.salary-jump-icon { font-size: 0.9em; opacity: 0.5; }
+.salary-date:hover .salary-jump-icon { opacity: 1; }
