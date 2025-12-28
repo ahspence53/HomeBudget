@@ -227,31 +227,41 @@ openingBalanceInput.value = openingBalance || "";
 const helpButton = document.getElementById("help");
 const helpModal = document.getElementById("help-modal");
 const helpClose = document.getElementById("help-close");
+/* ===== ADDITION ======*/
+  helpButton.addEventListener("click", () => {
+  scrollBeforeHelp = window.scrollY;
 
-let scrollBeforeHelp = 0; // Declare this globally
-
+  helpModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+});
+  /* ==============*/
 if (helpButton) {
   helpButton.addEventListener("click", () => {
-    scrollBeforeHelp = window.scrollY; // Save position
-    helpModal.classList.remove("hidden");
     document.body.classList.add("modal-open");
+    helpModal.classList.remove("hidden");
   });
 }
 
-const closeModal = () => {
+helpClose.addEventListener("click", () => {
   helpModal.classList.add("hidden");
   document.body.classList.remove("modal-open");
-  
-  // Return to original scroll position
-  window.scrollTo(0, scrollBeforeHelp);
-};
 
-helpClose.addEventListener("click", closeModal);
+  window.scrollTo({
+    top: scrollBeforeHelp,
+    behavior: "auto"
+  });
+});
 
 // Click outside to close
 helpModal.addEventListener("click", e => {
   if (e.target === helpModal) {
-    closeModal();
+    helpModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+
+    window.scrollTo({
+      top: scrollBeforeHelp,
+      behavior: "auto"
+    });
   }
 });
 
