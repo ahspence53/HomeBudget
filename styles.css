@@ -314,3 +314,6 @@ tr.freq-4weekly {
 .freq-4weekly td {
   font-style: italic;
 }
+.overview {
+  white-space: pre-wrap;
+}
