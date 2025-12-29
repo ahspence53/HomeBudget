@@ -261,7 +261,12 @@ tr.projection-selected {
   background-color: #d6ebff !important;
 }
 
-
+.popup-toggle-btn {
+  margin: 6px 0 10px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
 
 .app-header {
   background-color: #0b5ed7;
