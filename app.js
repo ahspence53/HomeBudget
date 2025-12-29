@@ -895,6 +895,12 @@ salaryPopup.addEventListener("click", e => {
   }
 }
 
+document.getElementById("salary-negative-only").onclick = () => {
+  salaryShowNegativesOnly = !salaryShowNegativesOnly;
+  document.getElementById("salary-negative-only").textContent =
+    salaryShowNegativesOnly ? "Show all" : "Show negatives only";
+  renderSalaryPopup();
+};
  /*=====nudge=====*/
   
   
