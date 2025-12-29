@@ -124,6 +124,22 @@ table button {
   font-size: 0.85em;
   opacity: 0.6;
 }
+.tx-date-cell {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tx-date-text {
+  text-align: left;
+}
+
+.tx-date-icon {
+  font-size: 0.85em;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
 /* ================= MODALS ================= */
 
 .modal {
