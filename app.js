@@ -815,19 +815,15 @@ salaryPopup.addEventListener("click", e => {
   }
 });
 /* ====== added =====*/
-const salaryNegBtn = document.getElementById("salary-negative-only");
+  const salaryNegBtn = document.getElementById("salary-negative-only");
 
 if (salaryNegBtn) {
   salaryNegBtn.onclick = () => {
     salaryShowNegativesOnly = !salaryShowNegativesOnly;
     salaryNegBtn.textContent =
       salaryShowNegativesOnly ? "Show all" : "Show negatives only";
-
-    // Rebuild popup using existing working logic
-    salaryPopupBody.innerHTML = "";
-    document.getElementById("salary-popup-btn").click();
+    renderSalaryPopup();
   };
-}
 }
 
  /*=====nudge=====*/
