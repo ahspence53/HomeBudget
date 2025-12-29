@@ -9,9 +9,6 @@ let openingBalance = parseFloat(localStorage.getItem("openingBalance")) || 0;
 let editingIndex = null;
 let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
 let scrollBeforeHelp = 0;
-
-  let salaryShowNegativesOnly = false;
-  
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
 const newCategoryInput = document.getElementById("new-category");
@@ -769,8 +766,8 @@ salaryBtn.onclick = () => {
         balance += tx.type === "income" ? tx.amount : -tx.amount;
       }
     });
-if (salaryMinusOne.has(iso)) {
-  if (salaryShowNegativesOnly && balance >= 0) continue;
+
+    if (salaryMinusOne.has(iso)) {
       const tr = document.createElement("tr");
       if (balance < 0) tr.classList.add("negative");
 
@@ -814,17 +811,7 @@ salaryPopup.addEventListener("click", e => {
     document.body.classList.remove("modal-open");
   }
 });
-/* ====== added =====*/
-  const salaryNegBtn = document.getElementById("salary-negative-only");
-
-if (salaryNegBtn) {
-  salaryNegBtn.onclick = () => {
-    salaryShowNegativesOnly = !salaryShowNegativesOnly;
-    salaryNegBtn.textContent =
-      salaryShowNegativesOnly ? "Show all" : "Show negatives only";
-    renderSalaryPopup();
-  };
-}
+  
 
  /*=====nudge=====*/
   
