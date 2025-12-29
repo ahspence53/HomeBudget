@@ -9,6 +9,9 @@ let openingBalance = parseFloat(localStorage.getItem("openingBalance")) || 0;
 let editingIndex = null;
 let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
 let scrollBeforeHelp = 0;
+
+  let salaryShowNegativesOnly = false;
+  
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
 const newCategoryInput = document.getElementById("new-category");
@@ -766,8 +769,8 @@ salaryBtn.onclick = () => {
         balance += tx.type === "income" ? tx.amount : -tx.amount;
       }
     });
-
-    if (salaryMinusOne.has(iso)) {
+if (salaryMinusOne.has(iso)) {
+  if (salaryShowNegativesOnly && balance >= 0) continue;
       const tr = document.createElement("tr");
       if (balance < 0) tr.classList.add("negative");
 
