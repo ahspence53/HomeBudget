@@ -716,21 +716,6 @@ salaryBtn.onclick = () => {
     return;
   }
 
-  // Create table structure
-  const table = document.createElement("table");
-  table.className = "salary-table";
-  table.innerHTML = `
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th style="text-align:right">Balance</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  `;
-
-  const tbody = table.querySelector("tbody");
-
   // Collect salary -1 dates
   const salaryMinusOne = new Set();
 
@@ -772,7 +757,7 @@ salaryBtn.onclick = () => {
           key.startsWith(id + "|") && target === iso
       );
 
-      if (natural && !nudgedAway || (!natural && nudgedHere)) {
+      if ((natural && !nudgedAway) || (!natural && nudgedHere)) {
         balance += tx.type === "income" ? tx.amount : -tx.amount;
       }
     });
@@ -781,31 +766,32 @@ salaryBtn.onclick = () => {
       const tr = document.createElement("tr");
       if (balance < 0) tr.classList.add("negative");
 
-tr.innerHTML = `
-  <td class="salary-date">
-    <span class="salary-date-text">${formatDate(iso)}</span>
-    <span class="salary-jump-icon" title="Tap to jump to this date">🔍</span>
-  </td>
-  <td style="text-align:right"><strong>${balance.toFixed(2)}</strong></td>
-`;
+      tr.innerHTML = `
+        <td class="salary-date">
+          <span class="salary-date-text">${formatDate(iso)}</span>
+          <span class="salary-jump-icon" title="Tap to jump to this date">🔍</span>
+        </td>
+        <td style="text-align:right">
+          <strong>${balance.toFixed(2)}</strong>
+        </td>
+      `;
 
-tr.style.cursor = "pointer";
-tr.title = "Tap to jump to this date";
+      tr.style.cursor = "pointer";
+      tr.title = "Tap to jump to this date";
 
-tr.addEventListener("click", () => {
-  salaryPopup.classList.add("hidden");
-  document.body.classList.remove("modal-open");
+      tr.addEventListener("click", () => {
+        salaryPopup.classList.add("hidden");
+        document.body.classList.remove("modal-open");
 
-  // Small delay so modal closes cleanly first
-  setTimeout(() => {
-    jumpToProjectionDate(iso);
-  }, 200);
-});
-      tbody.appendChild(tr);
+        setTimeout(() => {
+          jumpToProjectionDate(iso);
+        }, 200);
+      });
+
+      salaryPopupBody.appendChild(tr);
     }
   }
 
-  salaryPopupBody.appendChild(table);
   salaryPopup.classList.remove("hidden");
 };
 
@@ -820,7 +806,6 @@ salaryPopup.addEventListener("click", e => {
     document.body.classList.remove("modal-open");
   }
 });
-
   
 
  /*=====nudge=====*/
