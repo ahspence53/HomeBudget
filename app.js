@@ -499,8 +499,11 @@ function renderProjectionTable() {
       if (balance < 0) tr.classList.add("negative");
 
       const today = new Date(toISO(new Date()));
-      const diffDays = Math.round((new Date(iso) - today) / 86400000);
-      const showNudge = diffDays >= 0 && diffDays <= 7;
+const diffDays = Math.round((new Date(iso) - today) / 86400000);
+
+const showNudge =
+  (diffDays >= 0 && diffDays <= 7) ||           // future nudging (unchanged)
+  (diffDays < 0 && diffDays >= -MAX_PAST_NUDGE_DAYS); // limited past nudging
 
       tr.innerHTML = `
         <td>${index === 0 ? formatDate(iso) : ""}</td>
