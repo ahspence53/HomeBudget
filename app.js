@@ -10,6 +10,7 @@ let editingIndex = null;
 let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
 let scrollBeforeHelp = 0;
 let salaryShowNegativesOnly = false;
+  let salaryShowNegativesOnly = false;
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
 const newCategoryInput = document.getElementById("new-category");
@@ -786,6 +787,7 @@ function renderSalaryPopup() {
     });
 
     if (salaryMinusOne.has(iso)) {
+  if (salaryShowNegativesOnly && balance >= 0) return;
       if (salaryShowNegativesOnly && balance >= 0) continue;
 
       const tr = document.createElement("tr");
