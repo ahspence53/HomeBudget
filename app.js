@@ -31,6 +31,8 @@ const projectionTbody = document.querySelector("#projection-table tbody");
 const editCategorySelect = document.getElementById("edit-category-select");
 const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
+const MAX_PAST_NUDGE_DAYS = 7;
+  
 /* added edit category code*/
   renameCategoryButton.onclick = () => {
   const oldName = editCategorySelect.value;
@@ -495,8 +497,11 @@ function renderProjectionTable() {
       if (balance < 0) tr.classList.add("negative");
 
       const today = new Date(toISO(new Date()));
-      const diffDays = Math.round((new Date(iso) - today) / 86400000);
-      const showNudge = diffDays >= 0 && diffDays <= 7;
+const diffDays = Math.round((new Date(iso) - today) / 86400000);
+
+const showNudge =
+  (diffDays >= 0 && diffDays <= 7) ||           // future nudging (unchanged)
+  (diffDays < 0 && diffDays >= -MAX_PAST_NUDGE_DAYS); // limited past nudging
 
       tr.innerHTML = `
         <td>${index === 0 ? formatDate(iso) : ""}</td>
