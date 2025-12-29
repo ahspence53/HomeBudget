@@ -155,7 +155,17 @@ table button {
   opacity: 0.6;
   white-space: nowrap;
 }
+.frequency-legend {
+    display: flex;
+    gap: 20px;
+    margin: 6px 0 8px 0;
+    font-size: 0.85rem;
+    color: #666;
+}
 
+.frequency-legend span {
+    white-space: nowrap;
+}
 /* ================= MODALS ================= */
 
 .modal {
