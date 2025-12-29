@@ -114,7 +114,16 @@ table button {
 .irregular {
   font-weight: bold;
 }
+.tx-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 
+.tx-icon {
+  font-size: 0.85em;
+  opacity: 0.6;
+}
 /* ================= MODALS ================= */
 
 .modal {
