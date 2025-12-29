@@ -319,6 +319,10 @@ body.modal-open {
   background-color: #fff3b0 !important;
   transition: background-color 0.3s ease;
 }
+.salary-table-wrapper {
+  overflow-y: auto;
+  max-height: 60vh;
+}
 
 .salary-date {
   display: flex;
