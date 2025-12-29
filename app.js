@@ -814,7 +814,17 @@ salaryPopup.addEventListener("click", e => {
     document.body.classList.remove("modal-open");
   }
 });
-  
+/* ====== added =====*/
+  const salaryNegBtn = document.getElementById("salary-negative-only");
+
+if (salaryNegBtn) {
+  salaryNegBtn.onclick = () => {
+    salaryShowNegativesOnly = !salaryShowNegativesOnly;
+    salaryNegBtn.textContent =
+      salaryShowNegativesOnly ? "Show all" : "Show negatives only";
+    renderSalaryPopup();
+  };
+}
 
  /*=====nudge=====*/
   
