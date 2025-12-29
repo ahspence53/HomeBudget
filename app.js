@@ -9,8 +9,6 @@ let openingBalance = parseFloat(localStorage.getItem("openingBalance")) || 0;
 let editingIndex = null;
 let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
 let scrollBeforeHelp = 0;
-let salaryShowNegativesOnly = false;
-  let salaryShowNegativesOnly = false;
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
 const newCategoryInput = document.getElementById("new-category");
@@ -715,28 +713,6 @@ const salaryClose = document.getElementById("salary-popup-close");
 
 salaryBtn.onclick = () => {
   document.body.classList.add("modal-open");
-  salaryShowNegativesOnly = false;
-
-  const toggle = document.getElementById("salary-negative-only");
-  if (toggle) toggle.textContent = "Show negatives only";
-
-  renderSalaryPopup();
-  salaryPopup.classList.remove("hidden");
-};
-
-salaryClose.onclick = () => {
-  salaryPopup.classList.add("hidden");
-  document.body.classList.remove("modal-open");
-};
-
-salaryPopup.addEventListener("click", e => {
-  if (e.target === salaryPopup) {
-    salaryPopup.classList.add("hidden");
-    document.body.classList.remove("modal-open");
-  }
-});
-
-function renderSalaryPopup() {
   salaryPopupBody.innerHTML = "";
 
   if (!startDate) {
@@ -745,6 +721,7 @@ function renderSalaryPopup() {
     return;
   }
 
+  // Collect salary -1 dates
   const salaryMinusOne = new Set();
 
   transactions.forEach(tx => {
@@ -764,9 +741,12 @@ function renderSalaryPopup() {
     }
   });
 
+  // Calculate balances day-by-day
   let balance = openingBalance;
+
   const start = new Date(startDate);
   start.setHours(12, 0, 0, 0);
+
   const end = new Date(start);
   end.setMonth(end.getMonth() + 24);
 
@@ -778,7 +758,8 @@ function renderSalaryPopup() {
       const natural = occursOn(tx, iso);
       const nudgedAway = nudges[`${id}|${iso}`];
       const nudgedHere = Object.entries(nudges).some(
-        ([key, target]) => key.startsWith(id + "|") && target === iso
+        ([key, target]) =>
+          key.startsWith(id + "|") && target === iso
       );
 
       if ((natural && !nudgedAway) || (!natural && nudgedHere)) {
@@ -787,15 +768,13 @@ function renderSalaryPopup() {
     });
 
     if (salaryMinusOne.has(iso)) {
-      if (salaryShowNegativesOnly && balance >= 0) continue;
-
       const tr = document.createElement("tr");
       if (balance < 0) tr.classList.add("negative");
 
       tr.innerHTML = `
         <td class="salary-date">
           <span class="salary-date-text">${formatDate(iso)}</span>
-          <span class="salary-jump-icon">🔍</span>
+          <span class="salary-jump-icon" title="Tap to jump to this date">🔍</span>
         </td>
         <td style="text-align:right">
           <strong>${balance.toFixed(2)}</strong>
@@ -803,23 +782,35 @@ function renderSalaryPopup() {
       `;
 
       tr.style.cursor = "pointer";
-      tr.onclick = () => {
+      tr.title = "Tap to jump to this date";
+
+      tr.addEventListener("click", () => {
         salaryPopup.classList.add("hidden");
         document.body.classList.remove("modal-open");
-        setTimeout(() => jumpToProjectionDate(iso), 200);
-      };
+
+        setTimeout(() => {
+          jumpToProjectionDate(iso);
+        }, 200);
+      });
 
       salaryPopupBody.appendChild(tr);
     }
   }
-}
 
-document.getElementById("salary-negative-only").onclick = () => {
-  salaryShowNegativesOnly = !salaryShowNegativesOnly;
-  document.getElementById("salary-negative-only").textContent =
-    salaryShowNegativesOnly ? "Show all" : "Show negatives only";
-  renderSalaryPopup();
+  salaryPopup.classList.remove("hidden");
 };
+
+salaryClose.onclick = () => {
+  salaryPopup.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+};
+
+salaryPopup.addEventListener("click", e => {
+  if (e.target === salaryPopup) {
+    salaryPopup.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  }
+});
   
 
  /*=====nudge=====*/
