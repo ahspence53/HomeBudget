@@ -706,8 +706,6 @@ if (!startDate) {
   /* salary minus one day*/
 /* ================= SALARY -1 DAY POPUP ================= */
 
-/* ================= SALARY -1 DAY POPUP ================= */
-
 const salaryBtn = document.getElementById("salary-popup-btn");
 const salaryPopup = document.getElementById("salary-popup");
 const salaryPopupBody = document.getElementById("salary-popup-body");
@@ -715,28 +713,6 @@ const salaryClose = document.getElementById("salary-popup-close");
 
 salaryBtn.onclick = () => {
   document.body.classList.add("modal-open");
-  salaryShowNegativesOnly = false;
-
-  const toggle = document.getElementById("salary-negative-only");
-  if (toggle) toggle.textContent = "Show negatives only";
-
-  renderSalaryPopup();
-  salaryPopup.classList.remove("hidden");
-};
-
-salaryClose.onclick = () => {
-  salaryPopup.classList.add("hidden");
-  document.body.classList.remove("modal-open");
-};
-
-salaryPopup.addEventListener("click", e => {
-  if (e.target === salaryPopup) {
-    salaryPopup.classList.add("hidden");
-    document.body.classList.remove("modal-open");
-  }
-});
-
-function renderSalaryPopup() {
   salaryPopupBody.innerHTML = "";
 
   if (!startDate) {
@@ -745,6 +721,7 @@ function renderSalaryPopup() {
     return;
   }
 
+  // Collect salary -1 dates
   const salaryMinusOne = new Set();
 
   transactions.forEach(tx => {
@@ -764,9 +741,12 @@ function renderSalaryPopup() {
     }
   });
 
+  // Calculate balances day-by-day
   let balance = openingBalance;
+
   const start = new Date(startDate);
   start.setHours(12, 0, 0, 0);
+
   const end = new Date(start);
   end.setMonth(end.getMonth() + 24);
 
@@ -778,7 +758,8 @@ function renderSalaryPopup() {
       const natural = occursOn(tx, iso);
       const nudgedAway = nudges[`${id}|${iso}`];
       const nudgedHere = Object.entries(nudges).some(
-        ([key, target]) => key.startsWith(id + "|") && target === iso
+        ([key, target]) =>
+          key.startsWith(id + "|") && target === iso
       );
 
       if ((natural && !nudgedAway) || (!natural && nudgedHere)) {
@@ -787,15 +768,13 @@ function renderSalaryPopup() {
     });
 
     if (salaryMinusOne.has(iso)) {
-      if (salaryShowNegativesOnly && balance >= 0) continue;
-
       const tr = document.createElement("tr");
       if (balance < 0) tr.classList.add("negative");
 
       tr.innerHTML = `
         <td class="salary-date">
           <span class="salary-date-text">${formatDate(iso)}</span>
-          <span class="salary-jump-icon">🔍</span>
+          <span class="salary-jump-icon" title="Tap to jump to this date">🔍</span>
         </td>
         <td style="text-align:right">
           <strong>${balance.toFixed(2)}</strong>
@@ -803,23 +782,86 @@ function renderSalaryPopup() {
       `;
 
       tr.style.cursor = "pointer";
-      tr.onclick = () => {
+      tr.title = "Tap to jump to this date";
+
+      tr.addEventListener("click", () => {
         salaryPopup.classList.add("hidden");
         document.body.classList.remove("modal-open");
-        setTimeout(() => jumpToProjectionDate(iso), 200);
-      };
+
+        setTimeout(() => {
+          jumpToProjectionDate(iso);
+        }, 200);
+      });
 
       salaryPopupBody.appendChild(tr);
     }
   }
-}
 
-document.getElementById("salary-negative-only").onclick = () => {
-  salaryShowNegativesOnly = !salaryShowNegativesOnly;
-  document.getElementById("salary-negative-only").textContent =
-    salaryShowNegativesOnly ? "Show all" : "Show negatives only";
-  renderSalaryPopup();
+  salaryPopup.classList.remove("hidden");
 };
+
+salaryClose.onclick = () => {
+  salaryPopup.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+};
+
+salaryPopup.addEventListener("click", e => {
+  if (e.target === salaryPopup) {
+    salaryPopup.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  }
+});
+  
+
+ /*=====nudge=====*/
+  
+  
+projectionTbody.addEventListener("click", e => {
+  const btn = e.target.closest(".nudge-btn");
+  if (!btn) return;
+
+  const id = btn.dataset.id;
+  const visibleIso = btn.dataset.iso;
+
+  // Find existing nudge (if any) for this transaction
+  let sourceIso = visibleIso;
+
+  for (const [key, target] of Object.entries(nudges)) {
+    if (key.startsWith(id + "|") && target === visibleIso) {
+      // This transaction was already nudged here
+      sourceIso = key.split("|").slice(-1)[0];
+      break;
+    }
+  }
+
+  // Calculate next day
+  const next = new Date(visibleIso);
+  next.setDate(next.getDate() + 1);
+  const toIso = toISO(next);
+
+  // Remove all existing nudges for this transaction
+  Object.keys(nudges).forEach(k => {
+    if (k.startsWith(id + "|")) delete nudges[k];
+  });
+
+  // Add the new nudge using the ORIGINAL source date
+  nudges[`${id}|${sourceIso}`] = toIso;
+
+  saveNudges();
+  renderProjectionTable();
+});
+  projectionTbody.addEventListener("click", e => {
+  const row = e.target.closest("tr");
+  if (!row) return;
+
+  // Clear previous selection
+  projectionTbody
+    .querySelectorAll(".projection-selected")
+    .forEach(r => r.classList.remove("projection-selected"));
+
+  // Highlight clicked row
+  row.classList.add("projection-selected");
+});
 
   
 /* ================= INIT ================= */
