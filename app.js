@@ -9,6 +9,9 @@ let openingBalance = parseFloat(localStorage.getItem("openingBalance")) || 0;
 let editingIndex = null;
 let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
 let scrollBeforeHelp = 0;
+  
+
+  
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
 const newCategoryInput = document.getElementById("new-category");
@@ -31,6 +34,7 @@ const projectionTbody = document.querySelector("#projection-table tbody");
 const editCategorySelect = document.getElementById("edit-category-select");
 const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
+const MAX_PAST_NUDGE_DAYS = 7;
 /* added edit category code*/
   renameCategoryButton.onclick = () => {
   const oldName = editCategorySelect.value;
