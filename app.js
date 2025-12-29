@@ -314,7 +314,13 @@ function renderTransactionTable() {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-   <td>${getDisplayedTransactionDate(tx)}</td>
+   <td>
+  <span class="tx-date">
+    ${getDisplayedTransactionDate(tx)}
+    ${tx.frequency === "monthly" ? '<span class="tx-icon" title="Monthly">🔁</span>' : ""}
+    ${tx.frequency === "4-weekly" ? '<span class="tx-icon" title="4-weekly">📆</span>' : ""}
+  </span>
+</td>
       <td>${tx.description}</td>
       <td>${tx.type}</td>
       <td>${tx.amount.toFixed(2)}</td>
