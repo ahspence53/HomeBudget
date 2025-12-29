@@ -787,7 +787,6 @@ function renderSalaryPopup() {
     });
 
     if (salaryMinusOne.has(iso)) {
-  if (salaryShowNegativesOnly && balance >= 0) return;
       if (salaryShowNegativesOnly && balance >= 0) continue;
 
       const tr = document.createElement("tr");
