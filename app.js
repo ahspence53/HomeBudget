@@ -320,7 +320,8 @@ function renderTransactionTable() {
     tr.innerHTML = `
 <td>
   <div class="tx-date-cell">
-    <span class="tx-date-text">${getDisplayedTransactionDate(tx)}</span>
+    /*<span class="tx-date-text">${getDisplayedTransactionDate(tx)}</span>*/
+    <span class="tx-date-text">${tx.date}</span>
     <span class="tx-date-icon">
       ${tx.frequency === "monthly" ? 'ð' : ""}
       ${tx.frequency === "4-weekly" ? 'ð' : ""}
@@ -961,6 +962,22 @@ projectionTbody.addEventListener("click", e => {
   // Highlight clicked row
   row.classList.add("projection-selected");
 });
+/* added */
+
+  const dateSortHeader = document.getElementById("date-sort-header");
+const dateSortIndicator = document.getElementById("date-sort-indicator");
+
+if (dateSortHeader && dateSortIndicator) {
+  dateSortHeader.addEventListener("click", () => {
+    transactionSortAscending = !transactionSortAscending;
+    dateSortIndicator.textContent = transactionSortAscending ? "▲" : "▼";
+    renderTransactionTable();
+  });
+}
+
+  
+/*. */
+
 
   
 /* ================= INIT ================= */
