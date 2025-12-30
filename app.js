@@ -365,7 +365,17 @@ function renderTransactionTable() {
     transactionTableBody.appendChild(tr);
   });
 }
+/* ======== */
+  const dateSortHeader = document.getElementById("date-sort-header");
+const dateSortIndicator = document.getElementById("date-sort-indicator");
 
+if (dateSortHeader) {
+  dateSortHeader.onclick = () => {
+    transactionSortAscending = !transactionSortAscending;
+    dateSortIndicator.textContent = transactionSortAscending ? "▲" : "▼";
+    renderTransactions();
+  };
+}
 /* ================= RECURRENCE ================= */
 function occursOn(tx, iso) {
   if (!tx.date) return false;
