@@ -10,7 +10,7 @@ let editingIndex = null;
 let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
 let scrollBeforeHelp = 0;
 let transactionSortAscending = true;
-  let transactionSortAscending = true;
+  
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
 const newCategoryInput = document.getElementById("new-category");
@@ -308,6 +308,26 @@ addTxButton.onclick = () => {
 
 /* ================= TRANSACTION TABLE ================= */
 function renderTransactionTable() {
+
+  /* added */
+function renderTransactionTable() {
+
+  const dateSortHeader = document.getElementById("date-sort-header");
+  const dateSortIndicator = document.getElementById("date-sort-indicator");
+
+  if (dateSortHeader && !dateSortHeader.dataset.bound) {
+    dateSortHeader.dataset.bound = "true";
+    dateSortHeader.onclick = () => {
+      transactionSortAscending = !transactionSortAscending;
+      dateSortIndicator.textContent =
+        transactionSortAscending ? "▲" : "▼";
+      renderTransactionTable();
+    };
+  }
+
+  transactionTableBody.innerHTML = "";
+
+  /* ---- */
   transactionTableBody.innerHTML = "";
 
   const sorted = [...transactions].sort((a, b) => {
@@ -973,19 +993,7 @@ projectionTbody.addEventListener("click", e => {
   // Highlight clicked row
   row.classList.add("projection-selected");
 });
-/* added */
-  /* ================= DATE SORT HANDLER ================= */
 
-const dateSortHeader = document.getElementById("date-sort-header");
-const dateSortIndicator = document.getElementById("date-sort-indicator");
-
-if (dateSortHeader && dateSortIndicator) {
-  dateSortHeader.addEventListener("click", () => {
-    transactionSortAscending = !transactionSortAscending;
-    dateSortIndicator.textContent = transactionSortAscending ? "▲" : "▼";
-    renderTransactionTable(); // ✅ correct function
-  });
-}
   
 /* ================= INIT ================= */
 updateCategoryDropdown();
