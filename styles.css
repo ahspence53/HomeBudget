@@ -206,7 +206,7 @@ table button {
 }
 
 .modal-content {
-  background: # FFFFE0;
+  background: #FFFFE0;
   padding: 16px;
   max-width: 420px;
   width: 90%;
@@ -336,7 +336,7 @@ tr.projection-selected {
 }
 
 .modal-content {
-  background: #fff;
+  background: #ffffe0;
   width: 90%;
   max-width: 900px;
   height: 90%;
