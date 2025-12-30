@@ -307,7 +307,64 @@ addTxButton.onclick = () => {
 };
 
 /* ================= TRANSACTION TABLE ================= */
+function renderTransactionTable() {
+  transactionTableBody.innerHTML = "";
 
+  const sorted = [...transactions].sort(
+    (a,b) => new Date(a.date) - new Date(b.date)
+  );
+
+  sorted.forEach(tx => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+<td>
+  <div class="tx-date-cell">
+    <span class="tx-date-text">${getDisplayedTransactionDate(tx)}</span>
+    <span class="tx-date-icon">
+      ${tx.frequency === "monthly" ? 'ð' : ""}
+      ${tx.frequency === "4-weekly" ? 'ð' : ""}
+    </span>
+  </div>
+</td>
+      <td>${tx.description}</td>
+      <td>${tx.type}</td>
+      <td>${tx.amount.toFixed(2)}</td>
+      <td>${tx.category}</td>
+      <td>
+        <button class="edit-btn">Edit</button>
+        <button class="delete-btn">Delete</button>
+      </td>
+    `;
+
+    tr.querySelector(".edit-btn").onclick = () => {
+      txDesc.value = tx.description;
+      txAmount.value = tx.amount;
+      txType.value = tx.type;
+      txFrequency.value = tx.frequency;
+      txDate.value = tx.date;
+      txCategorySelect.value = tx.category;
+
+      editingIndex = transactions.indexOf(tx);
+      addTxButton.textContent = "Save Changes";
+      window.scrollTo({top:0,behavior:"smooth"});
+    };
+
+    tr.querySelector(".delete-btn").onclick = () => {
+      if (!confirm("Delete this transaction?")) return;
+      transactions.splice(transactions.indexOf(tx),1);
+      saveTransactions();
+      renderTransactionTable();
+      renderProjectionTable();
+    };
+    /* added to make expense red*/
+    if (tx.type === "expense") tr.classList.add("expense-row");
+    if (tx.frequency === "4-weekly") {
+  tr.classList.add("freq-4weekly");
+}
+    transactionTableBody.appendChild(tr);
+  });
+}
 /* ================= RECURRENCE ================= */
 function occursOn(tx, iso) {
   if (!tx.date) return false;
