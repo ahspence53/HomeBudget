@@ -796,12 +796,16 @@ negativeBtn.onclick = () => {
 negativeClose.onclick = () => {
   negativePopup.classList.add("hidden");
   document.body.classList.remove("modal-open");
+  * alex spence */
+  window.scrollTo({top:1500,behavior:"smooth"});
 };
 
 negativePopup.addEventListener("click", e => {
   if (e.target === negativePopup) {
     negativePopup.classList.add("hidden");
     document.body.classList.remove("modal-open");
+    * alex spence */
+  window.scrollTo({top:1500,behavior:"smooth"});
   }
 });
   
