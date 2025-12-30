@@ -921,7 +921,7 @@ salaryPopup.addEventListener("click", e => {
     window.scrollTo({top:1500,behavior:"smooth"});
   }
 });
-  /* ===== */
+  /* ===THIS CODE CAUSED A CRASH IT WAS ADDED FOR DATE SORTING IN TRANSACTION TABLE== */
   /* ================= DATE SORT HANDLER ================= */
 
 /*const dateSortHeader = document.getElementById("date-sort-header");
@@ -991,5 +991,17 @@ updateCategoryDropdown();
 updateEditCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
+
+/* ======= ADDED FOR SORT HANDLING - DATES ========= */
+  const dateSortHeader = document.getElementById("date-sort-header");
+const dateSortIndicator = document.getElementById("date-sort-indicator");
+
+if (dateSortHeader && dateSortIndicator) {
+  dateSortHeader.addEventListener("click", () => {
+    transactionSortAscending = !transactionSortAscending;
+    dateSortIndicator.textContent = transactionSortAscending ? "▲" : "▼";
+    renderTransactionTable();
+  });
+}
 
 });
