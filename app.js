@@ -702,7 +702,97 @@ if (!startDate) {
 
   URL.revokeObjectURL(url);
 };
+/*---negative balances-----*/
+  /* ================= NEGATIVE BALANCES POPUP ================= */
 
+const negativeBtn = document.getElementById("negative-popup-btn");
+const negativePopup = document.getElementById("negative-popup");
+const negativePopupBody = document.getElementById("negative-popup-body");
+const negativeClose = document.getElementById("negative-popup-close");
+
+negativeBtn.onclick = () => {
+  negativePopupBody.innerHTML = "";
+  document.body.classList.add("modal-open");
+
+  if (!startDate) {
+    document.body.classList.remove("modal-open");
+    alert("Start date not set");
+    return;
+  }
+
+  let foundAny = false;
+  let balance = openingBalance;
+
+  const start = new Date(startDate);
+  start.setHours(12, 0, 0, 0);
+
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + 24);
+
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const iso = toISO(d);
+
+    transactions.forEach(tx => {
+      const id = txId(tx);
+      const natural = occursOn(tx, iso);
+      const nudgedAway = nudges[`${id}|${iso}`];
+      const nudgedHere = Object.entries(nudges).some(
+        ([key, target]) => key.startsWith(id + "|") && target === iso
+      );
+
+      if ((natural && !nudgedAway) || (!natural && nudgedHere)) {
+        balance += tx.type === "income" ? tx.amount : -tx.amount;
+      }
+    });
+
+    if (balance < 0) {
+      foundAny = true;
+
+      const tr = document.createElement("tr");
+      tr.classList.add("negative");
+      tr.style.cursor = "pointer";
+
+      tr.innerHTML = `
+        <td class="salary-date">
+          <span class="salary-date-text">${formatDate(iso)}</span>
+          <span class="salary-jump-icon">🔍</span>
+        </td>
+        <td style="text-align:right">
+          <strong>${balance.toFixed(2)}</strong>
+        </td>
+      `;
+
+      tr.onclick = () => {
+        negativePopup.classList.add("hidden");
+        document.body.classList.remove("modal-open");
+        setTimeout(() => jumpToProjectionDate(iso), 200);
+      };
+
+      negativePopupBody.appendChild(tr);
+    }
+  }
+
+  if (!foundAny) {
+    document.body.classList.remove("modal-open");
+    alert("No negative balances in the next 24 months");
+    return;
+  }
+
+  negativePopup.classList.remove("hidden");
+};
+
+negativeClose.onclick = () => {
+  negativePopup.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+};
+
+negativePopup.addEventListener("click", e => {
+  if (e.target === negativePopup) {
+    negativePopup.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  }
+});
+  
   /* salary minus one day*/
 /* ================= SALARY -1 DAY POPUP ================= */
 
