@@ -228,7 +228,7 @@ table button {
 
 /* Styling the Salary popup button */
 #salary-popup-btn {
-  background-color: #FF0000; /* A RED color */
+  background-color: #008000; /* A RED color= #FF0000*/
   color: white;
   padding: 10px 20px;
   border: none;
