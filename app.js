@@ -308,11 +308,32 @@ addTxButton.onclick = () => {
 
 /* ================= TRANSACTION TABLE ================= */
 function renderTransactionTable() {
+
+  /* added */
+function renderTransactionTable() {
+
+  const dateSortHeader = document.getElementById("date-sort-header");
+  const dateSortIndicator = document.getElementById("date-sort-indicator");
+
+  if (dateSortHeader && !dateSortHeader.dataset.bound) {
+    dateSortHeader.dataset.bound = "true";
+    dateSortHeader.onclick = () => {
+      transactionSortAscending = !transactionSortAscending;
+      dateSortIndicator.textContent =
+        transactionSortAscending ? "▲" : "▼";
+      renderTransactionTable();
+    };
+  }
+
   transactionTableBody.innerHTML = "";
 
-  const sorted = [...transactions].sort(
-    (a,b) => new Date(a.date) - new Date(b.date)
-  );
+  /* ---- */
+  transactionTableBody.innerHTML = "";
+
+  const sorted = [...transactions].sort((a, b) => {
+  const diff = new Date(a.date) - new Date(b.date);
+  return transactionSortAscending ? diff : -diff;
+});
 
   sorted.forEach(tx => {
     const tr = document.createElement("tr");
@@ -321,10 +342,9 @@ function renderTransactionTable() {
 <td>
   <div class="tx-date-cell">
     <span class="tx-date-text">${getDisplayedTransactionDate(tx)}</span>
-    /*<span class="tx-date-text">${tx.date}</span>*/
     <span class="tx-date-icon">
-      ${tx.frequency === "monthly" ? 'ð' : ""}
-      ${tx.frequency === "4-weekly" ? 'ð' : ""}
+      ${tx.frequency === "monthly" ? '🔁' : ""}
+      ${tx.frequency === "4-weekly" ? '📆' : ""}
     </span>
   </div>
 </td>
@@ -365,6 +385,17 @@ function renderTransactionTable() {
 }
     transactionTableBody.appendChild(tr);
   });
+}
+/* ======== */
+  const dateSortHeader = document.getElementById("date-sort-header");
+const dateSortIndicator = document.getElementById("date-sort-indicator");
+
+if (dateSortHeader) {
+  dateSortHeader.onclick = () => {
+    transactionSortAscending = !transactionSortAscending;
+    dateSortIndicator.textContent = transactionSortAscending ? "▲" : "▼";
+    renderTransactions();
+  };
 }
 /* ================= RECURRENCE ================= */
 function occursOn(tx, iso) {
@@ -962,22 +993,6 @@ projectionTbody.addEventListener("click", e => {
   // Highlight clicked row
   row.classList.add("projection-selected");
 });
-/* added */
-
-  const dateSortHeader = document.getElementById("date-sort-header");
-const dateSortIndicator = document.getElementById("date-sort-indicator");
-
-if (dateSortHeader && dateSortIndicator) {
-  dateSortHeader.addEventListener("click", () => {
-    transactionSortAscending = !transactionSortAscending;
-    dateSortIndicator.textContent = transactionSortAscending ? "▲" : "▼";
-    renderTransactionTable();
-  });
-}
-
-  
-/*. */
-
 
   
 /* ================= INIT ================= */
