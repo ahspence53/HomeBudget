@@ -45,6 +45,7 @@
   <a href="#overview">Overview</a>
   <a href="#setup">How to set up manually</a>
   <a href="#csv">How to import transactions via CSV</a>
+  <a href="#howdata">How Data is stored</a>
   <a href="#edit">How to edit transactions</a>
   <a href="#delete">How to delete transactions</a>
 </div>
@@ -120,6 +121,24 @@ these <i>days</i> are always accurate</i>
 </pre>
 <p><a href="#top">Return to index</a></p>
 
+<h2 id="howdata">How Data is stored</h2>
+<pre class="oview">
+When you enter a <b>start date</b> and <b>opening balance</b> then either load transactions
+manually or via CSV loader, the data is stored using <b>local storage</b>.
+<b>local storage</b> is a type of web storage that allows a website or web application to 
+store data directly in the user's browser. It acts like a small, private filing cabinet for 
+that specific website on your computer or tablet.
+
+• Persistent: Unlike Session storage ()which disappears when you close the tab), data in local storage 
+stays there even if you close the browser or restart your device.  
+• Domain-Specific: Data saved by website-a.com cannot be read by website-b.com. 
+This ensures privacy and security between different apps.
+• No Expiration: The data remains until the web app deletes it or you manually 
+clear your browser's cache/cookies
+
+
+</pre>
+
 <h2 id="csv">How to import transactions via CSV</h2>
 <pre class="oview">
 Building the system (app) using <b>Import transactions (csv)</b> is the quickest method of creating
@@ -141,7 +160,7 @@ The header row is case sensitive and <b>must</b> be as shown.
 The Income/Expense data is also case sensitive, lower case.
 The frequency is case sensitive and <b>must</b> be as shown.
 
-On the first build of the system, enter start date and opening balance, the click on 
+On the first build of the system, enter start date and opening balance, then click on 
 <b>choose file</b> next to <b>Import transactions CSV </b> then click <b>Import (replace existing)</b>
 The transactions will instantly load. If there are any errors and alert will inform you.
 Simply scroll to see all your transactions.
