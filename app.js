@@ -309,9 +309,10 @@ addTxButton.onclick = () => {
 function renderTransactionTable() {
   transactionTableBody.innerHTML = "";
 
-  const sorted = [...transactions].sort(
-    (a,b) => new Date(a.date) - new Date(b.date)
-  );
+  const sorted = [...transactions].sort((a, b) => {
+  const diff = new Date(a.date) - new Date(b.date);
+  return transactionSortAscending ? diff : -diff;
+});
 
   sorted.forEach(tx => {
     const tr = document.createElement("tr");
