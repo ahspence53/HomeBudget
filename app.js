@@ -332,7 +332,10 @@ function renderTransactionTable() {
   transactionTableBody.innerHTML = "";
 
   const sorted = [...transactions].sort((a, b) => {
-  const diff = new Date(a.date) - new Date(b.date);
+  const dayA = new Date(a.date).getDate();
+  const dayB = new Date(b.date).getDate();
+
+  const diff = dayA - dayB;
   return transactionSortAscending ? diff : -diff;
 });
 
