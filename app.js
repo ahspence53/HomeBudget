@@ -913,7 +913,19 @@ salaryPopup.addEventListener("click", e => {
     document.body.classList.remove("modal-open");
   }
 });
-  
+  /* ===== */
+  /* ================= DATE SORT HANDLER ================= */
+
+const dateSortHeader = document.getElementById("date-sort-header");
+const dateSortIndicator = document.getElementById("date-sort-indicator");
+
+if (dateSortHeader && dateSortIndicator) {
+  dateSortHeader.addEventListener("click", () => {
+    transactionSortAscending = !transactionSortAscending;
+    dateSortIndicator.textContent = transactionSortAscending ? "▲" : "▼";
+    renderTransactionTable();
+  });
+}
 
  /*=====nudge=====*/
   
