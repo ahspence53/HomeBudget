@@ -905,12 +905,16 @@ salaryBtn.onclick = () => {
 salaryClose.onclick = () => {
   salaryPopup.classList.add("hidden");
   document.body.classList.remove("modal-open");
+      /* alex spence */
+  window.scrollTo({top:1500,behavior:"smooth"});
 };
 
 salaryPopup.addEventListener("click", e => {
   if (e.target === salaryPopup) {
     salaryPopup.classList.add("hidden");
     document.body.classList.remove("modal-open");
+    /* alex spence */
+    window.scrollTo({top:1500,behavior:"smooth"});
   }
 });
   /* ===== */
