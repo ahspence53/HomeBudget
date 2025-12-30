@@ -279,6 +279,7 @@ table button {
 
 .floating-top {
   position: fixed;
+  background-color: #3498db;
   bottom: 1rem;
   right: 1rem;
 }
