@@ -196,7 +196,7 @@ table button {
   display: flex;
   align-items: flex-start; /* Changed from center to flex-start */
   justify-content: center;
-  padding-top: 100px;      /* Adjust this number to move it down */
+  padding-top: 80px;      /* Adjust this number to move it down */
   z-index: 2000;
 }
 
