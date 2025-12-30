@@ -307,7 +307,8 @@ addTxButton.onclick = () => {
 };
 
 /* ================= TRANSACTION TABLE ================= */
-function renderTransactionTable() {
+
+  
 
   /* added */
 function renderTransactionTable() {
