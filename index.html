@@ -96,7 +96,18 @@
     
     <button id="salary-popup-btn">Salary -1 day balances</button>
     <button id="negative-popup-btn">Negative balances</button>
+<div id="negative-popup" class="modal hidden">
+  <div class="modal-content">
+    <h3>Negative balances (24 months)</h3>
 
+    <table>
+      <tbody id="negative-popup-body"></tbody>
+    </table>
+
+    <button id="negative-popup-close">Close</button>
+  </div>
+</div>
+    
 <div id="salary-popup" class="modal hidden">
   <div class="modal-content">
     <h3>Balances the day before salary</h3>
