@@ -984,7 +984,19 @@ projectionTbody.addEventListener("click", e => {
   // Highlight clicked row
   row.classList.add("projection-selected");
 });
+/* added */
+  /* ================= DATE SORT HANDLER ================= */
 
+const dateSortHeader = document.getElementById("date-sort-header");
+const dateSortIndicator = document.getElementById("date-sort-indicator");
+
+if (dateSortHeader && dateSortIndicator) {
+  dateSortHeader.addEventListener("click", () => {
+    transactionSortAscending = !transactionSortAscending;
+    dateSortIndicator.textContent = transactionSortAscending ? "▲" : "▼";
+    renderTransactionTable(); // ✅ correct function
+  });
+}
   
 /* ================= INIT ================= */
 updateCategoryDropdown();
