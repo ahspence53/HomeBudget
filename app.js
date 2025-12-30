@@ -394,7 +394,7 @@ if (dateSortHeader) {
   dateSortHeader.onclick = () => {
     transactionSortAscending = !transactionSortAscending;
     dateSortIndicator.textContent = transactionSortAscending ? "▲" : "▼";
-    renderTransactions();
+    renderTransactionstable();
   };
 }
 /* ================= RECURRENCE ================= */
