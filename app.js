@@ -320,8 +320,8 @@ function renderTransactionTable() {
     tr.innerHTML = `
 <td>
   <div class="tx-date-cell">
-    /*<span class="tx-date-text">${getDisplayedTransactionDate(tx)}</span>*/
-    <span class="tx-date-text">${tx.date}</span>
+    <span class="tx-date-text">${getDisplayedTransactionDate(tx)}</span>
+    /*<span class="tx-date-text">${tx.date}</span>*/
     <span class="tx-date-icon">
       ${tx.frequency === "monthly" ? 'ð' : ""}
       ${tx.frequency === "4-weekly" ? 'ð' : ""}
