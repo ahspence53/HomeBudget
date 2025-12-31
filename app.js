@@ -308,63 +308,82 @@ addTxButton.onclick = () => {
 };
 
 /* ================= TRANSACTION TABLE ================= */
+/* ================= TRANSACTION TABLE ================= */
 function renderTransactionTable() {
 
   const dateSortHeader = document.getElementById("date-sort-header");
   const dateSortIndicator = document.getElementById("date-sort-indicator");
+  const categorySortHeader = document.getElementById("category-sort-header");
+  const categorySortIndicator = document.getElementById("category-sort-indicator");
 
+  // ---- Date sort handler (bind once)
   if (dateSortHeader && !dateSortHeader.dataset.bound) {
     dateSortHeader.dataset.bound = "true";
     dateSortHeader.onclick = () => {
+      transactionSortMode = "date";
       transactionSortAscending = !transactionSortAscending;
+
       dateSortIndicator.textContent =
         transactionSortAscending ? "▲" : "▼";
+
+      if (categorySortIndicator) categorySortIndicator.textContent = "";
+      renderTransactionTable();
+    };
+  }
+
+  // ---- Category sort handler (bind once)
+  if (categorySortHeader && !categorySortHeader.dataset.bound) {
+    categorySortHeader.dataset.bound = "true";
+    categorySortHeader.onclick = () => {
+      transactionSortMode = "category";
+      transactionSortAscending = !transactionSortAscending;
+
+      categorySortIndicator.textContent =
+        transactionSortAscending ? "▲" : "▼";
+
+      if (dateSortIndicator) dateSortIndicator.textContent = "";
       renderTransactionTable();
     };
   }
 
   transactionTableBody.innerHTML = "";
 
-  /* ---- */
-  transactionTableBody.innerHTML = "";
-
   const sorted = [...transactions].sort((a, b) => {
 
-  // 🔹 Category sort (primary)
-  if (transactionSortMode === "category") {
+    // 🔹 Category sort (primary)
+    if (transactionSortMode === "category") {
+      const catA = (a.category || "").toLowerCase();
+      const catB = (b.category || "").toLowerCase();
+      const diff = catA.localeCompare(catB);
+      return transactionSortAscending ? diff : -diff;
+    }
+
+    // 🔹 Date sort (day of month), category as secondary
+    const dayA = new Date(a.date).getDate();
+    const dayB = new Date(b.date).getDate();
+
+    if (dayA !== dayB) {
+      return transactionSortAscending ? dayA - dayB : dayB - dayA;
+    }
+
     const catA = (a.category || "").toLowerCase();
     const catB = (b.category || "").toLowerCase();
-
-    const diff = catA.localeCompare(catB);
-    return transactionSortAscending ? diff : -diff;
-  }
-
-  // 🔹 Date sort (day of month), with category as secondary
-  const dayA = new Date(a.date).getDate();
-  const dayB = new Date(b.date).getDate();
-
-  if (dayA !== dayB) {
-    return transactionSortAscending ? dayA - dayB : dayB - dayA;
-  }
-
-  const catA = (a.category || "").toLowerCase();
-  const catB = (b.category || "").toLowerCase();
-  return catA.localeCompare(catB);
-});
+    return catA.localeCompare(catB);
+  });
 
   sorted.forEach(tx => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-<td>
-  <div class="tx-date-cell">
-    <span class="tx-date-text">${getDisplayedTransactionDate(tx)}</span>
-    <span class="tx-date-icon">
-      ${tx.frequency === "monthly" ? '🔁' : ""}
-      ${tx.frequency === "4-weekly" ? '📆' : ""}
-    </span>
-  </div>
-</td>
+      <td>
+        <div class="tx-date-cell">
+          <span class="tx-date-text">${getDisplayedTransactionDate(tx)}</span>
+          <span class="tx-date-icon">
+            ${tx.frequency === "monthly" ? "🔁" : ""}
+            ${tx.frequency === "4-weekly" ? "📆" : ""}
+          </span>
+        </div>
+      </td>
       <td>${tx.description}</td>
       <td>${tx.type}</td>
       <td>${tx.amount.toFixed(2)}</td>
@@ -385,34 +404,22 @@ function renderTransactionTable() {
 
       editingIndex = transactions.indexOf(tx);
       addTxButton.textContent = "Save Changes";
-      window.scrollTo({top:0,behavior:"smooth"});
+      window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     tr.querySelector(".delete-btn").onclick = () => {
       if (!confirm("Delete this transaction?")) return;
-      transactions.splice(transactions.indexOf(tx),1);
+      transactions.splice(transactions.indexOf(tx), 1);
       saveTransactions();
       renderTransactionTable();
       renderProjectionTable();
     };
-    /* added to make expense red*/
+
     if (tx.type === "expense") tr.classList.add("expense-row");
-    if (tx.frequency === "4-weekly") {
-  tr.classList.add("freq-4weekly");
-}
+    if (tx.frequency === "4-weekly") tr.classList.add("freq-4weekly");
+
     transactionTableBody.appendChild(tr);
   });
-}
-/* ======== */
-  const dateSortHeader = document.getElementById("date-sort-header");
-const dateSortIndicator = document.getElementById("date-sort-indicator");
-
-if (dateSortHeader) {
-  dateSortHeader.onclick = () => {
-    transactionSortAscending = !transactionSortAscending;
-    dateSortIndicator.textContent = transactionSortAscending ? "▲" : "▼";
-    renderTransactionstable();
-  };
 }
 /* ================= RECURRENCE ================= */
 function occursOn(tx, iso) {
