@@ -308,10 +308,6 @@ addTxButton.onclick = () => {
 };
 
 /* ================= TRANSACTION TABLE ================= */
-
-  
-
-  /* added */
 function renderTransactionTable() {
 
   const dateSortHeader = document.getElementById("date-sort-header");
