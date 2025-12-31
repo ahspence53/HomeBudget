@@ -416,7 +416,7 @@ function renderTransactionTable() {
     };*/
     tr.querySelector(".delete-btn").onclick = () => {
   // Use backticks (`) and ${} to insert the name
-  const message = `Are you sure you want to delete the transaction: "${tx.name}"?`;
+  const message = `Are you sure you want to delete the transaction: "${editingIndex}"?`;
 
   if (!confirm(message)) return;
 
