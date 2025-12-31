@@ -10,6 +10,7 @@ let editingIndex = null;
 let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
 let scrollBeforeHelp = 0;
 let transactionSortAscending = true;
+  let transactionSortMode = "date"; // "date" or "category"
   
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
