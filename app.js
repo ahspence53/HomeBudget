@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+idocument.addEventListener("DOMContentLoaded", () => {
 
   
 /* ================= STORAGE ================= */
@@ -334,6 +334,18 @@ function renderTransactionTable() {
   const sorted = [...transactions].sort((a, b) => {
   const dayA = new Date(a.date).getDate();
   const dayB = new Date(b.date).getDate();
+
+  // 1️⃣ Primary: day of month
+  if (dayA !== dayB) {
+    return transactionSortAscending ? dayA - dayB : dayB - dayA;
+  }
+
+  // 2️⃣ Secondary: category (A → Z)
+  const catA = (a.category || "").toLowerCase();
+  const catB = (b.category || "").toLowerCase();
+
+  return catA.localeCompare(catB);
+});
 
   const diff = dayA - dayB;
   return transactionSortAscending ? diff : -diff;
