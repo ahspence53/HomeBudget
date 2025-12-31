@@ -308,62 +308,37 @@ addTxButton.onclick = () => {
 
 /* ================= TRANSACTION TABLE ================= */
 
-  
-
-  /* added */
 function renderTransactionTable() {
-
-  const dateSortHeader = document.getElementById("date-sort-header");
-  const dateSortIndicator = document.getElementById("date-sort-indicator");
-
-  if (dateSortHeader && !dateSortHeader.dataset.bound) {
-    dateSortHeader.dataset.bound = "true";
-    dateSortHeader.onclick = () => {
-      transactionSortAscending = !transactionSortAscending;
-      dateSortIndicator.textContent =
-        transactionSortAscending ? "▲" : "▼";
-      renderTransactionTable();
-    };
-  }
-
-  transactionTableBody.innerHTML = "";
-
-  /* ---- */
   transactionTableBody.innerHTML = "";
 
   const sorted = [...transactions].sort((a, b) => {
-  const dayA = new Date(a.date).getDate();
-  const dayB = new Date(b.date).getDate();
+    const dayA = new Date(a.date).getDate();
+    const dayB = new Date(b.date).getDate();
 
-  // 1️⃣ Primary: day of month
-  if (dayA !== dayB) {
-    return transactionSortAscending ? dayA - dayB : dayB - dayA;
-  }
+    // Primary: day of month
+    if (dayA !== dayB) {
+      return transactionSortAscending ? dayA - dayB : dayB - dayA;
+    }
 
-  // 2️⃣ Secondary: category (A → Z)
-  const catA = (a.category || "").toLowerCase();
-  const catB = (b.category || "").toLowerCase();
-
-  return catA.localeCompare(catB);
-});
-
-  const diff = dayA - dayB;
-  return transactionSortAscending ? diff : -diff;
-});
+    // Secondary: category A–Z
+    const catA = (a.category || "").toLowerCase();
+    const catB = (b.category || "").toLowerCase();
+    return catA.localeCompare(catB);
+  });
 
   sorted.forEach(tx => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-<td>
-  <div class="tx-date-cell">
-    <span class="tx-date-text">${getDisplayedTransactionDate(tx)}</span>
-    <span class="tx-date-icon">
-      ${tx.frequency === "monthly" ? '🔁' : ""}
-      ${tx.frequency === "4-weekly" ? '📆' : ""}
-    </span>
-  </div>
-</td>
+      <td>
+        <div class="tx-date-cell">
+          <span class="tx-date-text">${getDisplayedTransactionDate(tx)}</span>
+          <span class="tx-date-icon">
+            ${tx.frequency === "monthly" ? "🔁" : ""}
+            ${tx.frequency === "4-weekly" ? "📆" : ""}
+          </span>
+        </div>
+      </td>
       <td>${tx.description}</td>
       <td>${tx.type}</td>
       <td>${tx.amount.toFixed(2)}</td>
@@ -384,34 +359,22 @@ function renderTransactionTable() {
 
       editingIndex = transactions.indexOf(tx);
       addTxButton.textContent = "Save Changes";
-      window.scrollTo({top:0,behavior:"smooth"});
+      window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     tr.querySelector(".delete-btn").onclick = () => {
       if (!confirm("Delete this transaction?")) return;
-      transactions.splice(transactions.indexOf(tx),1);
+      transactions.splice(transactions.indexOf(tx), 1);
       saveTransactions();
       renderTransactionTable();
       renderProjectionTable();
     };
-    /* added to make expense red*/
+
     if (tx.type === "expense") tr.classList.add("expense-row");
-    if (tx.frequency === "4-weekly") {
-  tr.classList.add("freq-4weekly");
-}
+    if (tx.frequency === "4-weekly") tr.classList.add("freq-4weekly");
+
     transactionTableBody.appendChild(tr);
   });
-}
-/* ======== */
-  const dateSortHeader = document.getElementById("date-sort-header");
-const dateSortIndicator = document.getElementById("date-sort-indicator");
-
-if (dateSortHeader) {
-  dateSortHeader.onclick = () => {
-    transactionSortAscending = !transactionSortAscending;
-    dateSortIndicator.textContent = transactionSortAscending ? "▲" : "▼";
-    renderTransactionstable();
-  };
 }
 /* ================= RECURRENCE ================= */
 function occursOn(tx, iso) {
