@@ -408,12 +408,13 @@ function renderTransactionTable() {
     };
 
     tr.querySelector(".delete-btn").onclick = () => {
-      if (!confirm("Delete this transaction?")) return;
-      transactions.splice(transactions.indexOf(tx), 1);
-      saveTransactions();
-      renderTransactionTable();
-      renderProjectionTable();
-    };
+  if (!confirm(`Delete this transaction:\n"${tx.description}"?`)) return;
+
+  transactions.splice(transactions.indexOf(tx), 1);
+  saveTransactions();
+  renderTransactionTable();
+  renderProjectionTable();
+};
 
     if (tx.type === "expense") tr.classList.add("expense-row");
     if (tx.frequency === "4-weekly") tr.classList.add("freq-4weekly");
