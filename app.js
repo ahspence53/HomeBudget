@@ -333,18 +333,26 @@ function renderTransactionTable() {
   transactionTableBody.innerHTML = "";
 
   const sorted = [...transactions].sort((a, b) => {
+
+  // 🔹 Category sort (primary)
+  if (transactionSortMode === "category") {
+    const catA = (a.category || "").toLowerCase();
+    const catB = (b.category || "").toLowerCase();
+
+    const diff = catA.localeCompare(catB);
+    return transactionSortAscending ? diff : -diff;
+  }
+
+  // 🔹 Date sort (day of month), with category as secondary
   const dayA = new Date(a.date).getDate();
   const dayB = new Date(b.date).getDate();
 
-  // Primary: day of month
   if (dayA !== dayB) {
     return transactionSortAscending ? dayA - dayB : dayB - dayA;
   }
 
-  // Secondary: category (A–Z)
   const catA = (a.category || "").toLowerCase();
   const catB = (b.category || "").toLowerCase();
-
   return catA.localeCompare(catB);
 });
 
