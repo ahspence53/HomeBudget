@@ -335,8 +335,16 @@ function renderTransactionTable() {
   const dayA = new Date(a.date).getDate();
   const dayB = new Date(b.date).getDate();
 
-  const diff = dayA - dayB;
-  return transactionSortAscending ? diff : -diff;
+  // Primary: day of month
+  if (dayA !== dayB) {
+    return transactionSortAscending ? dayA - dayB : dayB - dayA;
+  }
+
+  // Secondary: category (A–Z)
+  const catA = (a.category || "").toLowerCase();
+  const catB = (b.category || "").toLowerCase();
+
+  return catA.localeCompare(catB);
 });
 
   sorted.forEach(tx => {
