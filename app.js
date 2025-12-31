@@ -406,14 +406,25 @@ function renderTransactionTable() {
       addTxButton.textContent = "Save Changes";
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
-
+/*
     tr.querySelector(".delete-btn").onclick = () => {
       if (!confirm("Delete this transaction?")) return;
       transactions.splice(transactions.indexOf(tx), 1);
       saveTransactions();
       renderTransactionTable();
       renderProjectionTable();
-    };
+    };*/
+    tr.querySelector(".delete-btn").onclick = () => {
+  // Use backticks (`) and ${} to insert the name
+  const message = `Are you sure you want to delete the transaction: "${tx.name}"?`;
+
+  if (!confirm(message)) return;
+
+  transactions.splice(transactions.indexOf(tx), 1);
+  saveTransactions();
+  renderTransactionTable();
+  renderProjectionTable();
+};
 
     if (tx.type === "expense") tr.classList.add("expense-row");
     if (tx.frequency === "4-weekly") tr.classList.add("freq-4weekly");
