@@ -345,31 +345,59 @@ function renderTransactionTable() {
       renderTransactionTable();
     };
   }
+const descriptionSortHeader =
+  document.getElementById("description-sort-header");
+const descriptionSortIndicator =
+  document.getElementById("description-sort-indicator");
 
+// ---- Description sort handler (bind once)
+if (descriptionSortHeader && !descriptionSortHeader.dataset.bound) {
+  descriptionSortHeader.dataset.bound = "true";
+  descriptionSortHeader.onclick = () => {
+    transactionSortMode = "description";
+    transactionSortAscending = !transactionSortAscending;
+
+    descriptionSortIndicator.textContent =
+      transactionSortAscending ? "▲" : "▼";
+
+    if (dateSortIndicator) dateSortIndicator.textContent = "";
+    if (categorySortIndicator) categorySortIndicator.textContent = "";
+
+    renderTransactionTable();
+  };
+}
   transactionTableBody.innerHTML = "";
 
   const sorted = [...transactions].sort((a, b) => {
 
-    // 🔹 Category sort (primary)
-    if (transactionSortMode === "category") {
-      const catA = (a.category || "").toLowerCase();
-      const catB = (b.category || "").toLowerCase();
-      const diff = catA.localeCompare(catB);
-      return transactionSortAscending ? diff : -diff;
-    }
+  // 🔹 Description sort (primary)
+  if (transactionSortMode === "description") {
+    const dA = (a.description || "").toLowerCase();
+    const dB = (b.description || "").toLowerCase();
+    const diff = dA.localeCompare(dB);
+    return transactionSortAscending ? diff : -diff;
+  }
 
-    // 🔹 Date sort (day of month), category as secondary
-    const dayA = new Date(a.date).getDate();
-    const dayB = new Date(b.date).getDate();
+  // 🔹 Category sort (primary)
+  if (transactionSortMode === "category") {
+    const cA = (a.category || "").toLowerCase();
+    const cB = (b.category || "").toLowerCase();
+    const diff = cA.localeCompare(cB);
+    return transactionSortAscending ? diff : -diff;
+  }
 
-    if (dayA !== dayB) {
-      return transactionSortAscending ? dayA - dayB : dayB - dayA;
-    }
+  // 🔹 Date sort (day of month), category as secondary
+  const dayA = new Date(a.date).getDate();
+  const dayB = new Date(b.date).getDate();
 
-    const catA = (a.category || "").toLowerCase();
-    const catB = (b.category || "").toLowerCase();
-    return catA.localeCompare(catB);
-  });
+  if (dayA !== dayB) {
+    return transactionSortAscending ? dayA - dayB : dayB - dayA;
+  }
+
+  const cA = (a.category || "").toLowerCase();
+  const cB = (b.category || "").toLowerCase();
+  return cA.localeCompare(cB);
+});
 
   sorted.forEach(tx => {
     const tr = document.createElement("tr");
