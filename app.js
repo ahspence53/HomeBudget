@@ -105,6 +105,83 @@ function openDiaryDB() {
 };
   
 /* ================= UTILS ================= */
+
+/* ======== `indexdb code =======*/
+/* ================= DIARY NOTES (IndexedDB) ================= */
+
+// Assumes `db` is your opened IndexedDB instance
+
+function addDiaryNote(isoDate, noteText) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("diaryNotes", "readwrite");
+    const store = tx.objectStore("diaryNotes");
+
+    const record = {
+      isoDate,
+      noteText,
+      createdAt: Date.now()
+    };
+
+    const request = store.add(record);
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+  function getDiaryNotesForDate(isoDate) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("diaryNotes", "readonly");
+    const store = tx.objectStore("diaryNotes");
+    const index = store.index("isoDate");
+
+    const request = index.getAll(isoDate);
+
+    request.onsuccess = () => {
+      const results = request.result || [];
+      results.sort((a, b) => a.createdAt - b.createdAt);
+      resolve(results);
+    };
+
+    request.onerror = () => reject(request.error);
+  });
+}
+
+
+  function searchDiaryNotes(searchTerm) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("diaryNotes", "readonly");
+    const store = tx.objectStore("diaryNotes");
+
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      const term = searchTerm.toLowerCase();
+
+      const matches = request.result.filter(note =>
+        note.noteText.toLowerCase().includes(term)
+      );
+
+      resolve(matches);
+    };
+
+    request.onerror = () => reject(request.error);
+  });
+}
+
+  function deleteDiaryNote(noteId) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("diaryNotes", "readwrite");
+    const store = tx.objectStore("diaryNotes");
+
+    const request = store.delete(noteId);
+
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+  
+/*========*/
 function txId(tx) {
   return `${tx.date}|${tx.frequency}|${tx.description}|${tx.amount}|${tx.type}`;
 }
