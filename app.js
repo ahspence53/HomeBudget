@@ -628,17 +628,20 @@ function isNudgedHere(tx, iso) {
 
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
+
   if (!startDate) {
-  document.body.classList.remove("modal-open");
-  alert("Start date not set");
-  return;
-}
+    document.body.classList.remove("modal-open");
+    alert("Start date not set");
+    return;
+  }
 
   let balance = openingBalance;
 
   const start = new Date(startDate);
   start.setHours(12, 0, 0, 0);
-const todayIso = toISO(new Date());
+
+  const todayIso = toISO(new Date());
+
   const end = new Date(start);
   end.setMonth(end.getMonth() + 24);
 
@@ -657,25 +660,25 @@ const todayIso = toISO(new Date());
       const id = txId(tx);
       const nudgeKeyForDay = `${id}|${iso}`;
 
-      // If nudged, move it
       if (nudges[nudgeKeyForDay]) {
         const targetIso = nudges[nudgeKeyForDay];
         if (dayMap[targetIso]) {
           dayMap[targetIso].push(tx);
         }
       } else {
-        // Not nudged → stays on natural day
         dayMap[iso].push(tx);
       }
     }
   });
 
-  // Now render day by day
+  // Render day by day
   Object.keys(dayMap).forEach(iso => {
     const todaysTx = dayMap[iso];
 
+    // ----- EMPTY DAY -----
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
+
       if (iso === todayIso) tr.classList.add("today-row");
       if ([0, 6].includes(new Date(iso).getDay())) {
         tr.classList.add("weekend-row");
@@ -683,11 +686,14 @@ const todayIso = toISO(new Date());
 
       tr.innerHTML = `
         <td data-iso="${iso}" class="projection-date-cell">
-  ${index === 0 ? formatDate(iso) : ""}
-</td>
-        <td></td><td></td><td></td>
+          ${formatDate(iso)}
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
         <td><strong>${balance.toFixed(2)}</strong></td>
       `;
+
       projectionTbody.appendChild(tr);
       return;
     }
@@ -702,22 +708,26 @@ const todayIso = toISO(new Date());
       balance += isIncome ? tx.amount : -tx.amount;
 
       const tr = document.createElement("tr");
-      if (iso === todayIso) tr.classList.add("today-row");
 
+      if (iso === todayIso) tr.classList.add("today-row");
       if ([0, 6].includes(new Date(iso).getDay())) {
         tr.classList.add("weekend-row");
       }
       if (balance < 0) tr.classList.add("negative");
 
       const today = new Date(toISO(new Date()));
-const diffDays = Math.round((new Date(iso) - today) / 86400000);
+      const diffDays = Math.round(
+        (new Date(iso) - today) / 86400000
+      );
 
-const showNudge =
-  (diffDays >= 0 && diffDays <= 7) ||           // future nudging (unchanged)
-  (diffDays < 0 && diffDays >= -MAX_PAST_NUDGE_DAYS); // limited past nudging
+      const showNudge =
+        (diffDays >= 0 && diffDays <= 7) ||
+        (diffDays < 0 && diffDays >= -MAX_PAST_NUDGE_DAYS);
 
       tr.innerHTML = `
-        <td>${index === 0 ? formatDate(iso) : ""}</td>
+        <td data-iso="${iso}" class="projection-date-cell">
+          ${index === 0 ? formatDate(iso) : ""}
+        </td>
         <td>
           <div class="projection-item ${tx.type}">
             <span class="desc">${tx.description}</span>
@@ -731,9 +741,10 @@ const showNudge =
         </td>
         <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
         <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
-        <td>${index === todaysTx.length - 1
-          ? `<strong>${balance.toFixed(2)}</strong>`
-          : balance.toFixed(2)
+        <td>${
+          index === todaysTx.length - 1
+            ? `<strong>${balance.toFixed(2)}</strong>`
+            : balance.toFixed(2)
         }</td>
       `;
 
@@ -742,24 +753,24 @@ const showNudge =
   });
 
   // ---- Diary indicators (non-blocking)
-setTimeout(async () => {
-  const cells = document.querySelectorAll(".projection-date-cell");
+  setTimeout(async () => {
+    const cells = document.querySelectorAll(".projection-date-cell");
 
-  for (const cell of cells) {
-    const iso = cell.dataset.iso;
-    if (!iso || cell.dataset.checked) continue;
+    for (const cell of cells) {
+      const iso = cell.dataset.iso;
+      if (!iso || cell.dataset.checked) continue;
 
-    cell.dataset.checked = "true";
+      cell.dataset.checked = "true";
 
-    if (await hasDiaryNoteForDate(iso)) {
-      const icon = document.createElement("span");
-      icon.textContent = " 📝";
-      icon.title = "Diary note exists";
-      icon.style.cursor = "default";
-      cell.appendChild(icon);
+      if (await hasDiaryNoteForDate(iso)) {
+        const icon = document.createElement("span");
+        icon.textContent = " 📝";
+        icon.title = "Diary note exists";
+        icon.style.cursor = "default";
+        cell.appendChild(icon);
+      }
     }
-  }
-}, 0);
+  }, 0);
 }
   
 /* ================= STICKY FIND ================= */
