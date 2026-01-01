@@ -515,7 +515,7 @@ function renderProjectionTable() {
 
   const start = new Date(startDate);
   start.setHours(12, 0, 0, 0);
-
+const todayIso = toISO(new Date());
   const end = new Date(start);
   end.setMonth(end.getMonth() + 24);
 
@@ -553,6 +553,7 @@ function renderProjectionTable() {
 
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
+      if (iso === todayIso) tr.classList.add("today-row");
       if ([0, 6].includes(new Date(iso).getDay())) {
         tr.classList.add("weekend-row");
       }
@@ -576,6 +577,7 @@ function renderProjectionTable() {
       balance += isIncome ? tx.amount : -tx.amount;
 
       const tr = document.createElement("tr");
+      if (iso === todayIso) tr.classList.add("today-row");
 
       if ([0, 6].includes(new Date(iso).getDay())) {
         tr.classList.add("weekend-row");
