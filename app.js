@@ -613,7 +613,16 @@ function isNudgedHere(tx, iso) {
       k.startsWith(txId(tx) + "|") && nudges[k] === iso
     );
 }
-  
+/* =======diary code. =========*/
+  async function hasDiaryNoteForDate(iso) {
+  try {
+    const notes = await getDiaryNotesForDate(iso);
+    return Array.isArray(notes) && notes.length > 0;
+  } catch (e) {
+    console.warn("Diary lookup failed for", iso, e);
+    return false;
+  }
+}
 /* projection*/
 /* ================= PROJECTION ================= */
 
@@ -673,7 +682,9 @@ const todayIso = toISO(new Date());
       }
 
       tr.innerHTML = `
-        <td>${formatDate(iso)}</td>
+        <td data-iso="${iso}" class="projection-date-cell">
+  ${index === 0 ? formatDate(iso) : ""}
+</td>
         <td></td><td></td><td></td>
         <td><strong>${balance.toFixed(2)}</strong></td>
       `;
@@ -729,6 +740,26 @@ const showNudge =
       projectionTbody.appendChild(tr);
     });
   });
+
+  // ---- Diary indicators (non-blocking)
+setTimeout(async () => {
+  const cells = document.querySelectorAll(".projection-date-cell");
+
+  for (const cell of cells) {
+    const iso = cell.dataset.iso;
+    if (!iso || cell.dataset.checked) continue;
+
+    cell.dataset.checked = "true";
+
+    if (await hasDiaryNoteForDate(iso)) {
+      const icon = document.createElement("span");
+      icon.textContent = " 📝";
+      icon.title = "Diary note exists";
+      icon.style.cursor = "default";
+      cell.appendChild(icon);
+    }
+  }
+}, 0);
 }
   
 /* ================= STICKY FIND ================= */
