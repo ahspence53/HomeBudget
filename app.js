@@ -104,7 +104,6 @@ function openDiaryDB() {
   alert(`Category "${oldName}" renamed to "${newName}"`);
 };
   
-/* ================= UTILS ================= */
 
 /* ======== `indexdb code =======*/
 /* ================= DIARY NOTES (IndexedDB) ================= */
@@ -180,7 +179,8 @@ function addDiaryNote(isoDate, noteText) {
     request.onerror = () => reject(request.error);
   });
 }
-  
+  /* ================= UTILS ================= */
+
 /*========*/
 function txId(tx) {
   return `${tx.date}|${tx.frequency}|${tx.description}|${tx.amount}|${tx.type}`;
