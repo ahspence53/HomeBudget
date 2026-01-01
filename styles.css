@@ -415,8 +415,7 @@ tr.freq-4weekly {
 }
 
 #View {
-  display: flex;
-  justify-content: flex-end; /* This pushes the content to the right */
-  padding: 20px; /* Optional: adds some breathing room from the edge */
+  position: absolute;
+  right: 20px;
+  top: 20px;
 }
-
