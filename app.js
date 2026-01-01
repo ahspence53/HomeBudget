@@ -1162,7 +1162,13 @@ projectionTbody.addEventListener("click", e => {
   // Highlight clicked row
   row.classList.add("projection-selected");
 });
-
+/* debug code */
+  /* ===== DEBUG: expose diary helpers ===== */
+window.__diaryTest = {
+  addDiaryNote,
+  getDiaryNotesForDate,
+  searchDiaryNotes
+};
   
 /* ================= INIT ================= */
 updateCategoryDropdown();
