@@ -408,3 +408,8 @@ tr.freq-4weekly {
 .freq-4weekly td {
   font-style: italic;
 }
+
+.today-row {
+  background-color: #fff7d6;
+  border-left: 4px solid #f4b400;
+}
