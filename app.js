@@ -1205,7 +1205,39 @@ projectionTbody.addEventListener("click", e => {
   // Highlight clicked row
   row.classList.add("projection-selected");
 });
+const diaryPopup = document.getElementById("diary-popup");
+const diaryText = document.getElementById("diary-text");
+const diaryTitle = document.getElementById("diary-title");
+const diarySaveBtn = document.getElementById("diary-save-btn");
+const diaryCloseBtn = document.getElementById("diary-close-btn");
 
+let activeDiaryDate = null;
+
+async function openDiaryForDate(iso) {
+  activeDiaryDate = iso;
+  diaryTitle.textContent = `Diary – ${formatDate(iso)}`;
+
+  const notes = await getDiaryNotesForDate(iso);
+  diaryText.value = notes.length ? notes.map(n => n.text).join("\n\n") : "";
+
+  diaryPopup.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+
+diarySaveBtn.onclick = async () => {
+  if (!activeDiaryDate) return;
+
+  await saveDiaryNote(activeDiaryDate, diaryText.value.trim());
+  diaryPopup.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+
+  renderProjectionTable(); // refresh 📝 icons
+};
+
+diaryCloseBtn.onclick = () => {
+  diaryPopup.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+};
   
 /* ================= INIT ================= */
 updateCategoryDropdown();
