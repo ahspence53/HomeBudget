@@ -35,7 +35,44 @@ const editCategorySelect = document.getElementById("edit-category-select");
 const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
 const MAX_PAST_NUDGE_DAYS = 7;
-  
+  /* ========= IndexDb code ====== */
+  /* ================= DIARY DATABASE (IndexedDB) ================= */
+
+const DIARY_DB_NAME = "budgetAppDB";
+const DIARY_DB_VERSION = 1;
+const DIARY_STORE = "diaryEntries";
+
+let diaryDB = null;
+
+function openDiaryDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DIARY_DB_NAME, DIARY_DB_VERSION);
+
+    request.onerror = () => {
+      console.error("Failed to open diary database");
+      reject(request.error);
+    };
+
+    request.onupgradeneeded = event => {
+      const db = event.target.result;
+
+      if (!db.objectStoreNames.contains(DIARY_STORE)) {
+        const store = db.createObjectStore(DIARY_STORE, {
+          keyPath: "id"
+        });
+
+        store.createIndex("entryDate", "entryDate", { unique: false });
+        store.createIndex("isDeleted", "isDeleted", { unique: false });
+      }
+    };
+
+    request.onsuccess = () => {
+      diaryDB = request.result;
+      resolve(diaryDB);
+    };
+  });
+}
+  /* ======================*/
 /* added edit category code*/
   renameCategoryButton.onclick = () => {
   const oldName = editCategorySelect.value;
