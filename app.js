@@ -766,7 +766,8 @@ function renderProjectionTable() {
         const icon = document.createElement("span");
         icon.textContent = " 📝";
         icon.title = "Diary note exists";
-        icon.style.cursor = "default";
+        icon.style.cursor = "pointer";
+icon.onclick = () => openDiaryForDate(iso);
         cell.appendChild(icon);
       }
     }
