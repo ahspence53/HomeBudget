@@ -1169,6 +1169,13 @@ window.__diaryTest = {
   getDiaryNotesForDate,
   searchDiaryNotes
 };
+
+  await window.__diaryTest.addDiaryNote(
+  "2026-01-05",
+  "TEST: bank holiday DD delay"
+);
+
+await window.__diaryTest.getDiaryNotesForDate("2026-01-05");
   
 /* ================= INIT ================= */
 updateCategoryDropdown();
