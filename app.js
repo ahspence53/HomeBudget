@@ -1162,20 +1162,7 @@ projectionTbody.addEventListener("click", e => {
   // Highlight clicked row
   row.classList.add("projection-selected");
 });
-/* debug code */
-  /* ===== DEBUG: expose diary helpers ===== */
-window.__diaryTest = {
-  addDiaryNote,
-  getDiaryNotesForDate,
-  searchDiaryNotes
-};
 
-  await window.__diaryTest.addDiaryNote(
-  "2026-01-05",
-  "TEST: bank holiday DD delay"
-);
-
-await window.__diaryTest.getDiaryNotesForDate("2026-01-05");
   
 /* ================= INIT ================= */
 updateCategoryDropdown();
