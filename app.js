@@ -36,40 +36,10 @@ const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
 const MAX_PAST_NUDGE_DAYS = 7;
 /* ================= DIARY DATABASE (IndexedDB) ================= */
-const DIARY_DB_NAME = "budgetAppDB";
-const DIARY_DB_VERSION = 1;
+
+
+
  
-let diaryDB = null;
-
-
-  function opendiaryDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DIARY_DB_NAME, DIARY_DB_VERSION);
-
-    request.onerror = () => {
-      console.error("Failed to open diary database");
-      reject(request.error);
-    };
-
-    request.onupgradeneeded = event => {
-      const db = event.target.result;
-
-      if (!db.objectStoreNames.contains(DIARY_STORE)) {
-        const store = db.createObjectStore(DIARY_STORE, {
-          keyPath: "id"
-        });
-
-        store.createIndex("entryDate", "entryDate", { unique: false });
-        store.createIndex("isDeleted", "isDeleted", { unique: false });
-      }
-    };
-
-    request.onsuccess = () => {
-      diaryDB = request.result;
-      resolve(diaryDB);
-    };
-  });
-}
 /* ============================================== */
 /* added edit category code*/
   renameCategoryButton.onclick = () => {
@@ -105,74 +75,11 @@ let diaryDB = null;
 
 // Assumes `diaryDB' is your opened IndexedDB instance
 
-function addDiaryNote(isoDate, noteText) {
-  return new Promise((resolve, reject) => {
-    const tx = diaryDB.transaction("diaryNotes", "readwrite");
-    const store = tx.objectStore("diaryNotes");
 
-    const record = {
-      isoDate,
-      noteText,
-      createdAt: Date.now()
-    };
-
-    const request = store.add(record);
-
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
 /* =================================================== */
-  function getDiaryNotesForDate(isoDate) {
-  return new Promise((resolve, reject) => {
-    const tx = diaryDB.transaction("diaryNotes", "readonly");
-    const store = tx.objectStore("diaryNotes");
-    const index = store.index("isoDate");
+  
 
-    const request = index.getAll(isoDate);
 
-    request.onsuccess = () => {
-      const results = request.result || [];
-      results.sort((a, b) => a.createdAt - b.createdAt);
-      resolve(results);
-    };
-
-    request.onerror = () => reject(request.error);
-  });
-}
-/* =================================================== */
-  function searchDiaryNotes(searchTerm) {
-  return new Promise((resolve, reject) => {
-    const tx = diaryDB.transaction("diaryNotes", "readonly");
-    const store = tx.objectStore("diaryNotes");
-
-    const request = store.getAll();
-
-    request.onsuccess = () => {
-      const term = searchTerm.toLowerCase();
-
-      const matches = request.result.filter(note =>
-        note.noteText.toLowerCase().includes(term)
-      );
-
-      resolve(matches);
-    };
-
-    request.onerror = () => reject(request.error);
-  });
-}
-/* =================================================== */
-  function deleteDiaryNote(noteId) {
-  return new Promise((resolve, reject) => {
-    const tx = diaryDB.transaction("diaryNotes", "readwrite");
-    const store = tx.objectStore("diaryNotes");
-
-    const request = store.delete(noteId);
-
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
-}
 /* ================= UTILS ================= */
 function txId(tx) {
   return `${tx.date}|${tx.frequency}|${tx.description}|${tx.amount}|${tx.type}`;
@@ -1179,8 +1086,131 @@ updateEditCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
 
-openDiaryDB();      // fire-and-forget
-initDiaryModal();
-initDiaryLauncher();
+/* ====================== CLEAN DIARY FEATURE ====================== */
+const DIARY_DB_NAME = "budgetDiaryDB";
+const DIARY_DB_VERSION = 1;
+const DIARY_STORE = "diaryNotes";
+
+let diaryDB = null;
+let activeDiaryDate = null;
+
+// Open IndexedDB
+async function openDiaryDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DIARY_DB_NAME, DIARY_DB_VERSION);
+
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(DIARY_STORE)) {
+        const store = db.createObjectStore(DIARY_STORE, { keyPath: "id", autoIncrement: true });
+        store.createIndex("isoDate", "isoDate", { unique: false });
+      }
+    };
+
+    request.onsuccess = (e) => {
+      diaryDB = e.target.result;
+      resolve(diaryDB);
+    };
+
+    request.onerror = (e) => {
+      console.error("Failed to open diary DB", e);
+      resolve(null); // allow app to continue
+    };
+  });
+}
+
+// Add a note
+function addDiaryNote(isoDate, text) {
+  return new Promise((resolve, reject) => {
+    if (!diaryDB) return resolve();
+    const tx = diaryDB.transaction(DIARY_STORE, "readwrite");
+    const store = tx.objectStore(DIARY_STORE);
+    const request = store.add({ isoDate, text, createdAt: Date.now() });
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+// Get all notes for a date
+function getDiaryNotesForDate(isoDate) {
+  return new Promise((resolve, reject) => {
+    if (!diaryDB) return resolve([]);
+    const tx = diaryDB.transaction(DIARY_STORE, "readonly");
+    const store = tx.objectStore(DIARY_STORE);
+    const index = store.index("isoDate");
+    const req = index.getAll(isoDate);
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/* ================= Diary Modal & Launcher ================== */
+let diaryModal, diaryModalTitle, diaryNotesList, diaryInput, diarySaveBtn, diaryCloseBtn;
+function initDiaryModal() {
+  diaryModal = document.getElementById("diary-modal");
+  diaryModalTitle = document.getElementById("diary-modal-title");
+  diaryNotesList = document.getElementById("diary-notes-list");
+  diaryInput = document.getElementById("diary-note-input");
+  diarySaveBtn = document.getElementById("diary-save-btn");
+  diaryCloseBtn = document.getElementById("diary-close-btn");
+
+  if (!diaryModal) return console.warn("Diary modal elements missing");
+
+  diaryCloseBtn.onclick = () => {
+    diaryModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  };
+
+  diarySaveBtn.onclick = async () => {
+    const text = diaryInput.value.trim();
+    if (!text || !activeDiaryDate) return;
+    await addDiaryNote(activeDiaryDate, text);
+    diaryInput.value = "";
+    diaryModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  };
+}
+
+function initDiaryLauncher() {
+  const diaryBtn = document.getElementById("open-diary-btn");
+  const datePicker = document.getElementById("diary-date-picker");
+  if (!diaryBtn || !datePicker) return;
+
+  datePicker.value = toISO(new Date());
+
+  diaryBtn.onclick = () => {
+    datePicker.classList.toggle("hidden");
+    datePicker.focus();
+  };
+
+  datePicker.onchange = async () => {
+    const iso = datePicker.value;
+    if (!iso) return;
+    activeDiaryDate = iso;
+    datePicker.classList.add("hidden");
+
+    // populate modal
+    diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
+    diaryInput.value = "";
+    diaryNotesList.innerHTML = "";
+
+    const notes = await getDiaryNotesForDate(iso);
+    notes.forEach(n => {
+      const li = document.createElement("li");
+      li.textContent = n.text;
+      diaryNotesList.appendChild(li);
+    });
+
+    diaryModal.classList.remove("hidden");
+    document.body.classList.add("modal-open");
+  };
+}
+
+// Fire up Diary
+openDiaryDB().then(() => {
+  initDiaryModal();
+  initDiaryLauncher();
+});
+
 
 });
