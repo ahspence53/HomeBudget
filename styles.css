@@ -42,15 +42,10 @@ tr {
 .projection-selected {
   background-color: #e8f0ff;
 }
-/*.projection-match-highlight {
+
+.projection-match-highlight {
   background-color: yellow !important;
-}*/
-
-/* This applies a 50% blend of yellow over the existing weekend color */
-#projection-table tr.weekend-row.projection-match-highlight {
-  background: linear-gradient(0deg, rgba(255, 255, 0, 0.7), rgba(255, 255, 0, 0.7)), #b1c4b5;
 }
-
 
 .frequency-legend {
     display: flex;
