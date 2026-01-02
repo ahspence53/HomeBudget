@@ -11,6 +11,7 @@ let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
 let scrollBeforeHelp = 0;
 let transactionSortAscending = true;
   let transactionSortMode = "date"; // "date" or "category"
+  let activeDiaryDate = null;
   
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
