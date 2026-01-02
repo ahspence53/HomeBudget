@@ -820,6 +820,11 @@ document.getElementById("back-to-top").onclick = () =>
 /* ============== VIEW TRANSACTIONS =========== */
 document.getElementById("TopofApp").onclick = () =>
   window.scrollTo({top:0,behavior:"smooth"});
+document.getElementById("End").onclick = () =>
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: 'smooth'
+  });
   
   const floatingFind = document.getElementById("floating-find");
 
