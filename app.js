@@ -11,7 +11,6 @@ let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
 let scrollBeforeHelp = 0;
 let transactionSortAscending = true;
   let transactionSortMode = "date"; // "date" or "category"
-  let activeDiaryDate = null;
   
 /* ================= DOM ================= */
 const txCategorySelect = document.getElementById("tx-category");
@@ -55,10 +54,10 @@ function openDiaryDB() {
     };
 
     request.onupgradeneeded = event => {
-      const diaryDB= event.target.result;
+      const db = event.target.result;
 
-      if (!diaryDB.objectStoreNames.contains(DIARY_STORE)) {
-        const store = diaryDB.createObjectStore(DIARY_STORE, {
+      if (!db.objectStoreNames.contains(DIARY_STORE)) {
+        const store = db.createObjectStore(DIARY_STORE, {
           keyPath: "id"
         });
 
@@ -113,7 +112,7 @@ function openDiaryDB() {
 
 function addDiaryNote(isoDate, noteText) {
   return new Promise((resolve, reject) => {
-    const tx = diaryDB.transaction("diaryNotes", "readwrite");
+    const tx = db.transaction("diaryNotes", "readwrite");
     const store = tx.objectStore("diaryNotes");
 
     const record = {
@@ -131,7 +130,7 @@ function addDiaryNote(isoDate, noteText) {
 
   function getDiaryNotesForDate(isoDate) {
   return new Promise((resolve, reject) => {
-    const tx = diaryDB.transaction("diaryNotes", "readonly");
+    const tx = db.transaction("diaryNotes", "readonly");
     const store = tx.objectStore("diaryNotes");
     const index = store.index("isoDate");
 
@@ -150,7 +149,7 @@ function addDiaryNote(isoDate, noteText) {
 
   function searchDiaryNotes(searchTerm) {
   return new Promise((resolve, reject) => {
-    const tx = diaryDB.transaction("diaryNotes", "readonly");
+    const tx = db.transaction("diaryNotes", "readonly");
     const store = tx.objectStore("diaryNotes");
 
     const request = store.getAll();
@@ -171,7 +170,7 @@ function addDiaryNote(isoDate, noteText) {
 
   function deleteDiaryNote(noteId) {
   return new Promise((resolve, reject) => {
-    const tx = diaryDB.transaction("diaryNotes", "readwrite");
+    const tx = db.transaction("diaryNotes", "readwrite");
     const store = tx.objectStore("diaryNotes");
 
     const request = store.delete(noteId);
@@ -488,8 +487,8 @@ if (descriptionSortHeader && !descriptionSortHeader.dataset.bound) {
   // 🔹 Description sort (primary)
   if (transactionSortMode === "description") {
     const dA = (a.description || "").toLowerCase();
-    const db = (b.description || "").toLowerCase();
-    const diff = dA.localeCompare(db);
+    const dB = (b.description || "").toLowerCase();
+    const diff = dA.localeCompare(dB);
     return transactionSortAscending ? diff : -diff;
   }
 
@@ -614,75 +613,23 @@ function isNudgedHere(tx, iso) {
       k.startsWith(txId(tx) + "|") && nudges[k] === iso
     );
 }
-/* =======diary code. =========*/
-  async function hasDiaryNoteForDate(iso) {
-  try {
-    const notes = await getDiaryNotesForDate(iso);
-    return Array.isArray(notes) && notes.length > 0;
-  } catch (e) {
-    console.warn("Diary lookup failed for", iso, e);
-    return false;
-  }
-}
-/* ================= DIARY MODAL ================= */
-
-
-
-async function openDiaryModal(iso) {
-  activeDiaryDate = iso;
-  diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
-  diaryInput.value = "";
-  diaryNotesList.innerHTML = "";
-
-  const notes = await getDiaryNotesForDate(iso);
-
-  notes.forEach(n => {
-    const div = document.createElement("div");
-    div.className = "diary-note-item";
-    div.textContent = n.text;
-    diaryNotesList.appendChild(div);
-  });
-
-  diaryModal.classList.remove("hidden");
-  document.body.classList.add("modal-open");
-}
-
-diaryCloseBtn.onclick = () => {
-  diaryModal.classList.add("hidden");
-  document.body.classList.remove("modal-open");
-};
-
-diarySaveBtn.onclick = async () => {
-  const text = diaryInput.value.trim();
-  if (!text || !activeDiaryDate) return;
-
-  await saveDiaryNote(activeDiaryDate, text);
-  diaryModal.classList.add("hidden");
-  document.body.classList.remove("modal-open");
-
-  renderProjectionTable(); // refresh 📝 icons
-};
-
   
 /* projection*/
 /* ================= PROJECTION ================= */
 
 function renderProjectionTable() {
   projectionTbody.innerHTML = "";
-
   if (!startDate) {
-    document.body.classList.remove("modal-open");
-    alert("Start date not set");
-    return;
-  }
+  document.body.classList.remove("modal-open");
+  alert("Start date not set");
+  return;
+}
 
   let balance = openingBalance;
 
   const start = new Date(startDate);
   start.setHours(12, 0, 0, 0);
-
-  const todayIso = toISO(new Date());
-
+const todayIso = toISO(new Date());
   const end = new Date(start);
   end.setMonth(end.getMonth() + 24);
 
@@ -701,40 +648,35 @@ function renderProjectionTable() {
       const id = txId(tx);
       const nudgeKeyForDay = `${id}|${iso}`;
 
+      // If nudged, move it
       if (nudges[nudgeKeyForDay]) {
         const targetIso = nudges[nudgeKeyForDay];
         if (dayMap[targetIso]) {
           dayMap[targetIso].push(tx);
         }
       } else {
+        // Not nudged → stays on natural day
         dayMap[iso].push(tx);
       }
     }
   });
 
-  // Render day by day
+  // Now render day by day
   Object.keys(dayMap).forEach(iso => {
     const todaysTx = dayMap[iso];
 
-    // ----- EMPTY DAY -----
     if (todaysTx.length === 0) {
       const tr = document.createElement("tr");
-
       if (iso === todayIso) tr.classList.add("today-row");
       if ([0, 6].includes(new Date(iso).getDay())) {
         tr.classList.add("weekend-row");
       }
 
       tr.innerHTML = `
-       <td data-iso="${iso}" class="projection-date-cell diary-date">
-          ${formatDate(iso)}
-        </td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td>${formatDate(iso)}</td>
+        <td></td><td></td><td></td>
         <td><strong>${balance.toFixed(2)}</strong></td>
       `;
-
       projectionTbody.appendChild(tr);
       return;
     }
@@ -749,26 +691,22 @@ function renderProjectionTable() {
       balance += isIncome ? tx.amount : -tx.amount;
 
       const tr = document.createElement("tr");
-
       if (iso === todayIso) tr.classList.add("today-row");
+
       if ([0, 6].includes(new Date(iso).getDay())) {
         tr.classList.add("weekend-row");
       }
       if (balance < 0) tr.classList.add("negative");
 
       const today = new Date(toISO(new Date()));
-      const diffDays = Math.round(
-        (new Date(iso) - today) / 86400000
-      );
+const diffDays = Math.round((new Date(iso) - today) / 86400000);
 
-      const showNudge =
-        (diffDays >= 0 && diffDays <= 7) ||
-        (diffDays < 0 && diffDays >= -MAX_PAST_NUDGE_DAYS);
+const showNudge =
+  (diffDays >= 0 && diffDays <= 7) ||           // future nudging (unchanged)
+  (diffDays < 0 && diffDays >= -MAX_PAST_NUDGE_DAYS); // limited past nudging
 
       tr.innerHTML = `
-        <td data-iso="${iso}" class="projection-date-cell">
-          ${index === 0 ? formatDate(iso) : ""}
-        </td>
+        <td>${index === 0 ? formatDate(iso) : ""}</td>
         <td>
           <div class="projection-item ${tx.type}">
             <span class="desc">${tx.description}</span>
@@ -782,45 +720,15 @@ function renderProjectionTable() {
         </td>
         <td>${isIncome ? tx.amount.toFixed(2) : ""}</td>
         <td>${!isIncome ? tx.amount.toFixed(2) : ""}</td>
-        <td>${
-          index === todaysTx.length - 1
-            ? `<strong>${balance.toFixed(2)}</strong>`
-            : balance.toFixed(2)
+        <td>${index === todaysTx.length - 1
+          ? `<strong>${balance.toFixed(2)}</strong>`
+          : balance.toFixed(2)
         }</td>
       `;
 
       projectionTbody.appendChild(tr);
     });
   });
-// Enable diary click on date cells
-setTimeout(() => {
-  document.querySelectorAll(".diary-date").forEach(cell => {
-    cell.onclick = () => {
-      const iso = cell.dataset.iso;
-      if (iso) openDiaryModal(iso);
-    };
-  });
-}, 0);
-  // ---- Diary indicators (non-blocking)
-  setTimeout(async () => {
-    const cells = document.querySelectorAll(".projection-date-cell");
-
-    for (const cell of cells) {
-      const iso = cell.dataset.iso;
-      if (!iso || cell.dataset.checked) continue;
-
-      cell.dataset.checked = "true";
-
-      if (await hasDiaryNoteForDate(iso)) {
-        const icon = document.createElement("span");
-        icon.textContent = " 📝";
-        icon.title = "Diary note exists";
-        icon.style.cursor = "pointer";
-icon.onclick = () => openDiaryForDate(iso);
-        cell.appendChild(icon);
-      }
-    }
-  }, 0);
 }
   
 /* ================= STICKY FIND ================= */
@@ -1254,78 +1162,13 @@ projectionTbody.addEventListener("click", e => {
   // Highlight clicked row
   row.classList.add("projection-selected");
 });
-const diaryPopup = document.getElementById("diary-popup");
-const diaryText = document.getElementById("diary-text");
-const diaryTitle = document.getElementById("diary-title");
-const diarySaveBtn = document.getElementById("diary-save-btn");
-const diaryCloseBtn = document.getElementById("diary-close-btn");
 
-
-
-async function openDiaryForDate(iso) {
-  activeDiaryDate = iso;
-  diaryTitle.textContent = `Diary – ${formatDate(iso)}`;
-
-  const notes = await getDiaryNotesForDate(iso);
-  diaryText.value = notes.length ? notes.map(n => n.text).join("\n\n") : "";
-
-  diaryPopup.classList.remove("hidden");
-  document.body.classList.add("modal-open");
-}
-
-diarySaveBtn.onclick = async () => {
-  if (!activeDiaryDate) return;
-
-  await saveDiaryNote(activeDiaryDate, diaryText.value.trim());
-  diaryPopup.classList.add("hidden");
-  document.body.classList.remove("modal-open");
-
-  renderProjectionTable(); // refresh 📝 icons
-};
-
-diaryCloseBtn.onclick = () => {
-  diaryPopup.classList.add("hidden");
-  document.body.classList.remove("modal-open");
-};
-  /* ================= DIARY MODAL (lazy bind) ================= */
-
-let diaryModal;
-let diaryModalTitle;
-let diaryNotesList;
-let diaryInput;
-let diarySaveBtn;
-let diaryCloseBtn;
-
-function initDiaryModal() {
-  diaryModal = document.getElementById("diary-modal");
-  diaryModalTitle = document.getElementById("diary-modal-title");
-  diaryNotesList = document.getElementById("diary-notes-list");
-  diaryInput = document.getElementById("diary-note-input");
-  diarySaveBtn = document.getElementById("diary-save-btn");
-  diaryCloseBtn = document.getElementById("diary-close-btn");
-
-  if (!diaryModal) return; // safety
-
-  diaryCloseBtn.onclick = () => {
-    diaryModal.classList.add("hidden");
-    document.body.classList.remove("modal-open");
-  };
-
-  diarySaveBtn.onclick = async () => {
-    const text = diaryInput.value.trim();
-    if (!text || !activeDiaryDate) return;
-
-    await saveDiaryNote(activeDiaryDate, text);
-    diaryModal.classList.add("hidden");
-    document.body.classList.remove("modal-open");
-    renderProjectionTable();
-  };
-}
-
+  
 /* ================= INIT ================= */
 updateCategoryDropdown();
 updateEditCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
-initDiaryModal();
+
+
 });
