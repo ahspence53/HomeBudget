@@ -150,13 +150,16 @@
   </button>
 </div>
 
-    <button id="open-diary-btn">📝 Diary</button>
+<button id="open-diary-btn">Diary</button>
+<input type="date" id="diary-date-picker" class="hidden">
 
-<input
-  type="date"
-  id="diary-date-picker"
-  class="hidden"
-/>
+<div id="diary-modal" class="hidden">
+  <h3 id="diary-modal-title"></h3>
+  <ul id="diary-notes-list"></ul>
+  <textarea id="diary-note-input"></textarea>
+  <button id="diary-save-btn">Save</button>
+  <button id="diary-close-btn">Close</button>
+</div>
     
 </section>
 In the <b>24 Month Projection table </b>you can <b>Nudge</b> Expenses forward by <b>1 day</b> at  a time if they fall at <b>Weekends</b> or <b>Bank Holidays</b>, or if it hasn't yet been debited.
