@@ -36,6 +36,44 @@ const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
 const MAX_PAST_NUDGE_DAYS = 7;
   /* ========= IndexDb code ====== */
+
+  
+/* ================= DIARY DATABASE (IndexedDB) ================= */
+
+const DIARY_DB_NAME = "budgetAppDB";
+const DIARY_DB_VERSION = 1;
+const DIARY_STORE = "diaryEntries";
+
+let diaryDB = null;
+
+function openDiaryDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DIARY_DB_NAME, DIARY_DB_VERSION);
+
+    request.onupgradeneeded = e => {
+      const db = e.target.result;
+
+      if (!db.objectStoreNames.contains(DIARY_STORE)) {
+        const store = db.createObjectStore(DIARY_STORE, {
+          keyPath: "id",
+          autoIncrement: true
+        });
+        store.createIndex("entryDate", "entryDate", { unique: false });
+      }
+    };
+
+    request.onsuccess = () => {
+      diaryDB = request.result;
+      resolve(diaryDB);
+    };
+
+    request.onerror = () => {
+      console.warn("Diary DB failed to open", request.error);
+      resolve(null); // 🔑 never block the app
+    };
+  });
+}
+
   /* ================= DIARY DATABASE (IndexedDB) ================= */
 
 const DIARY_DB_NAME = "budgetAppDB";
@@ -1194,6 +1232,7 @@ updateCategoryDropdown();
 updateEditCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
+openDiaryDB(); // fire-and-forget
 
 
 });
