@@ -213,6 +213,29 @@ function getDisplayedTransactionDate(tx) {
 
   return d.getDate() + getOrdinalSuffix(d.getDate());
 }
+function getEffectiveDayOfMonth(tx) {
+  if (!tx.date) return 0;
+
+  // Monthly / irregular
+  if (tx.frequency !== "4-weekly") {
+    return new Date(tx.date).getDate();
+  }
+
+  // 4-weekly → roll forward to >= today
+  let d = new Date(tx.date);
+  d.setHours(12, 0, 0, 0);
+
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+
+  while (d < today) {
+    d.setDate(d.getDate() + 28);
+  }
+
+  return d.getDate();
+}
+  
+  
   
 function saveNudges() {
   localStorage.setItem("nudges", JSON.stringify(nudges));
@@ -503,8 +526,8 @@ if (descriptionSortHeader && !descriptionSortHeader.dataset.bound) {
   }
 
   // 🔹 Date sort (day of month), category as secondary
-  const dayA = new Date(a.date).getDate();
-  const dayB = new Date(b.date).getDate();
+  const dayA = getEffectiveDayOfMonth(a);
+const dayB = getEffectiveDayOfMonth(b);
 
   if (dayA !== dayB) {
     return transactionSortAscending ? dayA - dayB : dayB - dayA;
