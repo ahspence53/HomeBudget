@@ -561,7 +561,13 @@ const dayB = getEffectiveDayOfMonth(b);
 
   sorted.forEach(tx => {
     const tr = document.createElement("tr");
+// Check if description contains 'Pension' (case-insensitive)
+const isPension = tx.description.toLowerCase().includes('pension');
 
+// Apply a class to the row if true
+if (isPension) {
+  tr.classList.add('highlight-pension');
+}
     tr.innerHTML = `
       <td>
         <div class="tx-date-cell">
