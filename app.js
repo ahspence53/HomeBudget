@@ -110,7 +110,7 @@ function openDiaryDB() {
 
 // Assumes `db` is your opened IndexedDB instance
 
-function addDiaryNote(isoDate, noteText) {
+/*function addDiaryNote(isoDate, noteText) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction("diaryNotes", "readwrite");
     const store = tx.objectStore("diaryNotes");
@@ -179,6 +179,7 @@ function addDiaryNote(isoDate, noteText) {
     request.onerror = () => reject(request.error);
   });
 }*/
+  
   /* ================= UTILS ================= */
 
 /*========*/
