@@ -38,13 +38,13 @@ const MAX_PAST_NUDGE_DAYS = 7;
   /* ========= IndexDb code ====== */
   /* ================= DIARY DATABASE (IndexedDB) ================= */
 
-/*const DIARY_DB_NAME = "budgetAppDB";
+const DIARY_DB_NAME = "budgetAppDB";
 const DIARY_DB_VERSION = 1;
 const DIARY_STORE = "diaryEntries";
 
 let diaryDB = null;
 
-function openDiaryDB() {
+/*function openDiaryDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DIARY_DB_NAME, DIARY_DB_VERSION);
 
