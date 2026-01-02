@@ -626,12 +626,7 @@ function isNudgedHere(tx, iso) {
 }
 /* ================= DIARY MODAL ================= */
 
-const diaryModal = document.getElementById("diary-modal");
-const diaryModalTitle = document.getElementById("diary-modal-title");
-const diaryNotesList = document.getElementById("diary-notes-list");
-const diaryInput = document.getElementById("diary-note-input");
-const diarySaveBtn = document.getElementById("diary-save-btn");
-const diaryCloseBtn = document.getElementById("diary-close-btn");
+
 
 async function openDiaryModal(iso) {
   activeDiaryDate = iso;
@@ -1292,12 +1287,46 @@ diaryCloseBtn.onclick = () => {
   diaryPopup.classList.add("hidden");
   document.body.classList.remove("modal-open");
 };
-  
+  /* ================= DIARY MODAL (lazy bind) ================= */
+
+let diaryModal;
+let diaryModalTitle;
+let diaryNotesList;
+let diaryInput;
+let diarySaveBtn;
+let diaryCloseBtn;
+
+function initDiaryModal() {
+  diaryModal = document.getElementById("diary-modal");
+  diaryModalTitle = document.getElementById("diary-modal-title");
+  diaryNotesList = document.getElementById("diary-notes-list");
+  diaryInput = document.getElementById("diary-note-input");
+  diarySaveBtn = document.getElementById("diary-save-btn");
+  diaryCloseBtn = document.getElementById("diary-close-btn");
+
+  if (!diaryModal) return; // safety
+
+  diaryCloseBtn.onclick = () => {
+    diaryModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  };
+
+  diarySaveBtn.onclick = async () => {
+    const text = diaryInput.value.trim();
+    if (!text || !activeDiaryDate) return;
+
+    await saveDiaryNote(activeDiaryDate, text);
+    diaryModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+    renderProjectionTable();
+  };
+}
 /* ================= INIT ================= */
 updateCategoryDropdown();
 updateEditCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
+  initDiaryModal();
 
 
 });
