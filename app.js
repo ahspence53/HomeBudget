@@ -109,11 +109,11 @@ let diaryDB = null;
 /* ======== `indexdb code =======*/
 /* ================= DIARY NOTES (IndexedDB) ================= */
 
-// Assumes `db` is your opened IndexedDB instance
+// Assumes `DiaryDB' is your opened IndexedDB instance
 
-/*function addDiaryNote(isoDate, noteText) {
+function addDiaryNote(isoDate, noteText) {
   return new Promise((resolve, reject) => {
-    const tx = db.transaction("diaryNotes", "readwrite");
+    const tx = DiaryDB.transaction("diaryNotes", "readwrite");
     const store = tx.objectStore("diaryNotes");
 
     const record = {
@@ -131,7 +131,7 @@ let diaryDB = null;
 
   function getDiaryNotesForDate(isoDate) {
   return new Promise((resolve, reject) => {
-    const tx = db.transaction("diaryNotes", "readonly");
+    const tx = DiaryDB.transaction("diaryNotes", "readonly");
     const store = tx.objectStore("diaryNotes");
     const index = store.index("isoDate");
 
@@ -150,7 +150,7 @@ let diaryDB = null;
 
   function searchDiaryNotes(searchTerm) {
   return new Promise((resolve, reject) => {
-    const tx = db.transaction("diaryNotes", "readonly");
+    const tx = DiaryDB.transaction("diaryNotes", "readonly");
     const store = tx.objectStore("diaryNotes");
 
     const request = store.getAll();
@@ -171,7 +171,7 @@ let diaryDB = null;
 
   function deleteDiaryNote(noteId) {
   return new Promise((resolve, reject) => {
-    const tx = db.transaction("diaryNotes", "readwrite");
+    const tx = DiaryDB.transaction("diaryNotes", "readwrite");
     const store = tx.objectStore("diaryNotes");
 
     const request = store.delete(noteId);
@@ -179,7 +179,7 @@ let diaryDB = null;
     request.onsuccess = () => resolve();
     request.onerror = () => reject(request.error);
   });
-}*/
+}
   
   /* ================= UTILS ================= */
 
