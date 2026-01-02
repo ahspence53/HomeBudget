@@ -1263,6 +1263,43 @@ function initDiaryLauncher() {
     await openDiaryForDate(iso);
   };
 }
+
+  let diaryModal;
+let diaryModalTitle;
+let diaryNotesList;
+let diaryInput;
+let diarySaveBtn;
+let diaryCloseBtn;
+let activeDiaryDate = null;
+
+function initDiaryModal() {
+  diaryModal = document.getElementById("diary-modal");
+  diaryModalTitle = document.getElementById("diary-modal-title");
+  diaryNotesList = document.getElementById("diary-notes-list");
+  diaryInput = document.getElementById("diary-note-input");
+  diarySaveBtn = document.getElementById("diary-save-btn");
+  diaryCloseBtn = document.getElementById("diary-close-btn");
+
+  if (!diaryModal) {
+    console.warn("Diary modal not found");
+    return;
+  }
+
+  diaryCloseBtn.onclick = () => {
+    diaryModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  };
+
+  diarySaveBtn.onclick = async () => {
+    const text = diaryInput.value.trim();
+    if (!text || !activeDiaryDate) return;
+
+    await addDiaryNote(activeDiaryDate, text);
+    diaryInput.value = "";
+    diaryModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  };
+}
   
 //* ================= INIT ================= */
 updateCategoryDropdown();
