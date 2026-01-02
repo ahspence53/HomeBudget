@@ -624,6 +624,51 @@ function isNudgedHere(tx, iso) {
     return false;
   }
 }
+/* ================= DIARY MODAL ================= */
+
+const diaryModal = document.getElementById("diary-modal");
+const diaryModalTitle = document.getElementById("diary-modal-title");
+const diaryNotesList = document.getElementById("diary-notes-list");
+const diaryInput = document.getElementById("diary-note-input");
+const diarySaveBtn = document.getElementById("diary-save-btn");
+const diaryCloseBtn = document.getElementById("diary-close-btn");
+
+async function openDiaryModal(iso) {
+  activeDiaryDate = iso;
+  diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
+  diaryInput.value = "";
+  diaryNotesList.innerHTML = "";
+
+  const notes = await getDiaryNotesForDate(iso);
+
+  notes.forEach(n => {
+    const div = document.createElement("div");
+    div.className = "diary-note-item";
+    div.textContent = n.text;
+    diaryNotesList.appendChild(div);
+  });
+
+  diaryModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+
+diaryCloseBtn.onclick = () => {
+  diaryModal.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+};
+
+diarySaveBtn.onclick = async () => {
+  const text = diaryInput.value.trim();
+  if (!text || !activeDiaryDate) return;
+
+  await saveDiaryNote(activeDiaryDate, text);
+  diaryModal.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+
+  renderProjectionTable(); // refresh 📝 icons
+};
+
+  
 /* projection*/
 /* ================= PROJECTION ================= */
 
