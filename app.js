@@ -35,9 +35,6 @@ const editCategorySelect = document.getElementById("edit-category-select");
 const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
 const MAX_PAST_NUDGE_DAYS = 7;
-  /* ========= IndexDb code ====== */
-
-  
 /* ================= DIARY DATABASE (IndexedDB) ================= */
 
 /*const DIARY_DB_NAME = "budgetAppDB";*/
@@ -74,8 +71,7 @@ function openDiaryDB() {
   });
 }
 
-  /* ================= DIARY DATABASE (IndexedDB) ================= */
-
+/* ================= DIARY DATABASE (IndexedDB) ================= */
 const DIARY_DB_NAME = "budgetAppDB";
 const DIARY_DB_VERSION = 1;
  
@@ -110,7 +106,7 @@ let diaryDB = null;
     };
   });
 }
-  /* ======================*/
+/* ============================================== */
 /* added edit category code*/
   renameCategoryButton.onclick = () => {
   const oldName = editCategorySelect.value;
@@ -141,9 +137,6 @@ let diaryDB = null;
 
   alert(`Category "${oldName}" renamed to "${newName}"`);
 };
-  
-
-/* ======== `indexdb code =======*/
 /* ================= DIARY NOTES (IndexedDB) ================= */
 
 // Assumes `DiaryDB' is your opened IndexedDB instance
@@ -165,7 +158,7 @@ function addDiaryNote(isoDate, noteText) {
     request.onerror = () => reject(request.error);
   });
 }
-
+/* =================================================== */
   function getDiaryNotesForDate(isoDate) {
   return new Promise((resolve, reject) => {
     const tx = DiaryDB.transaction("diaryNotes", "readonly");
@@ -183,8 +176,7 @@ function addDiaryNote(isoDate, noteText) {
     request.onerror = () => reject(request.error);
   });
 }
-
-
+/* =================================================== */
   function searchDiaryNotes(searchTerm) {
   return new Promise((resolve, reject) => {
     const tx = DiaryDB.transaction("diaryNotes", "readonly");
@@ -205,7 +197,7 @@ function addDiaryNote(isoDate, noteText) {
     request.onerror = () => reject(request.error);
   });
 }
-
+/* =================================================== */
   function deleteDiaryNote(noteId) {
   return new Promise((resolve, reject) => {
     const tx = DiaryDB.transaction("diaryNotes", "readwrite");
@@ -217,18 +209,15 @@ function addDiaryNote(isoDate, noteText) {
     request.onerror = () => reject(request.error);
   });
 }
-  
-  /* ================= UTILS ================= */
-
-/*========*/
+/* ================= UTILS ================= */
 function txId(tx) {
   return `${tx.date}|${tx.frequency}|${tx.description}|${tx.amount}|${tx.type}`;
 }
-
+/* =================================================== */
 function nudgeKey(id, iso) {
   return `${id}|${iso}`;
 }
-
+/* =================================================== */
 function getDisplayedTransactionDate(tx) {
   if (!tx.date) return "";
 
@@ -250,6 +239,7 @@ function getDisplayedTransactionDate(tx) {
 
   return d.getDate() + getOrdinalSuffix(d.getDate());
 }
+/* =================================================== */
 function getEffectiveDayOfMonth(tx) {
   if (!tx.date) return 0;
 
@@ -272,25 +262,24 @@ function getEffectiveDayOfMonth(tx) {
   return d.getDate();
 }
   
-  
-  
+/* =================================================== */
 function saveNudges() {
   localStorage.setItem("nudges", JSON.stringify(nudges));
 }
-  
+/* =================================================== */
   function toISO(d) {
   if (!d) return "";
   const x = new Date(d);
   x.setHours(12,0,0,0);
   return x.toISOString().slice(0,10);
 }
-
+/* =================================================== */
 function formatDayOnly(iso) {
   if (!iso) return "";
   const d = new Date(iso);
   return d.getDate() + getOrdinalSuffix(d.getDate());
 }
-
+/* =================================================== */
 function getOrdinalSuffix(n) {
   if (n > 3 && n < 21) return "th";
   switch (n % 10) {
@@ -300,13 +289,7 @@ function getOrdinalSuffix(n) {
     default: return "th";
   }
 }
-  
-/*function formatDate(iso) {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day:"2-digit", month:"short", year:"numeric"
-  });
-}
-*/
+/* ===================================================*/
 function jumpToProjectionDate(iso) {
   const rows = document.querySelectorAll("#projection-table tbody tr");
 
@@ -341,22 +324,16 @@ function formatDate(iso) {
 function normalizeSearch(str) {
   return str.toLowerCase().replace(/\s+/g,"").replace(/[-\/]/g,"");
 }
+/* ===================================================*/
 function hasNudgedAwayTransaction(iso) {
   return Object.keys(nudges).some(key => key.endsWith("|" + iso));
 }
   
 /* ====== nudge code =======*/
-  
-
-
-function saveNudges() {
+/* ===================================================*/
+  function saveNudges() {
   localStorage.setItem("nudges", JSON.stringify(nudges));
 }
-
-
-  
-
-  
 /* ================= CATEGORIES ================= */
 function updateCategoryDropdown() {
   txCategorySelect.innerHTML = '<option value="">Select category</option>';
@@ -367,7 +344,7 @@ function updateCategoryDropdown() {
     txCategorySelect.appendChild(opt);
   });
 }
-
+/* ===================================================*/
 function updateEditCategoryDropdown() {
   if (!editCategorySelect) return;
 
@@ -390,7 +367,7 @@ addCategoryButton.onclick = () => {
   newCategoryInput.value = "";
   updateCategoryDropdown();
 };
-
+/* ===================================================*/
 function ensureStartConfig() {
   if (!startDate) {
     document.body.classList.remove("modal-open");
@@ -491,8 +468,6 @@ addTxButton.onclick = () => {
   txDesc.value = txAmount.value = txDate.value = "";
   txCategorySelect.value = "";
 };
-
-/* ================= TRANSACTION TABLE ================= */
 /* ================= TRANSACTION TABLE ================= */
 function renderTransactionTable() {
 
@@ -661,11 +636,6 @@ function occursOn(tx, iso) {
 
   return false;
 }
-
-
-
-
-
 /* ================= NUDGE HELPERS ================= */
 
 // A stable unique ID for each transaction occurrence
@@ -684,8 +654,6 @@ function isNudgedHere(tx, iso) {
       k.startsWith(txId(tx) + "|") && nudges[k] === iso
     );
 }
-  
-/* projection*/
 /* ================= PROJECTION ================= */
 
 function renderProjectionTable() {
@@ -866,9 +834,6 @@ if (window.visualViewport) {
 
 // initial position
 lockFindBar();
-
-/* ================= CSV IMPORT ================= */
-
 /* ================= CSV IMPORT (AUTO CATEGORY) ================= */
 const csvInput = document.getElementById("csv-import");
 document.getElementById("import-btn").onclick = () => {
@@ -917,7 +882,7 @@ transactions.push({
   reader.readAsText(rows);
 };
 
-  /* ================= EXPORT 24-MONTH PROJECTION ================= */
+/* ================= EXPORT 24-MONTH PROJECTION ================= */
 
 document.getElementById("export-projection-btn").onclick = () => {
 if (!startDate) {
@@ -975,8 +940,7 @@ if (!startDate) {
 
   URL.revokeObjectURL(url);
 };
-/*---negative balances-----*/
-  /* ================= NEGATIVE BALANCES POPUP ================= */
+/* ================= NEGATIVE BALANCES POPUP ================= */
 
 const negativeBtn = document.getElementById("negative-popup-btn");
 const negativePopup = document.getElementById("negative-popup");
@@ -1069,8 +1033,7 @@ negativePopup.addEventListener("click", e => {
   window.scrollTo({top:1500,behavior:"smooth"});
   }
 });
-  
-  /* salary minus one day*/
+ 
 /* ================= SALARY -1 DAY POPUP ================= */
 
 const salaryBtn = document.getElementById("salary-popup-btn");
@@ -1182,12 +1145,8 @@ salaryPopup.addEventListener("click", e => {
     window.scrollTo({top:1500,behavior:"smooth"});
   }
 });
-
-
- /*=====nudge=====*/
-  
-  
-projectionTbody.addEventListener("click", e => {
+/* ========== NUDGE ========== */
+  projectionTbody.addEventListener("click", e => {
   const btn = e.target.closest(".nudge-btn");
   if (!btn) return;
 
