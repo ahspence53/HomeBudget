@@ -200,19 +200,19 @@ function getDisplayedTransactionDate(tx) {
     return formatDayOnly(tx.date);
   }
 
-  // 4-weekly → roll forward to next occurrence ≥ startDate
+  // 4-weekly → roll forward to next occurrence ≥ TODAY
   let d = new Date(tx.date);
   d.setHours(12, 0, 0, 0);
 
-  const start = new Date(startDate);
-  start.setHours(12, 0, 0, 0);
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
 
-  while (d < start) {
+  while (d < today) {
     d.setDate(d.getDate() + 28);
   }
 
   return d.getDate() + getOrdinalSuffix(d.getDate());
-}  
+}
   
 function saveNudges() {
   localStorage.setItem("nudges", JSON.stringify(nudges));
