@@ -55,10 +55,10 @@ function openDiaryDB() {
     };
 
     request.onupgradeneeded = event => {
-      const db = event.target.result;
+      const diaryDB= event.target.result;
 
-      if (!db.objectStoreNames.contains(DIARY_STORE)) {
-        const store = db.createObjectStore(DIARY_STORE, {
+      if (!diaryDB.objectStoreNames.contains(DIARY_STORE)) {
+        const store = diaryDB.createObjectStore(DIARY_STORE, {
           keyPath: "id"
         });
 
@@ -113,7 +113,7 @@ function openDiaryDB() {
 
 function addDiaryNote(isoDate, noteText) {
   return new Promise((resolve, reject) => {
-    const tx = db.transaction("diaryNotes", "readwrite");
+    const tx = diaryDB.transaction("diaryNotes", "readwrite");
     const store = tx.objectStore("diaryNotes");
 
     const record = {
@@ -131,7 +131,7 @@ function addDiaryNote(isoDate, noteText) {
 
   function getDiaryNotesForDate(isoDate) {
   return new Promise((resolve, reject) => {
-    const tx = db.transaction("diaryNotes", "readonly");
+    const tx = diaryDB.transaction("diaryNotes", "readonly");
     const store = tx.objectStore("diaryNotes");
     const index = store.index("isoDate");
 
@@ -150,7 +150,7 @@ function addDiaryNote(isoDate, noteText) {
 
   function searchDiaryNotes(searchTerm) {
   return new Promise((resolve, reject) => {
-    const tx = db.transaction("diaryNotes", "readonly");
+    const tx = diaryDB.transaction("diaryNotes", "readonly");
     const store = tx.objectStore("diaryNotes");
 
     const request = store.getAll();
@@ -171,7 +171,7 @@ function addDiaryNote(isoDate, noteText) {
 
   function deleteDiaryNote(noteId) {
   return new Promise((resolve, reject) => {
-    const tx = db.transaction("diaryNotes", "readwrite");
+    const tx = diaryDB.transaction("diaryNotes", "readwrite");
     const store = tx.objectStore("diaryNotes");
 
     const request = store.delete(noteId);
@@ -488,8 +488,8 @@ if (descriptionSortHeader && !descriptionSortHeader.dataset.bound) {
   // 🔹 Description sort (primary)
   if (transactionSortMode === "description") {
     const dA = (a.description || "").toLowerCase();
-    const dB = (b.description || "").toLowerCase();
-    const diff = dA.localeCompare(dB);
+    const db = (b.description || "").toLowerCase();
+    const diff = dA.localeCompare(db);
     return transactionSortAscending ? diff : -diff;
   }
 
@@ -1260,7 +1260,7 @@ const diaryTitle = document.getElementById("diary-title");
 const diarySaveBtn = document.getElementById("diary-save-btn");
 const diaryCloseBtn = document.getElementById("diary-close-btn");
 
-let activeDiaryDate = null;
+
 
 async function openDiaryForDate(iso) {
   activeDiaryDate = iso;
@@ -1328,3 +1328,4 @@ updateEditCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
 initDiaryModal();
+});
