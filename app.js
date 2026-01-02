@@ -555,6 +555,8 @@ if (descriptionSortHeader && !descriptionSortHeader.dataset.bound) {
   if (!confirm(`Delete this transaction:\n"${tx.description}"?`)) return;
 
   transactions.splice(transactions.indexOf(tx), 1);
+  /* ======= added getDisplayedTransactionDate(tx) ====== Alex ====== */
+  getDisplayedTransactionDate(tx);
   saveTransactions();
   renderTransactionTable();
   renderProjectionTable();
