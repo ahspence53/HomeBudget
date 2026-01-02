@@ -10,7 +10,7 @@ let editingIndex = null;
 let nudges = JSON.parse(localStorage.getItem("nudges")) || {};
 let scrollBeforeHelp = 0;
 let transactionSortAscending = true;
-  let transactionSortMode = "date"; // "date" or "category"
+let transactionSortMode = "date"; // "date" or "category"
   
 /* ================= DOM ================ */
 const txCategorySelect = document.getElementById("tx-category");
@@ -36,49 +36,13 @@ const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
 const MAX_PAST_NUDGE_DAYS = 7;
 /* ================= DIARY DATABASE (IndexedDB) ================= */
-
-/*const DIARY_DB_NAME = "budgetAppDB";*/
-/*const DIARY_DB_VERSION = 1;*/
-/*const DIARY_STORE = "diaryEntries";*/
-
-/*let diaryDB = null;*/
-
-function openDiaryDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DIARY_DB_NAME, DIARY_DB_VERSION);
-
-    request.onupgradeneeded = e => {
-      const db = e.target.result;
-
-      if (!db.objectStoreNames.contains(DIARY_STORE)) {
-        const store = db.createObjectStore(DIARY_STORE, {
-          keyPath: "id",
-          autoIncrement: true
-        });
-        store.createIndex("entryDate", "entryDate", { unique: false });
-      }
-    };
-
-    request.onsuccess = () => {
-      diaryDB = request.result;
-      resolve(diaryDB);
-    };
-
-    request.onerror = () => {
-      console.warn("Diary DB failed to open", request.error);
-      resolve(null); // 🔑 never block the app
-    };
-  });
-}
-
-/* ================= DIARY DATABASE (IndexedDB) ================= */
 const DIARY_DB_NAME = "budgetAppDB";
 const DIARY_DB_VERSION = 1;
  
 let diaryDB = null;
 
 
-  function openDiaryDB() {
+  function opendiaryDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DIARY_DB_NAME, DIARY_DB_VERSION);
 
@@ -139,11 +103,11 @@ let diaryDB = null;
 };
 /* ================= DIARY NOTES (IndexedDB) ================= */
 
-// Assumes `DiaryDB' is your opened IndexedDB instance
+// Assumes `diaryDB' is your opened IndexedDB instance
 
 function addDiaryNote(isoDate, noteText) {
   return new Promise((resolve, reject) => {
-    const tx = DiaryDB.transaction("diaryNotes", "readwrite");
+    const tx = diaryDB.transaction("diaryNotes", "readwrite");
     const store = tx.objectStore("diaryNotes");
 
     const record = {
@@ -161,7 +125,7 @@ function addDiaryNote(isoDate, noteText) {
 /* =================================================== */
   function getDiaryNotesForDate(isoDate) {
   return new Promise((resolve, reject) => {
-    const tx = DiaryDB.transaction("diaryNotes", "readonly");
+    const tx = diaryDB.transaction("diaryNotes", "readonly");
     const store = tx.objectStore("diaryNotes");
     const index = store.index("isoDate");
 
@@ -179,7 +143,7 @@ function addDiaryNote(isoDate, noteText) {
 /* =================================================== */
   function searchDiaryNotes(searchTerm) {
   return new Promise((resolve, reject) => {
-    const tx = DiaryDB.transaction("diaryNotes", "readonly");
+    const tx = diaryDB.transaction("diaryNotes", "readonly");
     const store = tx.objectStore("diaryNotes");
 
     const request = store.getAll();
@@ -200,7 +164,7 @@ function addDiaryNote(isoDate, noteText) {
 /* =================================================== */
   function deleteDiaryNote(noteId) {
   return new Promise((resolve, reject) => {
-    const tx = DiaryDB.transaction("diaryNotes", "readwrite");
+    const tx = diaryDB.transaction("diaryNotes", "readwrite");
     const store = tx.objectStore("diaryNotes");
 
     const request = store.delete(noteId);
@@ -1207,106 +1171,15 @@ salaryPopup.addEventListener("click", e => {
   // Highlight clicked row
   row.classList.add("projection-selected");
 });
-/* =========================================*/
 
-  /* ================= OPEN DIARY FOR DATE ================= */
-
-async function openDiaryForDate(iso) {
-  activeDiaryDate = iso;
-
-  diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
-  diaryInput.value = "";
-
-  diaryNotesList.innerHTML = "";
-
-  const notes = await getDiaryNotesForDate(iso);
-
-  notes.forEach(note => {
-    const li = document.createElement("li");
-    li.textContent = note.text;
-    diaryNotesList.appendChild(li);
-  });
-
-  diaryModal.classList.remove("hidden");
-  document.body.classList.add("modal-open");
-}
-  /* ================= DIARY BUTTON + DATE PICKER ================= */
-
-let activeDiaryDate = null;
-
-function initDiaryLauncher() {
-  console.log("Diary launcher initialising");
-  const diaryBtn = document.getElementById("open-diary-btn");
-  const datePicker = document.getElementById("diary-date-picker");
-
-  if (!diaryBtn || !datePicker) return; // safety
-
-  // Default date = today
-  datePicker.value = toISO(new Date());
-
-  diaryBtn.onclick = () => {
-    // Toggle date picker visibility
-    datePicker.classList.toggle("hidden");
-    datePicker.focus();
-  };
-
-  datePicker.onchange = async () => {
-    const iso = datePicker.value;
-    if (!iso) return;
-
-    activeDiaryDate = iso;
-
-    // Hide picker once date chosen
-    datePicker.classList.add("hidden");
-
-    // Open diary modal for that date
-    await openDiaryForDate(iso);
-  };
-}
-
-  let diaryModal;
-let diaryModalTitle;
-let diaryNotesList;
-let diaryInput;
-let diarySaveBtn;
-let diaryCloseBtn;
-let activeDiaryDate = null;
-
-function initDiaryModal() {
-  diaryModal = document.getElementById("diary-modal");
-  diaryModalTitle = document.getElementById("diary-modal-title");
-  diaryNotesList = document.getElementById("diary-notes-list");
-  diaryInput = document.getElementById("diary-note-input");
-  diarySaveBtn = document.getElementById("diary-save-btn");
-  diaryCloseBtn = document.getElementById("diary-close-btn");
-
-  if (!diaryModal) {
-    console.warn("Diary modal not found");
-    return;
-  }
-
-  diaryCloseBtn.onclick = () => {
-    diaryModal.classList.add("hidden");
-    document.body.classList.remove("modal-open");
-  };
-
-  diarySaveBtn.onclick = async () => {
-    const text = diaryInput.value.trim();
-    if (!text || !activeDiaryDate) return;
-
-    await addDiaryNote(activeDiaryDate, text);
-    diaryInput.value = "";
-    diaryModal.classList.add("hidden");
-    document.body.classList.remove("modal-open");
-  };
-}
   
-//* ================= INIT ================= */
+/* ================= INIT ================= */
 updateCategoryDropdown();
 updateEditCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
-openDiaryDB(); // fire-and-forget
+
+openDiaryDB();      // fire-and-forget
 initDiaryModal();
 initDiaryLauncher();
 
