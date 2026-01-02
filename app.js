@@ -731,7 +731,7 @@ function renderProjectionTable() {
       }
 
       tr.innerHTML = `
-        <td data-iso="${iso}" class="projection-date-cell">
+       <td data-iso="${iso}" class="projection-date-cell diary-date">
           ${formatDate(iso)}
         </td>
         <td></td>
@@ -797,7 +797,15 @@ function renderProjectionTable() {
       projectionTbody.appendChild(tr);
     });
   });
-
+// Enable diary click on date cells
+setTimeout(() => {
+  document.querySelectorAll(".diary-date").forEach(cell => {
+    cell.onclick = () => {
+      const iso = cell.dataset.iso;
+      if (iso) openDiaryModal(iso);
+    };
+  });
+}, 0);
   // ---- Diary indicators (non-blocking)
   setTimeout(async () => {
     const cells = document.querySelectorAll(".projection-date-cell");
