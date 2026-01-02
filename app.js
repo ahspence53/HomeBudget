@@ -392,6 +392,15 @@ addCategoryButton.onclick = () => {
   updateCategoryDropdown();
 };
 
+function ensureStartConfig() {
+  if (!startDate) {
+    document.body.classList.remove("modal-open");
+    alert("Start date not set");
+    return false;
+  }
+  return true;
+}
+
 /* ================= CONFIG ================= */
 saveConfigButton.onclick = () => {
   startDate = startDateInput.value;
@@ -1231,7 +1240,11 @@ projectionTbody.addEventListener("click", e => {
 updateCategoryDropdown();
 updateEditCategoryDropdown();
 renderTransactionTable();
-renderProjectionTable();
+
+if (ensureStartConfig()) {
+  renderProjectionTable();
+}
+
 openDiaryDB(); // fire-and-forget
 
 
