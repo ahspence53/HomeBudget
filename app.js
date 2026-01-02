@@ -1207,18 +1207,69 @@ salaryPopup.addEventListener("click", e => {
   // Highlight clicked row
   row.classList.add("projection-selected");
 });
+/* =========================================*/
 
+  /* ================= OPEN DIARY FOR DATE ================= */
+
+async function openDiaryForDate(iso) {
+  activeDiaryDate = iso;
+
+  diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
+  diaryInput.value = "";
+
+  diaryNotesList.innerHTML = "";
+
+  const notes = await getDiaryNotesForDate(iso);
+
+  notes.forEach(note => {
+    const li = document.createElement("li");
+    li.textContent = note.text;
+    diaryNotesList.appendChild(li);
+  });
+
+  diaryModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+  /* ================= DIARY BUTTON + DATE PICKER ================= */
+
+let activeDiaryDate = null;
+
+function initDiaryLauncher() {
+  const diaryBtn = document.getElementById("open-diary-btn");
+  const datePicker = document.getElementById("diary-date-picker");
+
+  if (!diaryBtn || !datePicker) return; // safety
+
+  // Default date = today
+  datePicker.value = toISO(new Date());
+
+  diaryBtn.onclick = () => {
+    // Toggle date picker visibility
+    datePicker.classList.toggle("hidden");
+    datePicker.focus();
+  };
+
+  datePicker.onchange = async () => {
+    const iso = datePicker.value;
+    if (!iso) return;
+
+    activeDiaryDate = iso;
+
+    // Hide picker once date chosen
+    datePicker.classList.add("hidden");
+
+    // Open diary modal for that date
+    await openDiaryForDate(iso);
+  };
+}
   
-/* ================= INIT ================= */
+//* ================= INIT ================= */
 updateCategoryDropdown();
 updateEditCategoryDropdown();
 renderTransactionTable();
-
-if (ensureStartConfig()) {
-  renderProjectionTable();
-}
-
+renderProjectionTable();
 openDiaryDB(); // fire-and-forget
-
+initDiaryModal();
+initDiaryLauncher();
 
 });
