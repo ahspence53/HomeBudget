@@ -1321,12 +1321,10 @@ function initDiaryModal() {
     renderProjectionTable();
   };
 }
+
 /* ================= INIT ================= */
 updateCategoryDropdown();
 updateEditCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
-  initDiaryModal();
-
-
-});
+initDiaryModal();
