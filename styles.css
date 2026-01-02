@@ -42,9 +42,8 @@ tr {
 .projection-selected {
   background-color: #e8f0ff;
 }
-
 .projection-match-highlight {
-  background: yellow;
+  background-color: yellow !important;
 }
 
 .frequency-legend {
