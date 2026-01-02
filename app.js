@@ -38,7 +38,7 @@ const MAX_PAST_NUDGE_DAYS = 7;
   /* ========= IndexDb code ====== */
   /* ================= DIARY DATABASE (IndexedDB) ================= */
 
-const DIARY_DB_NAME = "budgetAppDB";
+/*const DIARY_DB_NAME = "budgetAppDB";
 const DIARY_DB_VERSION = 1;
 const DIARY_STORE = "diaryEntries";
 
@@ -178,7 +178,7 @@ function addDiaryNote(isoDate, noteText) {
     request.onsuccess = () => resolve();
     request.onerror = () => reject(request.error);
   });
-}
+}*/
   /* ================= UTILS ================= */
 
 /*========*/
