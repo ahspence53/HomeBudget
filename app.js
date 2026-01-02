@@ -12,7 +12,7 @@ let scrollBeforeHelp = 0;
 let transactionSortAscending = true;
   let transactionSortMode = "date"; // "date" or "category"
   
-/* ================= DOM ================= */
+/* ================= DOM ================ */
 const txCategorySelect = document.getElementById("tx-category");
 const newCategoryInput = document.getElementById("new-category");
 const addCategoryButton = document.getElementById("add-category");
