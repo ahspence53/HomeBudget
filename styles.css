@@ -419,3 +419,9 @@ tr.freq-4weekly {
   right: 20px;
   top: 20px;
 }
+
+.highlight-pension {
+  font-weight: bold;
+  background-color: #f0fdf4; /* Optional: light green tint to make it pop */
+}
+
