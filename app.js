@@ -44,7 +44,7 @@ const MAX_PAST_NUDGE_DAYS = 7;
 /*const DIARY_DB_VERSION = 1;*/
 /*const DIARY_STORE = "diaryEntries";*/
 
-let diaryDB = null;
+/*let diaryDB = null;*/
 
 function openDiaryDB() {
   return new Promise((resolve, reject) => {
