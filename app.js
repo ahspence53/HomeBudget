@@ -1235,6 +1235,7 @@ async function openDiaryForDate(iso) {
 let activeDiaryDate = null;
 
 function initDiaryLauncher() {
+  console.log("Diary launcher initialising");
   const diaryBtn = document.getElementById("open-diary-btn");
   const datePicker = document.getElementById("diary-date-picker");
 
