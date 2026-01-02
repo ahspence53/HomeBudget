@@ -422,3 +422,6 @@ tr.freq-4weekly {
 #diary-date-picker {
   margin-left: 6px;
 }
+
+.hidden { display: none; }
+.modal-open { overflow: hidden; }
