@@ -425,3 +425,10 @@ tr.freq-4weekly {
   background-color: #f0fdf4; /* Optional: light green tint to make it pop */
 }
 
+.hidden {
+  display: none;
+}
+
+#diary-date-picker {
+  margin-left: 6px;
+}
