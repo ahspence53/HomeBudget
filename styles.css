@@ -31,7 +31,7 @@ tr {
 
 /* Weekend shading in 24-month projection */
 #projection-table tr.weekend-row {
-  background-color: #b1c4b5;
+  background-color: #d5d5db;
 }
 
 /* Highlight today's date */
