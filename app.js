@@ -41,8 +41,8 @@ const MAX_PAST_NUDGE_DAYS = 7;
 /* ================= DIARY DATABASE (IndexedDB) ================= */
 
 /*const DIARY_DB_NAME = "budgetAppDB";*/
-const DIARY_DB_VERSION = 1;
-const DIARY_STORE = "diaryEntries";
+/*const DIARY_DB_VERSION = 1;*/
+/*const DIARY_STORE = "diaryEntries";*/
 
 let diaryDB = null;
 
@@ -78,8 +78,7 @@ function openDiaryDB() {
 
 const DIARY_DB_NAME = "budgetAppDB";
 const DIARY_DB_VERSION = 1;
-const DIARY_STORE = "diaryEntries";
-
+ 
 let diaryDB = null;
 
 
