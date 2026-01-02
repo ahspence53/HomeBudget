@@ -44,7 +44,8 @@ const DIARY_STORE = "diaryEntries";
 
 let diaryDB = null;
 
-/*function openDiaryDB() {
+
+  function openDiaryDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DIARY_DB_NAME, DIARY_DB_VERSION);
 
