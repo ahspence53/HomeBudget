@@ -1181,32 +1181,26 @@ function initDiaryModal() {
 }
 
 function initDiaryLauncher() {
-  diaryButton = document.getElementById("open-diary-btn");
-  diaryDatePicker = document.getElementById("diary-date-picker");
+  const diaryBtn = document.getElementById("open-diary-btn");
+  const datePicker = document.getElementById("diary-date-picker");
 
-  if (!diaryButton || !diaryDatePicker) {
-    console.warn("Diary launcher elements missing");
-    return;
-  }
+  if (!diaryBtn || !datePicker) return;
 
-  // Default picker date = today
-  diaryDatePicker.value = toISO(new Date());
+  datePicker.value = toISO(new Date());
 
-  diaryButton.onclick = () => {
-    diaryDatePicker.classList.toggle("hidden");
-    diaryDatePicker.focus();
+  diaryBtn.onclick = e => {
+    e.preventDefault();        // 🔑 STOP form submit
+    datePicker.classList.toggle("hidden");
+    datePicker.focus();
   };
 
-  diaryDatePicker.onchange = async () => {
-    const iso = diaryDatePicker.value;
+  datePicker.onchange = e => {
+    e.preventDefault();        // 🔑 STOP form submit
+    const iso = datePicker.value;
     if (!iso) return;
 
+    datePicker.classList.add("hidden");
     openDiaryForDate(iso);
-
-    diaryDatePicker.classList.add("hidden");
-
-    // Open diary UI for selected date
-    await openDiaryForDate(iso);
   };
 }
   
