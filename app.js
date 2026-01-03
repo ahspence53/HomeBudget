@@ -1219,7 +1219,8 @@ updateEditCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
 
-openDiaryDB();        // non-blocking
-initDiaryModal();
-initDiaryLauncher();
+openDiaryDB();        // fire-and-forget
+initDiaryModal();     // wire modal buttons
+initDiaryLauncher();  // wire Diary button & date picker
+
 });
