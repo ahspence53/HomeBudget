@@ -1195,31 +1195,46 @@ function initDiaryLauncher() {
 
   if (!diaryBtn || !datePicker) return;
 
-  // Do NOT toggle visibility or focus manually
-  // Let the browser manage the date picker lifecycle
+  // Always initialise safely
+  datePicker.type = "date";
+  datePicker.value = toISO(new Date());
 
-  diaryBtn.onclick = (e) => {
+  diaryBtn.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // Set default date (today) each time
-    datePicker.value = toISO(new Date());
+    // Make picker visible just long enough to pick a date
+    datePicker.classList.remove("hidden");
 
-    // Programmatically open the native date picker
-    datePicker.click();
-  };
-
-  // Use CHANGE (not input) — avoids duplicate fires
-  datePicker.addEventListener("change", () => {
-    const iso = datePicker.value;
-    if (!iso) return;
-
-    // Defer diary open to next event loop turn
-    // Prevents browser UI lock (Chrome + Safari)
+    // Safari-safe: defer focus
     setTimeout(() => {
-      openDiaryForDate(iso);
+      datePicker.focus();
+
+      // Safari 17+ support
+      if (datePicker.showPicker) {
+        datePicker.showPicker();
+      }
     }, 0);
   });
+
+  // ONE-SHOT handler — prevents Safari lockups
+  datePicker.addEventListener(
+    "change",
+    () => {
+      const iso = datePicker.value;
+      if (!iso) return;
+
+      // 🔑 CRITICAL: fully release the date input
+      datePicker.blur();
+      datePicker.classList.add("hidden");
+
+      // Defer diary modal open until picker is gone
+      setTimeout(() => {
+        openDiaryForDate(iso);
+      }, 50);
+    },
+    { once: true }
+  );
 }
   
 /* ================= INIT ================= */
