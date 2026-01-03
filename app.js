@@ -1137,25 +1137,23 @@ function openDiaryForDate(iso) {
   diaryInput.value = "";
   diaryNotesList.innerHTML = "";
 
-  // Open modal immediately (never block UI)
   diaryModal.classList.remove("hidden");
   document.body.classList.add("modal-open");
 
-  // Load notes asynchronously AFTER open
-  if (!diaryDB) {
-    console.warn("Diary DB not ready yet");
-    return;
-  }
+  // 🔑 Load notes ASYNCHRONOUSLY, non-blocking
+  getDiaryNotesForDate(iso)
+    .then(notes => {
+      diaryNotesList.innerHTML = "";
 
-  getDiaryNotesForDate(iso).then(notes => {
-    diaryNotesList.innerHTML = "";
-
-    notes.forEach(note => {
-      const li = document.createElement("li");
-      li.textContent = note.noteText;
-      diaryNotesList.appendChild(li);
+      notes.forEach(note => {
+        const li = document.createElement("li");
+        li.textContent = note.noteText || note.text || "";
+        diaryNotesList.appendChild(li);
+      });
+    })
+    .catch(err => {
+      console.warn("Diary load failed (non-fatal)", err);
     });
-  });
 }
 
 // ---- Modal wiring
