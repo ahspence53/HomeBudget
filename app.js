@@ -1068,6 +1068,7 @@ const DIARY_STORE = "diaryEntries";
 
 let diaryDB = null;
 let activeDiaryDate = null;
+let diaryReady = false;
 
 // ---- Open DB
 function openDiaryDB() {
@@ -1086,9 +1087,10 @@ function openDiaryDB() {
     };
 
     request.onsuccess = () => {
-      diaryDB = request.result;
-      resolve(diaryDB);
-    };
+  diaryDB = request.result;
+  diaryReady = true;
+  resolve(diaryDB);
+};
 
     request.onerror = () => {
       console.warn("Diary DB unavailable");
@@ -1181,10 +1183,18 @@ function initDiaryLauncher() {
     picker.focus();
   };
 
-  picker.onchange = () => {
-    picker.classList.add("hidden");
-    openDiaryForDate(picker.value);
-  };
+  datePicker.onchange = async () => {
+  const iso = datePicker.value;
+  if (!iso) return;
+
+  if (!diaryReady) {
+    alert("Diary database not ready yet — please try again");
+    return;
+  }
+
+  datePicker.classList.add("hidden");
+  await openDiaryForDate(iso);
+};
 }
   
 /* ================= INIT ================= */
