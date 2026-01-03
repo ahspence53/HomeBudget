@@ -436,6 +436,15 @@ tr.freq-4weekly {
 .diary-date-picker.active {
   opacity: 1;
 }
+/* Diary date picker (hidden but iOS-interactive) */
+.diary-date-picker {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  z-index: 20000;
+}
 
 #open-diary-btn {
   position: fixed;
