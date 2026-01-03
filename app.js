@@ -1195,22 +1195,31 @@ function initDiaryLauncher() {
 
   if (!diaryBtn || !datePicker) return;
 
+  // Ensure picker never submits anything
+  datePicker.type = "date";
   datePicker.value = toISO(new Date());
 
-  diaryBtn.onclick = e => {
-    e.preventDefault();        // 🔑 STOP form submit
-    datePicker.classList.toggle("hidden");
+  diaryBtn.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    datePicker.classList.remove("hidden");
     datePicker.focus();
   };
 
-  datePicker.onchange = e => {
-    e.preventDefault();        // 🔑 STOP form submit
+  // Use input, not change (Safari-safe)
+  datePicker.addEventListener("input", () => {
     const iso = datePicker.value;
     if (!iso) return;
 
+    // Close picker immediately
     datePicker.classList.add("hidden");
-    openDiaryForDate(iso);
-  };
+
+    // Defer modal open to next tick (prevents UI lock)
+    setTimeout(() => {
+      openDiaryForDate(iso);
+    }, 0);
+  });
 }
   
 /* ================= INIT ================= */
