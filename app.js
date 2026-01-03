@@ -1196,41 +1196,31 @@ function initDiaryLauncher() {
   if (!diaryBtn || !datePicker) return;
 
   datePicker.type = "date";
-  datePicker.classList.add("hidden");
-  datePicker.value = toISO(new Date());
 
   diaryBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    e.stopPropagation();
 
-    // Reset picker state every time
+    // Reset picker
     datePicker.value = toISO(new Date());
-    datePicker.classList.remove("hidden");
 
-    // Remove any previous handler (important!)
-    datePicker.onchange = null;
+    // Make picker interactive for Safari
+    datePicker.classList.add("active");
 
-    // Safari-safe defer
+    // Required user-gesture timing
     setTimeout(() => {
       datePicker.focus();
-      if (datePicker.showPicker) {
-        datePicker.showPicker();
-      }
+      datePicker.click();
     }, 0);
 
-    // Attach handler fresh every click
     datePicker.onchange = () => {
       const iso = datePicker.value;
       if (!iso) return;
 
-      // Fully release Safari date picker
+      // Hide picker again
+      datePicker.classList.remove("active");
       datePicker.blur();
-      datePicker.classList.add("hidden");
 
-      // Defer modal open until picker is gone
-      setTimeout(() => {
-        openDiaryForDate(iso);
-      }, 50);
+      openDiaryForDate(iso);
     };
   });
 }
