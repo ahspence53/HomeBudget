@@ -436,3 +436,10 @@ tr.freq-4weekly {
 .diary-date-picker.active {
   opacity: 1;
 }
+
+#open-diary-btn {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  z-index: 10000;
+}
