@@ -1141,7 +1141,10 @@ async function getDiaryNotesForDate(isoDate) {
 }
 
 // ---- Modal open
-function openDiaryForDate(iso) {
+  function openDiaryForDate(date) {
+  alert("Diary for " + date);
+}
+/*function openDiaryForDate(iso) {
   activeDiaryDate = iso;
 
   diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
@@ -1165,7 +1168,8 @@ function openDiaryForDate(iso) {
     .catch(err => {
       console.warn("Diary load failed (non-fatal)", err);
     });
-}
+}*/
+  
 
 // ---- Modal wiring
 function initDiaryModal() {
@@ -1195,29 +1199,33 @@ function initDiaryLauncher() {
 
   if (!diaryBtn || !datePicker) return;
 
-  // Attach ONCE
   datePicker.addEventListener("change", () => {
     if (!datePicker.value) return;
 
     const selectedDate = datePicker.value;
 
-    // Clean up picker state FIRST
+    // HARD reset picker state
     datePicker.blur();
-    datePicker.value = "";
+    datePicker.disabled = true;
 
-    // Defer heavy DOM work (prevents iOS freeze)
-    setTimeout(() => {
-      openDiaryForDate(selectedDate);
-    }, 0);
+    // Allow Safari to fully exit picker mode
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        datePicker.disabled = false;
+        datePicker.value = "";
+
+        // NOW it is safe to open diary
+        setTimeout(() => {
+          openDiaryForDate(selectedDate);
+        }, 50);
+      });
+    });
   });
 
   diaryBtn.addEventListener("click", (e) => {
     e.preventDefault();
 
-    // Reset picker to today
     datePicker.value = new Date().toISOString().split("T")[0];
-
-    // Must be synchronous user gesture
     datePicker.focus();
     datePicker.click();
   });
