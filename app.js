@@ -1164,6 +1164,7 @@ async function getDiaryNotesForDate(isoDate) {
 // ---- Modal open
   
 function openDiaryForDate(iso) {
+  if (!date) return;
   activeDiaryDate = iso;
 
   diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
