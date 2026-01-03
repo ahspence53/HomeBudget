@@ -1195,33 +1195,28 @@ function initDiaryLauncher() {
 
   if (!diaryBtn || !datePicker) return;
 
-  datePicker.type = "date";
+  // Attach ONCE
+  datePicker.addEventListener("change", () => {
+    if (!datePicker.value) return;
+
+    const selectedDate = datePicker.value;
+
+    // Clean up immediately (prevents freeze)
+    datePicker.blur();
+    datePicker.value = "";
+
+    openDiaryForDate(selectedDate);
+  });
 
   diaryBtn.addEventListener("click", (e) => {
     e.preventDefault();
 
-    // Reset picker
-    datePicker.value = toISO(new Date());
+    // Always start at today
+    datePicker.value = new Date().toISOString().split("T")[0];
 
-    // Make picker interactive for Safari
-    datePicker.classList.add("active");
-
-    // Required user-gesture timing
-    setTimeout(() => {
-      datePicker.focus();
-      datePicker.click();
-    }, 0);
-
-    datePicker.onchange = () => {
-      const iso = datePicker.value;
-      if (!iso) return;
-
-      // Hide picker again
-      datePicker.classList.remove("active");
-      datePicker.blur();
-
-      openDiaryForDate(iso);
-    };
+    // Required for iOS
+    datePicker.focus();
+    datePicker.click();
   });
 }
   
