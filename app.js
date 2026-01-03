@@ -1130,23 +1130,32 @@ function getDiaryNotesForDate(isoDate) {
 }
 
 // ---- Modal open
-async function openDiaryForDate(iso) {
+function openDiaryForDate(iso) {
   activeDiaryDate = iso;
 
   diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
   diaryInput.value = "";
   diaryNotesList.innerHTML = "";
 
-  const notes = await getDiaryNotesForDate(iso);
-
-  notes.forEach(n => {
-    const li = document.createElement("li");
-    li.textContent = n.noteText;
-    diaryNotesList.appendChild(li);
-  });
-
+  // Open modal immediately (never block UI)
   diaryModal.classList.remove("hidden");
   document.body.classList.add("modal-open");
+
+  // Load notes asynchronously AFTER open
+  if (!diaryDB) {
+    console.warn("Diary DB not ready yet");
+    return;
+  }
+
+  getDiaryNotesForDate(iso).then(notes => {
+    diaryNotesList.innerHTML = "";
+
+    notes.forEach(note => {
+      const li = document.createElement("li");
+      li.textContent = note.noteText;
+      diaryNotesList.appendChild(li);
+    });
+  });
 }
 
 // ---- Modal wiring
@@ -1192,7 +1201,7 @@ function initDiaryLauncher() {
     const iso = diaryDatePicker.value;
     if (!iso) return;
 
-    activeDiaryDate = iso;
+    openDiaryForDate(iso);
 
     diaryDatePicker.classList.add("hidden");
 
