@@ -1100,9 +1100,16 @@ function openDiaryDB() {
     };
   });
 }
+// ------added by Alex
+  async function ensureDiaryReady() {
+  if (diaryReady && diaryDB) return;
+  await openDiaryDB();
+}
 
 // ---- Add note
-function addDiaryNote(isoDate, noteText) {
+async function addDiaryNote(isoDate, noteText) {
+  await ensureDiaryReady();
+
   return new Promise((resolve) => {
     const tx = diaryDB.transaction(DIARY_STORE, "readwrite");
     const store = tx.objectStore(DIARY_STORE);
@@ -1114,11 +1121,14 @@ function addDiaryNote(isoDate, noteText) {
     });
 
     tx.oncomplete = () => resolve();
+    tx.onerror = () => resolve(); // fail silently
   });
 }
 
 // ---- Get notes for date
-function getDiaryNotesForDate(isoDate) {
+async function getDiaryNotesForDate(isoDate) {
+  await ensureDiaryReady();
+
   return new Promise((resolve) => {
     const tx = diaryDB.transaction(DIARY_STORE, "readonly");
     const store = tx.objectStore(DIARY_STORE);
@@ -1126,6 +1136,7 @@ function getDiaryNotesForDate(isoDate) {
 
     const req = index.getAll(isoDate);
     req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => resolve([]); // never hang UI
   });
 }
 
