@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Home Budget Tracker</title>
-<meta name="viewport" content="width=device-width, initial-scale=1"
-<!-- next line added by Alex -->
-<meta http-equiv="Cache-Control" content="no-cache">
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <title>Home Budget Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-  <div id="floating-find" class="floating-find">
+
+<div id="floating-find" class="floating-find">
   <input id="projection-find-input" placeholder="Find (text or date)">
   <button id="projection-find-prev">◀</button>
   <button id="projection-find-next">▶</button>
@@ -29,18 +29,15 @@
     <input type="number" id="opening-balance" step="0.01">
   </label>
   <strong>3. </strong><button id="save-config">Save</button>
-  
-  
-  
 </section>
 
 <section class="categories">
   <input id="new-category" placeholder="New category">
   <button id="add-category">Add Category</button>
 </section>
+
 <section id="edit-category-section">
   <h3>Edit Category</h3>
-
   <select id="edit-category-select"></select>
   <input type="text" id="edit-category-name" placeholder="New category name">
   <button id="rename-category">Rename Category</button>
@@ -63,17 +60,13 @@
   <button id="add-transaction">Add Transaction</button>
 </section>
 
-  
-<hr style="border: none; height: 8px; background-color: #000000; margin: 15px 0;">
+<hr style="border:none;height:8px;background:#000;margin:15px 0;">
 
 <div class="frequency-legend">
-    <span>🔁 Monthly</span>
-    <span>📆 4-weekly</span>
-    <span style="font-weight: bold;"> You can SORT by - Date, Description or Category columns</span>
+  <span>🔁 Monthly</span>
+  <span>📆 4-weekly</span>
+  <span style="font-weight:bold;">You can SORT by Date, Description or Category</span>
 </div>
-
-
-
 
 <table id="transaction-table">
   <thead>
@@ -82,8 +75,8 @@
         Date <span id="date-sort-indicator">▲</span>
       </th>
       <th id="description-sort-header" style="cursor:pointer">
-  Description <span id="description-sort-indicator"></span>
-</th>
+        Description <span id="description-sort-indicator"></span>
+      </th>
       <th>Type</th>
       <th>Amount</th>
       <th id="category-sort-header" style="cursor:pointer">
@@ -95,8 +88,7 @@
   <tbody></tbody>
 </table>
 
-
-  <section id="import-export">
+<section id="import-export">
   <h3>Import / Export</h3>
 
   <div class="import-box">
@@ -109,92 +101,87 @@
     <button id="TopofApp">🔁 View Transactions</button>
     <button id="End">⬇️ End</button>
   </div>
-  
 
-    
-    <button id="salary-popup-btn">Salary -1 day balances</button>
-    <button id="negative-popup-btn">Negative balances</button>
-<div id="negative-popup" class="modal hidden">
-  <div class="modal-content">
-    <h3>Negative balances (24 months)</h3>
+  <button id="salary-popup-btn">Salary -1 day balances</button>
+  <button id="negative-popup-btn">Negative balances</button>
 
-    <table>
-      <tbody id="negative-popup-body"></tbody>
-    </table>
-
-    <button id="negative-popup-close">Close</button>
+  <div id="negative-popup" class="modal hidden">
+    <div class="modal-content">
+      <h3>Negative balances (24 months)</h3>
+      <table>
+        <tbody id="negative-popup-body"></tbody>
+      </table>
+      <button id="negative-popup-close">Close</button>
+    </div>
   </div>
-</div>
-    
-<div id="salary-popup" class="modal hidden">
-  <div class="modal-content">
-    <h3>Balances the day before salary</h3>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Balance</th>
-        </tr>
-      </thead>
-      <tbody id="salary-popup-body"></tbody>
-    </table>
-
-    <button id="salary-popup-close">Close</button>
+  <div id="salary-popup" class="modal hidden">
+    <div class="modal-content">
+      <h3>Balances the day before salary</h3>
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Balance</th></tr>
+        </thead>
+        <tbody id="salary-popup-body"></tbody>
+      </table>
+      <button id="salary-popup-close">Close</button>
+    </div>
   </div>
-</div>
 
   <div class="export-box">
-  <button id="export-projection-btn">
-    Export 24-month projection (CSV)
-  </button>
-</div>
+    <button id="export-projection-btn">
+      Export 24-month projection (CSV)
+    </button>
+  </div>
 
-<button id="open-diary-btn" type="button">Diary</button>
-<input type="date" id="diary-date-picker" class="hidden">
+  <!-- ✅ DIARY CONTROLS -->
+  <button id="open-diary-btn" type="button">Diary</button>
+  <input
+    type="date"
+    id="diary-date-picker"
+    class="hidden"
+    tabindex="-1"
+    form=""
+  >
 
-<div id="diary-modal" class="hidden">
-  <h3 id="diary-modal-title"></h3>
-  <ul id="diary-notes-list"></ul>
-  <textarea id="diary-note-input"></textarea>
-  <button id="diary-save-btn">Save</button>
-  <button id="diary-close-btn">Close</button>
-</div>
-    
+  <div id="diary-modal" class="hidden">
+    <h3 id="diary-modal-title"></h3>
+    <ul id="diary-notes-list"></ul>
+    <textarea id="diary-note-input"></textarea>
+    <button id="diary-save-btn">Save</button>
+    <button id="diary-close-btn">Close</button>
+  </div>
+
 </section>
-In the <b>24 Month Projection table </b>you can <b>Nudge</b> Expenses forward by <b>1 day</b> at  a time if they fall at <b>Weekends</b> or <b>Bank Holidays</b>, or if it hasn't yet been debited.
-<hr style="border: none; height: 8px; background-color: #000000; margin: 15px 0;">
-<h2 style="background-color: #008000; color: #ffffff; padding: 10px;">
-  📅 24-Month Projection 
-  <span style="margin-left: 600px;">
-    Home Budget Tracker 
-    <span style="font-size: 0.6em; font-weight: normal;">1.01 Dec 2025</span>
+
+<hr style="border:none;height:8px;background:#000;margin:15px 0;">
+
+<h2 style="background:#008000;color:#fff;padding:10px;">
+  📅 24-Month Projection
+  <span style="margin-left:600px;font-size:0.6em;font-weight:normal;">
+    Home Budget Tracker — 1.01 Dec 2025
   </span>
 </h2>
-
-
-
-
 
 <table id="projection-table">
   <thead>
     <tr>
-      <th>Date</th><th>Description</th><th>Income</th><th>Expense</th><th>Balance</th>
+      <th>Date</th>
+      <th>Description</th>
+      <th>Income</th>
+      <th>Expense</th>
+      <th>Balance</th>
     </tr>
   </thead>
   <tbody></tbody>
 </table>
+
 <div id="help-modal" class="modal hidden">
   <div class="modal-content">
     <button id="help-close" class="modal-close">Close</button>
-    <iframe
-      src="doc.html"
-      title="Help"
-      class="modal-frame">
-    </iframe>
+    <iframe src="doc.html" title="Help" class="modal-frame"></iframe>
   </div>
 </div>
-  
 
 <button id="back-to-top" class="floating-top">📅24 Month Projection</button>
 
