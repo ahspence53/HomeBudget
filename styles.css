@@ -428,8 +428,11 @@ tr.freq-4weekly {
 
 .diary-date-picker {
   position: fixed;
-  top: -1000px;
-  left: -1000px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   opacity: 0;
-  pointer-events: none;
+}
+.diary-date-picker.active {
+  opacity: 1;
 }
