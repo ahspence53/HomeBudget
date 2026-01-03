@@ -1069,6 +1069,8 @@ const DIARY_STORE = "diaryEntries";
 let diaryDB = null;
 let activeDiaryDate = null;
 let diaryReady = false;
+let diaryDatePicker = null;
+let diaryButton = null;
 
 // ---- Open DB
 function openDiaryDB() {
@@ -1169,32 +1171,34 @@ function initDiaryModal() {
   };
 }
 
-// ---- Diary button + date picker
 function initDiaryLauncher() {
-  const diaryBtn = document.getElementById("open-diary-btn");
-  const picker = document.getElementById("diary-date-picker");
+  diaryButton = document.getElementById("open-diary-btn");
+  diaryDatePicker = document.getElementById("diary-date-picker");
 
-  if (!diaryBtn || !picker) return;
-
-  picker.value = toISO(new Date());
-
-  diaryBtn.onclick = () => {
-    picker.classList.toggle("hidden");
-    picker.focus();
-  };
-
-  datePicker.onchange = async () => {
-  const iso = datePicker.value;
-  if (!iso) return;
-
-  if (!diaryReady) {
-    alert("Diary database not ready yet — please try again");
+  if (!diaryButton || !diaryDatePicker) {
+    console.warn("Diary launcher elements missing");
     return;
   }
 
-  datePicker.classList.add("hidden");
-  await openDiaryForDate(iso);
-};
+  // Default picker date = today
+  diaryDatePicker.value = toISO(new Date());
+
+  diaryButton.onclick = () => {
+    diaryDatePicker.classList.toggle("hidden");
+    diaryDatePicker.focus();
+  };
+
+  diaryDatePicker.onchange = async () => {
+    const iso = diaryDatePicker.value;
+    if (!iso) return;
+
+    activeDiaryDate = iso;
+
+    diaryDatePicker.classList.add("hidden");
+
+    // Open diary UI for selected date
+    await openDiaryForDate(iso);
+  };
 }
   
 /* ================= INIT ================= */
