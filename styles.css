@@ -453,9 +453,7 @@ tr.freq-4weekly {
   z-index: 10000;
 }
 
+
 #open-diary-btn {
-  bottom: 72px;
-}
-#open-diary-btn {
-  bottom: 80px;
+  bottom: 800px;
 }
