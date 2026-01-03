@@ -1162,10 +1162,8 @@ async function getDiaryNotesForDate(isoDate) {
 }
 
 // ---- Modal open
-  function openDiaryForDate(date) {
-  alert("Diary for " + date);
-}
-/*function openDiaryForDate(iso) {
+  
+function openDiaryForDate(iso) {
   activeDiaryDate = iso;
 
   diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
@@ -1189,7 +1187,7 @@ async function getDiaryNotesForDate(isoDate) {
     .catch(err => {
       console.warn("Diary load failed (non-fatal)", err);
     });
-}*/
+}
   
 
 // ---- Modal wiring
@@ -1237,7 +1235,7 @@ function initDiaryLauncher() {
 
         // NOW it is safe to open diary
         setTimeout(() => {
-          openDiaryForDate(selectedDate);
+          scheduleDiaryOpen(selectedDate);
         }, 50);
       });
     });
