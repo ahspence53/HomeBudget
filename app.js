@@ -1214,7 +1214,7 @@ function initDiaryLauncher() {
 }
   
 /* ================= INIT ================= */
-debugger updateCategoryDropdown();
+updateCategoryDropdown();
 updateEditCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
