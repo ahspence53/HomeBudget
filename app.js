@@ -1060,11 +1060,140 @@ salaryPopup.addEventListener("click", e => {
   // Highlight clicked row
   row.classList.add("projection-selected");
 });
+/* ================= DIARY (IndexedDB) ================= */
 
+const DIARY_DB_NAME = "budgetDiaryDB";
+const DIARY_DB_VERSION = 1;
+const DIARY_STORE = "diaryEntries";
+
+let diaryDB = null;
+let activeDiaryDate = null;
+
+// ---- Open DB
+function openDiaryDB() {
+  return new Promise((resolve) => {
+    const request = indexedDB.open(DIARY_DB_NAME, DIARY_DB_VERSION);
+
+    request.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(DIARY_STORE)) {
+        const store = db.createObjectStore(DIARY_STORE, {
+          keyPath: "id",
+          autoIncrement: true
+        });
+        store.createIndex("isoDate", "isoDate", { unique: false });
+      }
+    };
+
+    request.onsuccess = () => {
+      diaryDB = request.result;
+      resolve(diaryDB);
+    };
+
+    request.onerror = () => {
+      console.warn("Diary DB unavailable");
+      resolve(null); // never break app
+    };
+  });
+}
+
+// ---- Add note
+function addDiaryNote(isoDate, noteText) {
+  return new Promise((resolve) => {
+    const tx = diaryDB.transaction(DIARY_STORE, "readwrite");
+    const store = tx.objectStore(DIARY_STORE);
+
+    store.add({
+      isoDate,
+      noteText,
+      createdAt: Date.now()
+    });
+
+    tx.oncomplete = () => resolve();
+  });
+}
+
+// ---- Get notes for date
+function getDiaryNotesForDate(isoDate) {
+  return new Promise((resolve) => {
+    const tx = diaryDB.transaction(DIARY_STORE, "readonly");
+    const store = tx.objectStore(DIARY_STORE);
+    const index = store.index("isoDate");
+
+    const req = index.getAll(isoDate);
+    req.onsuccess = () => resolve(req.result || []);
+  });
+}
+
+// ---- Modal open
+async function openDiaryForDate(iso) {
+  activeDiaryDate = iso;
+
+  diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
+  diaryInput.value = "";
+  diaryNotesList.innerHTML = "";
+
+  const notes = await getDiaryNotesForDate(iso);
+
+  notes.forEach(n => {
+    const li = document.createElement("li");
+    li.textContent = n.noteText;
+    diaryNotesList.appendChild(li);
+  });
+
+  diaryModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+
+// ---- Modal wiring
+function initDiaryModal() {
+  diaryModal = document.getElementById("diary-modal");
+  diaryModalTitle = document.getElementById("diary-modal-title");
+  diaryNotesList = document.getElementById("diary-notes-list");
+  diaryInput = document.getElementById("diary-note-input");
+  diarySaveBtn = document.getElementById("diary-save-btn");
+  diaryCloseBtn = document.getElementById("diary-close-btn");
+
+  diaryCloseBtn.onclick = () => {
+    diaryModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  };
+
+  diarySaveBtn.onclick = async () => {
+    if (!activeDiaryDate || !diaryInput.value.trim()) return;
+    await addDiaryNote(activeDiaryDate, diaryInput.value.trim());
+    diaryModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  };
+}
+
+// ---- Diary button + date picker
+function initDiaryLauncher() {
+  const diaryBtn = document.getElementById("open-diary-btn");
+  const picker = document.getElementById("diary-date-picker");
+
+  if (!diaryBtn || !picker) return;
+
+  picker.value = toISO(new Date());
+
+  diaryBtn.onclick = () => {
+    picker.classList.toggle("hidden");
+    picker.focus();
+  };
+
+  picker.onchange = () => {
+    picker.classList.add("hidden");
+    openDiaryForDate(picker.value);
+  };
+}
   
 /* ================= INIT ================= */
 updateCategoryDropdown();
 updateEditCategoryDropdown();
 renderTransactionTable();
 renderProjectionTable();
+
+openDiaryDB();        // non-blocking
+initDiaryModal();
+initDiaryLauncher();
 });
