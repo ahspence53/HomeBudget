@@ -35,6 +35,27 @@ const editCategorySelect = document.getElementById("edit-category-select");
 const editCategoryInput = document.getElementById("edit-category-name");
 const renameCategoryButton = document.getElementById("rename-category");
 const MAX_PAST_NUDGE_DAYS = 7;
+
+/* ========added for diary==========*/
+  let pendingDiaryDate = null;
+let diaryOpenScheduled = false;
+
+function scheduleDiaryOpen(date) {
+  pendingDiaryDate = date;
+
+  if (diaryOpenScheduled) return;
+  diaryOpenScheduled = true;
+
+  setTimeout(() => {
+    diaryOpenScheduled = false;
+
+    if (pendingDiaryDate) {
+      openDiaryForDate(pendingDiaryDate);
+      pendingDiaryDate = null;
+    }
+  }, 150); // enough time for iOS to fully exit picker
+}
+  
 /* ============================================== */
 /* added edit category code*/
   renameCategoryButton.onclick = () => {
