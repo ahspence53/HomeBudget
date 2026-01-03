@@ -1201,20 +1201,23 @@ function initDiaryLauncher() {
 
     const selectedDate = datePicker.value;
 
-    // Clean up immediately (prevents freeze)
+    // Clean up picker state FIRST
     datePicker.blur();
     datePicker.value = "";
 
-    openDiaryForDate(selectedDate);
+    // Defer heavy DOM work (prevents iOS freeze)
+    setTimeout(() => {
+      openDiaryForDate(selectedDate);
+    }, 0);
   });
 
   diaryBtn.addEventListener("click", (e) => {
     e.preventDefault();
 
-    // Always start at today
+    // Reset picker to today
     datePicker.value = new Date().toISOString().split("T")[0];
 
-    // Required for iOS
+    // Must be synchronous user gesture
     datePicker.focus();
     datePicker.click();
   });
