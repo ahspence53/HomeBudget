@@ -73,10 +73,8 @@ let diaryOpenScheduled = false;
   alert(`Category "${oldName}" renamed to "${newName}"`);
 };
 /* ================= UTILS ================= */
-function txId(tx) {
-  return `${tx.date}|${tx.frequency}|${tx.description}|${tx.amount}|${tx.type}`;
-}
-/* =================================================== */
+
+ */
 function nudgeKey(id, iso) {
   return `${id}|${iso}`;
 }
@@ -124,11 +122,8 @@ function getEffectiveDayOfMonth(tx) {
 
   return d.getDate();
 }
-  
-/* =================================================== */
-function saveNudges() {
-  localStorage.setItem("nudges", JSON.stringify(nudges));
-}
+ 
+
 /* =================================================== */
   function toISO(d) {
   if (!d) return "";
@@ -1108,10 +1103,14 @@ function openCalendar() {
   calMonth = now.getMonth();
   renderCalendar();
   overlay.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+
 }
 
 function closeCalendar() {
   overlay.classList.add("hidden");
+ document.body.classList.remove("modal-open");
+
 }
 
 function renderCalendar() {
