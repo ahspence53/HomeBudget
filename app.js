@@ -1182,7 +1182,8 @@ async function getDiaryNotesForDate(isoDate) {
 // ---- Modal open
   
 function openDiaryForDate(iso) {
-  if (!date) return;
+  if (!iso) return;
+
   activeDiaryDate = iso;
 
   diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
@@ -1192,7 +1193,7 @@ function openDiaryForDate(iso) {
   diaryModal.classList.remove("hidden");
   document.body.classList.add("modal-open");
 
-  // 🔑 Load notes ASYNCHRONOUSLY, non-blocking
+  // Load notes asynchronously (non-blocking)
   getDiaryNotesForDate(iso)
     .then(notes => {
       diaryNotesList.innerHTML = "";
