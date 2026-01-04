@@ -37,6 +37,27 @@ const renameCategoryButton = document.getElementById("rename-category");
 const MAX_PAST_NUDGE_DAYS = 7;
 
 /* ========added for diary==========*/
+
+  
+let pendingDiaryDate = null;
+let diaryOpenScheduled = false;
+
+function scheduleDiaryOpen(date) {
+  pendingDiaryDate = date;
+  if (diaryOpenScheduled) return;
+
+  diaryOpenScheduled = true;
+
+  setTimeout(() => {
+    diaryOpenScheduled = false;
+
+    if (pendingDiaryDate) {
+      openDiaryForDate(pendingDiaryDate);
+      pendingDiaryDate = null;
+    }
+  }, 250);
+}
+
   let pendingDiaryDate = null;
 let diaryOpenScheduled = false;
 
@@ -1238,33 +1259,29 @@ function initDiaryLauncher() {
 
   if (!diaryBtn || !datePicker) return;
 
+  datePicker.type = "date";
+
+  // ONE handler, attached once
   datePicker.addEventListener("change", () => {
-    if (!datePicker.value) return;
+    const iso = datePicker.value;
+    if (!iso) return;
 
-    const selectedDate = datePicker.value;
-
-    // HARD reset picker state
+    // Release Safari picker cleanly
     datePicker.blur();
-    datePicker.disabled = true;
+    datePicker.value = "";
 
-    // Allow Safari to fully exit picker mode
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        datePicker.disabled = false;
-        datePicker.value = "";
-
-        // NOW it is safe to open diary
-        setTimeout(() => {
-          scheduleDiaryOpen(selectedDate);
-        }, 50);
-      });
-    });
+    // Defer diary open WELL outside picker lifecycle
+    setTimeout(() => {
+      scheduleDiaryOpen(iso);
+    }, 200);
   });
 
   diaryBtn.addEventListener("click", (e) => {
     e.preventDefault();
 
     datePicker.value = new Date().toISOString().split("T")[0];
+
+    // Must be direct user gesture
     datePicker.focus();
     datePicker.click();
   });
