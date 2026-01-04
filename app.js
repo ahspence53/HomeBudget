@@ -1129,12 +1129,14 @@ function renderCalendar() {
   const iso =
     `${calYear}-${String(calMonth + 1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
 
-  console.log("Calendar date clicked", iso);
-
   closeCalendar();
 
-  // 🔴 TEMP: stop here
-  return;
+  // ✅ Safari-safe diary open (single, non-reentrant)
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      openDiaryForDate(iso);
+    });
+  });
 };
 
     grid.appendChild(btn);
