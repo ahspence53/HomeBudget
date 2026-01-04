@@ -1244,12 +1244,16 @@ async function getDiaryNotesForDate(isoDate) {
 // ---- Modal open
   
 function openDiaryForDate(iso) {
-  console.log("openDiaryForDate entered", iso);
+  console.log("Opening diary for", iso);
 
-  alert("Diary opening for " + iso);
+  activeDiaryDate = iso;
 
-  // TEMP: stop here
-  return;
+  diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
+  diaryInput.value = "";
+  diaryNotesList.innerHTML = "";
+
+  diaryModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
 }
   
 
