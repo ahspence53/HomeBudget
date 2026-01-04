@@ -1244,33 +1244,12 @@ async function getDiaryNotesForDate(isoDate) {
 // ---- Modal open
   
 function openDiaryForDate(iso) {
-  if (!iso) return;
+  console.log("openDiaryForDate entered", iso);
 
-  activeDiaryDate = iso;
+  alert("Diary opening for " + iso);
 
-  // 🔑 IMPORTANT: do NOT touch body or modal yet
-  diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
-  diaryInput.value = "";
-  diaryNotesList.innerHTML = "";
-
-  // Allow Safari to fully settle before opening modal
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      diaryModal.classList.remove("hidden");
-      document.body.classList.add("modal-open");
-    });
-  });
-
-  getDiaryNotesForDate(iso)
-    .then(notes => {
-      diaryNotesList.innerHTML = "";
-      notes.forEach(note => {
-        const li = document.createElement("li");
-        li.textContent = note.noteText || note.text || "";
-        diaryNotesList.appendChild(li);
-      });
-    })
-    .catch(() => {});
+  // TEMP: stop here
+  return;
 }
   
 
