@@ -1308,8 +1308,10 @@ function initDiaryLauncher() {
     }, 200);
   });
 
-  diaryBtn.addEventListener("click", (e) => {
-    e.preventDefault();
+ 
+    diaryBtn.addEventListener("click", () => {
+  openCalendar();
+});
 
     datePicker.value = new Date().toISOString().split("T")[0];
 
