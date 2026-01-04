@@ -720,7 +720,7 @@ document.getElementById("import-btn").onclick = () => {
 
   reader.onload = () => {
     const lines = reader.result.trim().split(/\r?\n/);
-    const header = lines.shift() ? .trim();
+    const header = lines.shift()?.trim();
     
     if (header !== "Date,Amount,Income/Expense,Category,Description,Frequency") {
       alert("Invalid CSV header");
