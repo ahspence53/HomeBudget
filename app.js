@@ -1171,27 +1171,29 @@ function openDiaryForDate(iso) {
 
   activeDiaryDate = iso;
 
+  // 🔑 IMPORTANT: do NOT touch body or modal yet
   diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
   diaryInput.value = "";
   diaryNotesList.innerHTML = "";
 
-  diaryModal.classList.remove("hidden");
-  document.body.classList.add("modal-open");
+  // Allow Safari to fully settle before opening modal
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      diaryModal.classList.remove("hidden");
+      document.body.classList.add("modal-open");
+    });
+  });
 
-  // Load notes asynchronously (non-blocking)
   getDiaryNotesForDate(iso)
     .then(notes => {
       diaryNotesList.innerHTML = "";
-
       notes.forEach(note => {
         const li = document.createElement("li");
         li.textContent = note.noteText || note.text || "";
         diaryNotesList.appendChild(li);
       });
     })
-    .catch(err => {
-      console.warn("Diary load failed (non-fatal)", err);
-    });
+    .catch(() => {});
 }
   
 
