@@ -74,7 +74,7 @@ let diaryOpenScheduled = false;
 };
 /* ================= UTILS ================= */
 
- */
+ 
 function nudgeKey(id, iso) {
   return `${id}|${iso}`;
 }
