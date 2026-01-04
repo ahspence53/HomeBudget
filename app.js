@@ -704,17 +704,8 @@ if (window.visualViewport) {
 // initial position
 lockFindBar();
 /* ================= CSV IMPORT (AUTO CATEGORY) ================= */
+/* ================= CSV IMPORT (AUTO CATEGORY) ================= */
 const csvInput = document.getElementById("csv-import");
-document.getElementById("import-btn").onclick = () => {
-  // 🔑 CRITICAL: release all modals before file picker
-  document.body.classList.remove("modal-open");
-
-  if (!csvInput.files.length) {
-    alert("Choose CSV");
-    return;
-  }
-
-  const csvInput = document.getElementById("csv-import");
 
 document.getElementById("import-btn").onclick = () => {
   document.body.classList.remove("modal-open");
@@ -724,13 +715,14 @@ document.getElementById("import-btn").onclick = () => {
     return;
   }
 
-  const rows = csvInput.files[0];
+  const file = csvInput.files[0];
   const reader = new FileReader();
 
   reader.onload = () => {
     const lines = reader.result.trim().split(/\r?\n/);
-    if (lines.shift().trim() !==
-        "Date,Amount,Income/Expense,Category,Description,Frequency") {
+    const header = lines.shift() ? .trim();
+    
+    if (header !== "Date,Amount,Income/Expense,Category,Description,Frequency") {
       alert("Invalid CSV header");
       return;
     }
@@ -739,14 +731,14 @@ document.getElementById("import-btn").onclick = () => {
     transactions = [];
 
     lines.forEach(line => {
-      const [date,amount,typeRaw,cat,desc,freq] = line.split(",");
-      if (!categories.includes(cat)) categories.push(cat);
+      const parts = line.split(",");
+      if (parts.length < 6) return; // Skip empty/broken lines
+
+      const [date, amount, typeRaw, cat, desc, freq] = parts;
+      if (!categories.includes(cat.trim())) categories.push(cat.trim());
 
       const normalizedType = typeRaw.trim().toLowerCase();
-      if (normalizedType !== "income" && normalizedType !== "expense") {
-        throw new Error(`Invalid Income/Expense value: "${typeRaw}"`);
-      }
-
+      
       transactions.push({
         date: date.trim(),
         description: desc.trim(),
@@ -764,10 +756,12 @@ document.getElementById("import-btn").onclick = () => {
     updateEditCategoryDropdown();
     renderTransactionTable();
     renderProjectionTable();
+    alert("Import Successful");
   };
 
-  reader.readAsText(rows);
-};
+  reader.readAsText(file);
+}; // <--- This was the missing brace!
+
 
 /* ================= EXPORT 24-MONTH PROJECTION ================= */
 
