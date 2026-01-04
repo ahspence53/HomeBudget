@@ -1161,25 +1161,7 @@ document.getElementById("cal-next").onclick = () => {
   renderCalendar();
 };
   
-function scheduleDiaryOpen(date) {
-  console.log("Scheduling diary for", date);
 
-  pendingDiaryDate = date;
-
-  if (diaryOpenScheduled) return;
-  diaryOpenScheduled = true;
-
-  setTimeout(() => {
-    console.log("Opening diary for", pendingDiaryDate);
-
-    diaryOpenScheduled = false;
-
-    if (pendingDiaryDate) {
-      openDiaryForDate(pendingDiaryDate);
-      pendingDiaryDate = null;
-    }
-  }, 150);
-}
 // ---- Open DB
 function openDiaryDB() {
   return new Promise((resolve) => {
