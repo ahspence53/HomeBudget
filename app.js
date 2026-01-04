@@ -1077,6 +1077,72 @@ let activeDiaryDate = null;
 let diaryReady = false;
 let diaryDatePicker = null;
 let diaryButton = null;
+
+  let calYear, calMonth;
+
+const overlay = document.getElementById("calendar-overlay");
+const grid = document.getElementById("cal-grid");
+const title = document.getElementById("cal-title");
+
+function openCalendar() {
+  const now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+  renderCalendar();
+  overlay.classList.remove("hidden");
+}
+
+function closeCalendar() {
+  overlay.classList.add("hidden");
+}
+
+function renderCalendar() {
+  grid.innerHTML = "";
+
+  const first = new Date(calYear, calMonth, 1);
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const startDay = first.getDay();
+
+  title.textContent =
+    first.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+
+  for (let i = 0; i < startDay; i++) {
+    grid.appendChild(document.createElement("div"));
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const btn = document.createElement("button");
+    btn.textContent = d;
+
+    btn.onclick = () => {
+      const iso =
+        `${calYear}-${String(calMonth + 1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+      closeCalendar();
+      scheduleDiaryOpen(iso);
+    };
+
+    grid.appendChild(btn);
+  }
+}
+
+document.getElementById("cal-prev").onclick = () => {
+  calMonth--;
+  if (calMonth < 0) {
+    calMonth = 11;
+    calYear--;
+  }
+  renderCalendar();
+};
+
+document.getElementById("cal-next").onclick = () => {
+  calMonth++;
+  if (calMonth > 11) {
+    calMonth = 0;
+    calYear++;
+  }
+  renderCalendar();
+};
+  
 function scheduleDiaryOpen(date) {
   console.log("Scheduling diary for", date);
 
