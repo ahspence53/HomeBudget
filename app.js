@@ -1233,7 +1233,32 @@ async function getDiaryNotesForDate(isoDate) {
 // ---- Modal open
   
 function openDiaryForDate(iso) {
-  alert("Diary opening for " + iso);
+  if (!iso) return;
+
+  activeDiaryDate = iso;
+
+  diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
+  diaryInput.value = "";
+  diaryNotesList.innerHTML = "";
+
+  // 🔴 CRITICAL: delay body locking until AFTER modal is visible
+  diaryModal.classList.remove("hidden");
+
+  // Safari-safe body lock
+  setTimeout(() => {
+    document.body.classList.add("modal-open");
+  }, 0);
+
+  getDiaryNotesForDate(iso)
+    .then(notes => {
+      diaryNotesList.innerHTML = "";
+      notes.forEach(note => {
+        const li = document.createElement("li");
+        li.textContent = note.noteText || "";
+        diaryNotesList.appendChild(li);
+      });
+    })
+    .catch(() => {});
 }
   
 
