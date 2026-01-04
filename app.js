@@ -719,48 +719,56 @@ document.getElementById("import-btn").onclick = () => {
     return;
   }
 
-  const rows = csvInput.files[0];
-  const reader = new FileReader();
-  ...
-};
+  const csvInput = document.getElementById("csv-import");
+
+document.getElementById("import-btn").onclick = () => {
+  document.body.classList.remove("modal-open");
+
+  if (!csvInput.files.length) {
+    alert("Choose CSV");
+    return;
+  }
+
   const rows = csvInput.files[0];
   const reader = new FileReader();
 
   reader.onload = () => {
     const lines = reader.result.trim().split(/\r?\n/);
-    if (lines.shift().trim() !== "Date,Amount,Income/Expense,Category,Description,Frequency") {
-      return alert("Invalid CSV header");
+    if (lines.shift().trim() !==
+        "Date,Amount,Income/Expense,Category,Description,Frequency") {
+      alert("Invalid CSV header");
+      return;
     }
 
     categories = [...new Set(categories)];
     transactions = [];
 
-    lines.forEach(line=>{
+    lines.forEach(line => {
       const [date,amount,typeRaw,cat,desc,freq] = line.split(",");
       if (!categories.includes(cat)) categories.push(cat);
+
       const normalizedType = typeRaw.trim().toLowerCase();
+      if (normalizedType !== "income" && normalizedType !== "expense") {
+        throw new Error(`Invalid Income/Expense value: "${typeRaw}"`);
+      }
 
-if (normalizedType !== "income" && normalizedType !== "expense") {
-  throw new Error(`Invalid Income/Expense value: "${typeRaw}"`);
-}
-
-transactions.push({
-  date: date.trim(),
-  description: desc.trim(),
-  category: cat.trim(),
-  amount: parseFloat(amount),
-  type: normalizedType,
-  frequency: freq.trim().toLowerCase()
-});
+      transactions.push({
+        date: date.trim(),
+        description: desc.trim(),
+        category: cat.trim(),
+        amount: parseFloat(amount),
+        type: normalizedType,
+        frequency: freq.trim().toLowerCase()
+      });
     });
 
     localStorage.setItem("categories", JSON.stringify(categories));
     localStorage.setItem("transactions", JSON.stringify(transactions));
+
     updateCategoryDropdown();
     updateEditCategoryDropdown();
     renderTransactionTable();
     renderProjectionTable();
-    /*alert("CSV import successful");*/
   };
 
   reader.readAsText(rows);
