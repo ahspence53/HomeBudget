@@ -38,7 +38,7 @@ const MAX_PAST_NUDGE_DAYS = 7;
 
 /* ========added for diary==========*/
 
-/*  
+
 let pendingDiaryDate = null;
 let diaryOpenScheduled = false;
 
@@ -57,7 +57,7 @@ function scheduleDiaryOpen(date) {
     }
   }, 250);
 }
-*/
+
 
   let pendingDiaryDate = null;
 let diaryOpenScheduled = false;
