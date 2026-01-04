@@ -458,3 +458,48 @@ tr.freq-4weekly {
   bottom: 700px;
   right: 50px;
 }
+
+#calendar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20000;
+}
+
+#calendar-overlay.hidden {
+  display: none;
+}
+
+#calendar {
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  width: 280px;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-grid button {
+  padding: 6px;
+  border: none;
+  background: #eee;
+  border-radius: 4px;
+}
+
+.calendar-grid button:hover {
+  background: #ddd;
+}
