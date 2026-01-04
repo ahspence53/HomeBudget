@@ -1233,16 +1233,7 @@ async function getDiaryNotesForDate(isoDate) {
 // ---- Modal open
   
 function openDiaryForDate(iso) {
-  console.log("Opening diary for", iso);
-
-  activeDiaryDate = iso;
-
-  diaryModalTitle.textContent = `Diary — ${formatDate(iso)}`;
-  diaryInput.value = "";
-  diaryNotesList.innerHTML = "";
-
-  diaryModal.classList.remove("hidden");
-  document.body.classList.add("modal-open");
+  alert("Diary opening for " + iso);
 }
   
 
