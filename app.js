@@ -41,43 +41,6 @@ const MAX_PAST_NUDGE_DAYS = 7;
 
 let pendingDiaryDate = null;
 let diaryOpenScheduled = false;
-
-function scheduleDiaryOpen(date) {
-  pendingDiaryDate = date;
-  if (diaryOpenScheduled) return;
-
-  diaryOpenScheduled = true;
-
-  setTimeout(() => {
-    diaryOpenScheduled = false;
-
-    if (pendingDiaryDate) {
-      openDiaryForDate(pendingDiaryDate);
-      pendingDiaryDate = null;
-    }
-  }, 250);
-}
-
-
-  let pendingDiaryDate = null;
-let diaryOpenScheduled = false;
-
-function scheduleDiaryOpen(date) {
-  pendingDiaryDate = date;
-
-  if (diaryOpenScheduled) return;
-  diaryOpenScheduled = true;
-
-  setTimeout(() => {
-    diaryOpenScheduled = false;
-
-    if (pendingDiaryDate) {
-      openDiaryForDate(pendingDiaryDate);
-      pendingDiaryDate = null;
-    }
-  }, 150); // enough time for iOS to fully exit picker
-}
-  
 /* ============================================== */
 /* added edit category code*/
   renameCategoryButton.onclick = () => {
