@@ -711,8 +711,18 @@ lockFindBar();
 /* ================= CSV IMPORT (AUTO CATEGORY) ================= */
 const csvInput = document.getElementById("csv-import");
 document.getElementById("import-btn").onclick = () => {
-  if (!csvInput.files.length) return alert("Choose CSV");
+  // 🔑 CRITICAL: release all modals before file picker
+  document.body.classList.remove("modal-open");
 
+  if (!csvInput.files.length) {
+    alert("Choose CSV");
+    return;
+  }
+
+  const rows = csvInput.files[0];
+  const reader = new FileReader();
+  ...
+};
   const rows = csvInput.files[0];
   const reader = new FileReader();
 
@@ -1287,37 +1297,12 @@ function initDiaryModal() {
 
 function initDiaryLauncher() {
   const diaryBtn = document.getElementById("open-diary-btn");
-  const datePicker = document.getElementById("diary-date-picker");
+  if (!diaryBtn) return;
 
-  if (!diaryBtn || !datePicker) return;
-
-  datePicker.type = "date";
-
-  // ONE handler, attached once
-  datePicker.addEventListener("change", () => {
-    const iso = datePicker.value;
-    if (!iso) return;
-
-    // Release Safari picker cleanly
-    datePicker.blur();
-    datePicker.value = "";
-
-    // Defer diary open WELL outside picker lifecycle
-    setTimeout(() => {
-      scheduleDiaryOpen(iso);
-    }, 200);
-  });
-
- 
-    diaryBtn.addEventListener("click", () => {
-  openCalendar();
-});
-
-    datePicker.value = new Date().toISOString().split("T")[0];
-
-    // Must be direct user gesture
-    datePicker.focus();
-    datePicker.click();
+  diaryBtn.addEventListener("click", () => {
+    // Always close other modals first
+    document.body.classList.remove("modal-open");
+    openCalendar();
   });
 }
   
