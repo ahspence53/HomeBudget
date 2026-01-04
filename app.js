@@ -1126,11 +1126,16 @@ function renderCalendar() {
     btn.textContent = d;
 
     btn.onclick = () => {
-      const iso =
-        `${calYear}-${String(calMonth + 1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-      closeCalendar();
-      scheduleDiaryOpen(iso);
-    };
+  const iso =
+    `${calYear}-${String(calMonth + 1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+
+  console.log("Calendar date clicked", iso);
+
+  closeCalendar();
+
+  // 🔴 TEMP: stop here
+  return;
+};
 
     grid.appendChild(btn);
   }
